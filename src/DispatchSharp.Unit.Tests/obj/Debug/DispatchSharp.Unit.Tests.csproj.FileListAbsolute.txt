@@ -1,0 +1,9 @@
+C:\Gits\DispatchSharp\src\DispatchSharp.Unit.Tests\bin\Debug\DispatchSharp.Unit.Tests.dll
+C:\Gits\DispatchSharp\src\DispatchSharp.Unit.Tests\bin\Debug\DispatchSharp.Unit.Tests.pdb
+C:\Gits\DispatchSharp\src\DispatchSharp.Unit.Tests\bin\Debug\NSubstitute.dll
+C:\Gits\DispatchSharp\src\DispatchSharp.Unit.Tests\bin\Debug\nunit.framework.dll
+C:\Gits\DispatchSharp\src\DispatchSharp.Unit.Tests\bin\Debug\NSubstitute.xml
+C:\Gits\DispatchSharp\src\DispatchSharp.Unit.Tests\bin\Debug\nunit.framework.xml
+C:\Gits\DispatchSharp\src\DispatchSharp.Unit.Tests\obj\Debug\DispatchSharp.Unit.Tests.csprojResolveAssemblyReference.cache
+C:\Gits\DispatchSharp\src\DispatchSharp.Unit.Tests\obj\Debug\DispatchSharp.Unit.Tests.dll
+C:\Gits\DispatchSharp\src\DispatchSharp.Unit.Tests\obj\Debug\DispatchSharp.Unit.Tests.pdb

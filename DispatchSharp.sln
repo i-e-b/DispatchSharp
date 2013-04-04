@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DispatchSharp", "src\DispatchSharp\DispatchSharp.csproj", "{2CEB6361-6E20-4F3B-BDA3-49D6B4B90A37}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Implementation", "Implementation", "{27B9A070-0D95-48E3-A173-84FFE95D086D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{0BAF314E-A8EC-4DB1-BF82-2A928DEAE7BF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DispatchSharp.Unit.Tests", "src\DispatchSharp.Unit.Tests\DispatchSharp.Unit.Tests.csproj", "{D3FC124A-CF92-4632-968F-E6B7A14DFD0A}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2CEB6361-6E20-4F3B-BDA3-49D6B4B90A37}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2CEB6361-6E20-4F3B-BDA3-49D6B4B90A37}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2CEB6361-6E20-4F3B-BDA3-49D6B4B90A37}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2CEB6361-6E20-4F3B-BDA3-49D6B4B90A37}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3FC124A-CF92-4632-968F-E6B7A14DFD0A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3FC124A-CF92-4632-968F-E6B7A14DFD0A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3FC124A-CF92-4632-968F-E6B7A14DFD0A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3FC124A-CF92-4632-968F-E6B7A14DFD0A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{2CEB6361-6E20-4F3B-BDA3-49D6B4B90A37} = {27B9A070-0D95-48E3-A173-84FFE95D086D}
+		{D3FC124A-CF92-4632-968F-E6B7A14DFD0A} = {0BAF314E-A8EC-4DB1-BF82-2A928DEAE7BF}
+	EndGlobalSection
+EndGlobal
