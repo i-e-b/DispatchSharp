@@ -3,10 +3,10 @@
 namespace DispatchSharp.Unit.Tests
 {
 	[TestFixture]
-    public class Dummy
+    public class sketch
     {
 		[Test]
-		public void dummy_test()
+		public void quick_sketch_of_consuming_pool()
 		{
 			Assert.Inconclusive();
 		}

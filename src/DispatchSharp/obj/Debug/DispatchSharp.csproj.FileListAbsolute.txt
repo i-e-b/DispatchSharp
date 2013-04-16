@@ -1,5 +1,0 @@
-C:\Gits\DispatchSharp\src\DispatchSharp\bin\Debug\DispatchSharp.dll
-C:\Gits\DispatchSharp\src\DispatchSharp\bin\Debug\DispatchSharp.pdb
-C:\Gits\DispatchSharp\src\DispatchSharp\obj\Debug\DispatchSharp.csprojResolveAssemblyReference.cache
-C:\Gits\DispatchSharp\src\DispatchSharp\obj\Debug\DispatchSharp.dll
-C:\Gits\DispatchSharp\src\DispatchSharp\obj\Debug\DispatchSharp.pdb
