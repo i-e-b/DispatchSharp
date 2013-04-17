@@ -28,8 +28,7 @@ namespace DispatchSharp.Unit.Tests
 			{
 				if (_queue.Count < 1) return NoItem();
 
-				return new WorkQueueItem(_queue.Dequeue());
-				return true;
+				return new WorkQueueItem<T>(_queue.Dequeue());
 			}
 		}
 
@@ -54,17 +53,12 @@ namespace DispatchSharp.Unit.Tests
 			Item = item;
 		}
 
-		internal Action<T> finish;
-		internal Action<T> cancel;
-
 		public void Finish()
 		{
-			finish(Item);
 		}
 
 		public void Cancel()
 		{
-			cancel(Item);
 		}
 	}
 }

@@ -46,17 +46,19 @@ namespace DispatchSharp.Unit.Tests
 			while (_started == reference)
 			{
 				_dispatch.Available.WaitOne();
-				T work;
-				while (_provider.TryDequeue(out work))
+				IWorkQueueItem<T> work;
+				while ((work = _provider.TryDequeue()).HasItem)
 				{
 					foreach (var action in _dispatch.WorkActions().ToArray())
 					{
 						try
 						{
-							action(work);
+							action(work.Item);
+							work.Finish();
 						}
 						catch (Exception ex)
 						{
+							work.Cancel();
 							_dispatch.OnExceptions(ex);
 						}
 					}

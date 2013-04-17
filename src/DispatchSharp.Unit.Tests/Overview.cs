@@ -50,7 +50,7 @@ namespace DispatchSharp.Unit.Tests
 			_subject.AddWork("THROW");
 			_subject.AddWork("World");
 			Thread.Sleep(1000);
-			Assert.That(_output, Is.EquivalentTo(new[] { "Hello", "Woggle", "World" }));
+			Assert.That(_output, Is.EquivalentTo(new[] { "Hello", "WiggleWoggle", "World" }));
 		}
 	}
 }
