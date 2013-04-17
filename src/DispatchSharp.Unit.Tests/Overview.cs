@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace DispatchSharp.Unit.Tests
 {
 	[TestFixture]
-	public class sketch
+	public class Overview
 	{
 		IDispatch<string> _subject;
 		List<string> _output;
@@ -19,7 +19,7 @@ namespace DispatchSharp.Unit.Tests
 		}
 
 		[Test]
-		public void quick_sketch_of_consuming_pool()
+		public void consumers_process_all_added_work()
 		{
 			_subject.AddConsumer(s =>
 			{
@@ -44,7 +44,7 @@ namespace DispatchSharp.Unit.Tests
 				_output.Add(s);
 			});
 
-			_subject.Exceptions += (e,ex) => _output.Add(ex.SourceException.Message);
+			_subject.Exceptions += (e, ex) => _output.Add("Wiggle" + ex.SourceException.Message);
 
 			_subject.AddWork("Hello");
 			_subject.AddWork("THROW");

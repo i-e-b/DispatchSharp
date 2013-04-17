@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace DispatchSharp.Unit.Tests
@@ -21,16 +22,49 @@ namespace DispatchSharp.Unit.Tests
 			}
 		}
 
-		public bool TryDequeue(out T item)
+		public IWorkQueueItem<T> TryDequeue()
 		{
 			lock(_lockObject)
 			{
-				item = default(T);
-				if (_queue.Count < 1) return false;
+				if (_queue.Count < 1) return NoItem();
 
-				item = _queue.Dequeue();
+				return new WorkQueueItem(_queue.Dequeue());
 				return true;
 			}
+		}
+
+		IWorkQueueItem<T> NoItem()
+		{
+			return new WorkQueueItem<T>();
+		}
+	}
+
+	public class WorkQueueItem<T>:IWorkQueueItem<T>
+	{
+		public bool HasItem { get; set; }
+		public T Item { get; set; }
+
+		public WorkQueueItem()
+		{
+			HasItem = false;
+		}
+		public WorkQueueItem(T item)
+		{
+			HasItem = true;
+			Item = item;
+		}
+
+		internal Action<T> finish;
+		internal Action<T> cancel;
+
+		public void Finish()
+		{
+			finish(Item);
+		}
+
+		public void Cancel()
+		{
+			cancel(Item);
 		}
 	}
 }

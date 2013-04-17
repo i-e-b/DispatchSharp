@@ -3,6 +3,15 @@ namespace DispatchSharp.Unit.Tests
 	public interface IWorkProvider<T>
 	{
 		void Enqueue(T work);
-		bool TryDequeue(out T item);
+		IWorkQueueItem<T> TryDequeue();
+	}
+
+	public interface IWorkQueueItem<T>
+	{
+		bool HasItem { get; }
+		T Item { get; }
+
+		void Finish();
+		void Cancel();
 	}
 }
