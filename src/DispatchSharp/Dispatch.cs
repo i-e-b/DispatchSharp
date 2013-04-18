@@ -28,11 +28,11 @@ namespace DispatchSharp
 
 		public void AddConsumer(Action<T> action)
 		{
-			_pool.Start();
 			lock (_lockObject)
 			{
 				_workActions.Add(action);
 			}
+			_pool.Start();
 		}
 
 		public void AddWork(T work)
