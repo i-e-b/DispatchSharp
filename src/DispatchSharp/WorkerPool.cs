@@ -2,21 +2,24 @@ using System;
 using System.Linq;
 using System.Threading;
 
-namespace DispatchSharp.Unit.Tests
+#pragma warning disable 420
+namespace DispatchSharp
 {
 	public class WorkerPool<T> : IWorkerPool<T>
 	{
 		readonly string _name;
 		readonly Thread[] _pool;
 		IDispatch<T> _dispatch;
-		volatile object _started;
 		IWorkQueue<T> _queue;
+		volatile object _started;
+		volatile int _inflight;
 
 		public WorkerPool(string name, int threadCount)
 		{
 			_name = name ?? "UnnamedWorkerPool";
 			_pool = new Thread[threadCount];
 			_started = null;
+			_inflight = 0;
 		}
 
 		public void SetSource(IDispatch<T> dispatch, IWorkQueue<T> queue)
@@ -27,10 +30,8 @@ namespace DispatchSharp.Unit.Tests
 
 		public void Start()
 		{
-#pragma warning disable 420
 			var closedObject = new object();
 			if (Interlocked.CompareExchange(ref _started, closedObject, null) != null) return;
-#pragma warning restore 420
 
 			for (int i = 0; i < _pool.Length; i++)
 			{
@@ -43,16 +44,24 @@ namespace DispatchSharp.Unit.Tests
 			}
 		}
 
+		public void Stop()
+		{
+			_started = null;
+			while (_inflight > 0) Thread.Sleep(1);
+		}
+
 		void WorkLoop(object reference)
 		{
-			while (_started == reference)
+			Func<bool> running = () => _started == reference;
+			while (running())
 			{
 				_dispatch.Available.WaitOne();
 				IWorkQueueItem<T> work;
-				while ((work = _queue.TryDequeue()).HasItem)
+				while (running() && (work = _queue.TryDequeue()).HasItem)
 				{
 					foreach (var action in _dispatch.WorkActions().ToArray())
 					{
+						Interlocked.Increment(ref _inflight);
 						try
 						{
 							action(work.Item);
@@ -63,6 +72,7 @@ namespace DispatchSharp.Unit.Tests
 							work.Cancel();
 							_dispatch.OnExceptions(ex);
 						}
+						Interlocked.Decrement(ref _inflight);
 					}
 				}
 			}

@@ -12,6 +12,7 @@ namespace DispatchSharp.Unit.Tests
 	{
 		IDispatch<string> _subject;
 		List<string> _output;
+		readonly Random _random = new Random();
 
 		[SetUp]
 		public void setup()
@@ -20,17 +21,17 @@ namespace DispatchSharp.Unit.Tests
 			_subject = new Dispatch<string>(new InMemoryWorkQueue<string>(), new WorkerPool<string>("Test", 2));
 		}
 
-		[Test, Explicit]
+		[Test]
 		public void fuzzing_test ()
 		{
 			var input = RandomStrings(1000);
 			_subject.AddConsumer(s => _output.Add(s));
 			foreach (var str in input) { 
-				Thread.Sleep(1);
+				Thread.Sleep(_random.Next(0,10));
 				_subject.AddWork(str);
 			}
 
-			Thread.Sleep(1000);
+			_subject.Stop();
 			Assert.That(_output.Count, Is.EqualTo(1000));
 		}
 
@@ -69,14 +70,32 @@ namespace DispatchSharp.Unit.Tests
 			Assert.That(_output, Is.EquivalentTo(new[] { "Hello", "WiggleWoggle", "World" }));
 		}
 
+		[Test]
+		public void stopping_the_dispatcher_completes_all_current_actions_before_stopping()
+		{
+			_subject.AddConsumer(s =>
+			{
+				_output.Add("Start");
+				Thread.Sleep(2000);
+				_output.Add("End");
+			});
+
+			for (int i = 0; i < 100; i++) { _subject.AddWork(""); }
+
+			Thread.Sleep(1500);
+
+			_subject.Stop();
+
+			Assert.That(_output.Count(s=>s=="Start"), Is.EqualTo(_output.Count(s=>s=="End")));
+		}
+
 		IEnumerable<string> RandomStrings(int count)
 		{
 			var o = new List<string>();
-			var r = new Random();
 			var buf = new byte[10];
 			for (int i = 0; i < count; i++)
 			{
-				r.NextBytes(buf);
+				_random.NextBytes(buf);
 				o.Add(Encoding.ASCII.GetString(buf.Select(b => (byte)((b % 64) + 40)).ToArray()));
 			}
 			return o;

@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
 
-namespace DispatchSharp.Unit.Tests
+namespace DispatchSharp
 {
 	public class ExceptionEventArgs : EventArgs
 	{
@@ -13,10 +12,20 @@ namespace DispatchSharp.Unit.Tests
 	{
 		void AddConsumer(Action<T> action);
 		void AddWork(T work);
-		WaitHandle Available { get; }
+		IWaitHandle Available { get; }
 		IEnumerable<Action<T>> WorkActions();
 		event EventHandler<ExceptionEventArgs> Exceptions;
 
 		void OnExceptions(Exception e);
+
+		/// <summary> Stop consuming work and return when all in-progress work is complete </summary>
+		void Stop();
+	}
+
+	public interface IWaitHandle
+	{
+		bool WaitOne();
+		void Set();
+		void Reset();
 	}
 }

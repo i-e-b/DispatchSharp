@@ -1,4 +1,4 @@
-namespace DispatchSharp.Unit.Tests
+namespace DispatchSharp
 {
 	public interface IWorkQueue<T>
 	{

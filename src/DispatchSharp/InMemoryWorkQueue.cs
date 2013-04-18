@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace DispatchSharp.Unit.Tests
+namespace DispatchSharp
 {
 	public class InMemoryWorkQueue<T> : IWorkQueue<T>
 	{

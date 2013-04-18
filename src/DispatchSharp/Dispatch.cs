@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace DispatchSharp.Unit.Tests
+namespace DispatchSharp
 {
+
 	public class Dispatch<T> : IDispatch<T>
 	{
 		readonly IWorkQueue<T> _queue;
@@ -11,7 +12,7 @@ namespace DispatchSharp.Unit.Tests
 		readonly IList<Action<T>> _workActions;
 		readonly object _lockObject;
 
-		public WaitHandle Available { get; private set; }
+		public IWaitHandle Available { get; private set; }
 
 		public Dispatch(IWorkQueue<T> workQueue, IWorkerPool<T> workerPool)
 		{
@@ -21,7 +22,7 @@ namespace DispatchSharp.Unit.Tests
 			_lockObject = new object();
 			_workActions = new List<Action<T>>();
 
-			Available = new AutoResetEvent(true);
+			Available = new AutoResetEventWrapper(true);
 			_pool.SetSource(this, _queue);
 		}
 
@@ -37,7 +38,7 @@ namespace DispatchSharp.Unit.Tests
 		public void AddWork(T work)
 		{
 			_queue.Enqueue(work);
-			((AutoResetEvent)Available).Set();
+			Available.Set();
 		}
 
 		public IEnumerable<Action<T>> WorkActions()
@@ -56,7 +57,36 @@ namespace DispatchSharp.Unit.Tests
 		public void OnExceptions(Exception e)
 		{
 			var handler = Exceptions;
-			if (handler != null) handler(this, new ExceptionEventArgs{SourceException = e});
+			if (handler != null) handler(this, new ExceptionEventArgs { SourceException = e });
+		}
+
+		public void Stop()
+		{
+			_pool.Stop();
+		}
+
+		class AutoResetEventWrapper : IWaitHandle
+		{
+			readonly AutoResetEvent _base;
+
+			public AutoResetEventWrapper(bool initialSetting)
+			{
+				_base = new AutoResetEvent(initialSetting);
+			}
+			public bool WaitOne()
+			{
+				return _base.WaitOne();
+			}
+
+			public void Set()
+			{
+				_base.Set();
+			}
+
+			public void Reset()
+			{
+				_base.Reset();
+			}
 		}
 	}
 }
