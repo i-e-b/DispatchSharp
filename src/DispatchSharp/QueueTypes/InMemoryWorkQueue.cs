@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace DispatchSharp
+namespace DispatchSharp.QueueTypes
 {
 	public class InMemoryWorkQueue<T> : IWorkQueue<T>
 	{

@@ -39,7 +39,7 @@
     <Compile Include="IWorkerPool.cs" />
     <Compile Include="IWorkQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="InMemoryWorkQueue.cs" />
+    <Compile Include="QueueTypes\InMemoryWorkQueue.cs" />
     <Compile Include="WorkerPool.cs" />
   </ItemGroup>
   <ItemGroup />
