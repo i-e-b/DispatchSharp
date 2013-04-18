@@ -6,36 +6,38 @@ namespace DispatchSharp.Unit.Tests
 {
 	public class WorkerPool<T> : IWorkerPool<T>
 	{
+		readonly string _name;
 		readonly Thread[] _pool;
 		IDispatch<T> _dispatch;
 		volatile object _started;
-		IWorkProvider<T> _provider;
+		IWorkQueue<T> _queue;
 
-		public WorkerPool(int threadCount)
+		public WorkerPool(string name, int threadCount)
 		{
+			_name = name ?? "UnnamedWorkerPool";
 			_pool = new Thread[threadCount];
 			_started = null;
 		}
 
-		public void SetSource(IDispatch<T> dispatch, IWorkProvider<T> provider)
+		public void SetSource(IDispatch<T> dispatch, IWorkQueue<T> queue)
 		{
 			_dispatch = dispatch;
-			_provider = provider;
+			_queue = queue;
 		}
 
 		public void Start()
 		{
-			// ReSharper disable CSharpWarnings::CS0420
+#pragma warning disable 420
 			var closedObject = new object();
 			if (Interlocked.CompareExchange(ref _started, closedObject, null) != null) return;
-			// ReSharper restore CSharpWarnings::CS0420
+#pragma warning restore 420
 
 			for (int i = 0; i < _pool.Length; i++)
 			{
 				_pool[i] = new Thread(() => WorkLoop(closedObject))
 				{
 					IsBackground = true,
-					Name = "Pool_" + i
+					Name = _name + "_Thread_" + i
 				};
 				_pool[i].Start();
 			}
@@ -47,7 +49,7 @@ namespace DispatchSharp.Unit.Tests
 			{
 				_dispatch.Available.WaitOne();
 				IWorkQueueItem<T> work;
-				while ((work = _provider.TryDequeue()).HasItem)
+				while ((work = _queue.TryDequeue()).HasItem)
 				{
 					foreach (var action in _dispatch.WorkActions().ToArray())
 					{

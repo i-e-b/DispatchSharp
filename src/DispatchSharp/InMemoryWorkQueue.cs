@@ -1,14 +1,13 @@
-using System;
 using System.Collections.Generic;
 
 namespace DispatchSharp.Unit.Tests
 {
-	public class Provider<T> : IWorkProvider<T>
+	public class InMemoryWorkQueue<T> : IWorkQueue<T>
 	{
 		readonly object _lockObject;
 		readonly Queue<T> _queue;
 
-		public Provider()
+		public InMemoryWorkQueue()
 		{
 			_queue = new Queue<T>();
 			_lockObject = new object();

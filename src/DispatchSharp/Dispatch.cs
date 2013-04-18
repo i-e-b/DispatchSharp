@@ -6,23 +6,23 @@ namespace DispatchSharp.Unit.Tests
 {
 	public class Dispatch<T> : IDispatch<T>
 	{
-		readonly IWorkProvider<T> _provider;
+		readonly IWorkQueue<T> _queue;
 		readonly IWorkerPool<T> _pool;
 		readonly IList<Action<T>> _workActions;
 		readonly object _lockObject;
 
 		public WaitHandle Available { get; private set; }
 
-		public Dispatch(IWorkProvider<T> workProvider, IWorkerPool<T> workerPool)
+		public Dispatch(IWorkQueue<T> workQueue, IWorkerPool<T> workerPool)
 		{
-			_provider = workProvider;
+			_queue = workQueue;
 			_pool = workerPool;
 
 			_lockObject = new object();
 			_workActions = new List<Action<T>>();
 
 			Available = new AutoResetEvent(true);
-			_pool.SetSource(this, _provider);
+			_pool.SetSource(this, _queue);
 		}
 
 		public void AddConsumer(Action<T> action)
@@ -36,7 +36,7 @@ namespace DispatchSharp.Unit.Tests
 
 		public void AddWork(T work)
 		{
-			_provider.Enqueue(work);
+			_queue.Enqueue(work);
 			((AutoResetEvent)Available).Set();
 		}
 
