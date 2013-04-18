@@ -5,7 +5,7 @@ using System.Threading;
 #pragma warning disable 420
 namespace DispatchSharp
 {
-	public class WorkerPool<T> : IWorkerPool<T>
+	public class ThreadedWorkerPool<T> : IWorkerPool<T>
 	{
 		readonly string _name;
 		readonly Thread[] _pool;
@@ -14,7 +14,7 @@ namespace DispatchSharp
 		volatile object _started;
 		volatile int _inflight;
 
-		public WorkerPool(string name, int threadCount)
+		public ThreadedWorkerPool(string name, int threadCount)
 		{
 			_name = name ?? "UnnamedWorkerPool";
 			_pool = new Thread[threadCount];

@@ -16,7 +16,7 @@ namespace DispatchSharp.Unit.Tests
 		{
 			_dispatcher = Substitute.For<IDispatch<object>>();
 			_queue = Substitute.For<IWorkQueue<object>>();
-			_subject = new WorkerPool<object>("name", 1);
+			_subject = new ThreadedWorkerPool<object>("name", 1);
 			_subject.SetSource(_dispatcher, _queue);
 		}
 

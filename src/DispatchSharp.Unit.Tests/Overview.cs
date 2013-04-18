@@ -19,7 +19,7 @@ namespace DispatchSharp.Unit.Tests
 		public void setup()
 		{
 			_output = new List<string>();
-			_subject = new Dispatch<string>(new InMemoryWorkQueue<string>(), new WorkerPool<string>("Test", 2));
+			_subject = new Dispatch<string>(new InMemoryWorkQueue<string>(), new ThreadedWorkerPool<string>("Test", 2));
 		}
 
 		[Test]
