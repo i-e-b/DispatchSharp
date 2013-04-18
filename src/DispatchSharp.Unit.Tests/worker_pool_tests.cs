@@ -8,7 +8,7 @@ namespace DispatchSharp.Unit.Tests
 	public class worker_pool_tests
 	{
 		IDispatch<object> _dispatcher;
-		WorkerPool<object> _subject;
+		IWorkerPool<object> _subject;
 		IWorkQueue<object> _queue;
 
 		[SetUp]
@@ -18,6 +18,28 @@ namespace DispatchSharp.Unit.Tests
 			_queue = Substitute.For<IWorkQueue<object>>();
 			_subject = new WorkerPool<object>("name", 1);
 			_subject.SetSource(_dispatcher, _queue);
+		}
+
+		[Test]
+		public void worker_pool_does_nothing_if_not_started ()
+		{
+			Thread.Sleep(250);
+			_dispatcher.Available.DidNotReceive().WaitOne();
+			_queue.DidNotReceive().TryDequeue();
+		}
+
+		[Test]
+		public void worker_pool_does_nothing_after_being_stopped ()
+		{
+			_subject.Start();
+			_subject.Stop();
+			_dispatcher.ClearReceivedCalls();
+			_queue.ClearReceivedCalls();
+
+			Thread.Sleep(250);
+			
+			_dispatcher.Available.DidNotReceive().WaitOne();
+			_queue.DidNotReceive().TryDequeue();
 		}
 
 		[Test]
