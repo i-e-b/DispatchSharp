@@ -55,7 +55,7 @@ namespace DispatchSharp
 			Func<bool> running = () => _started == reference;
 			while (running())
 			{
-				_dispatch.Available.WaitOne();
+				if (!_dispatch.Available.WaitOne()) continue;
 				IWorkQueueItem<T> work;
 				while (running() && (work = _queue.TryDequeue()).HasItem)
 				{
