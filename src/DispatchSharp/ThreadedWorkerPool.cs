@@ -53,6 +53,11 @@ namespace DispatchSharp
 			while (_inflight > 0) Thread.Sleep(1);
 		}
 
+		public void TriggerAvailable()
+		{
+			Available.Set();
+		}
+
 		void WorkLoop(object reference)
 		{
 			Func<bool> running = () => _started == reference;

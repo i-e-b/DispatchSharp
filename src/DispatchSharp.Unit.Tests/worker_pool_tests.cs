@@ -78,8 +78,8 @@ namespace DispatchSharp.Unit.Tests
 
 		void Available(bool b)
 		{
-			if (b) _subject.Available.Set();
-			else _subject.Available.Reset();
+			if (b) ((ThreadedWorkerPool<object>)_subject).Available.Set();
+			else ((ThreadedWorkerPool<object>)_subject).Available.Reset();
 		}
 		void Go()
 		{

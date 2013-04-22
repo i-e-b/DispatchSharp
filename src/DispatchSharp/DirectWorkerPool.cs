@@ -17,6 +17,6 @@ namespace DispatchSharp
 		{
 		}
 
-		public IWaitHandle Available { get; private set; }
+		public void TriggerAvailable() { }
 	}
 }

@@ -35,7 +35,7 @@ namespace DispatchSharp
 		public void AddWork(T work)
 		{
 			_queue.Enqueue(work);
-			_pool.Available.Set();
+			_pool.TriggerAvailable();
 		}
 
 		public IEnumerable<Action<T>> WorkActions()
