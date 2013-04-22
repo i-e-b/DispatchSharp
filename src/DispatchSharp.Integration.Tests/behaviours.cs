@@ -3,35 +3,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using DispatchSharp.QueueTypes;
 using NUnit.Framework;
 
-namespace DispatchSharp.Unit.Tests
+namespace DispatchSharp.Integration.Tests
 {
 	[TestFixture]
-	public class Overview
+	public abstract class behaviours
 	{
-		IDispatch<string> _subject;
-		List<string> _output;
+		public IDispatch<string> _subject;
+		public List<string> _output;
 		readonly Random _random = new Random();
 
 		[SetUp]
-		public void setup()
-		{
-			_output = new List<string>();
-			_subject = new Dispatch<string>(new InMemoryWorkQueue<string>(), new ThreadedWorkerPool<string>("Test", 2));
-		}
+		public abstract void setup();
 
-		[Test]
+		[Test, Explicit("slow test")]
 		public void fuzzing_test ()
 		{
 			var input = RandomStrings(1000);
-			_subject.AddConsumer(s => _output.Add(s));
+			_subject.AddConsumer(s => {
+				Thread.Sleep(_random.Next(0,10));
+				_output.Add(s);
+				Thread.Sleep(_random.Next(0,10));
+			});
 			foreach (var str in input) { 
 				Thread.Sleep(_random.Next(0,10));
 				_subject.AddWork(str);
 			}
 
+			Thread.Sleep(1000);
 			_subject.Stop();
 			Assert.That(_output.Count, Is.EqualTo(1000));
 		}
@@ -71,24 +71,6 @@ namespace DispatchSharp.Unit.Tests
 			Assert.That(_output, Is.EquivalentTo(new[] { "Hello", "WiggleWoggle", "World" }));
 		}
 
-		[Test]
-		public void stopping_the_dispatcher_completes_all_current_actions_before_stopping()
-		{
-			_subject.AddConsumer(s =>
-			{
-				_output.Add("Start");
-				Thread.Sleep(2000);
-				_output.Add("End");
-			});
-
-			for (int i = 0; i < 100; i++) { _subject.AddWork(""); }
-
-			Thread.Sleep(1500);
-
-			_subject.Stop();
-
-			Assert.That(_output.Count(s=>s=="Start"), Is.EqualTo(_output.Count(s=>s=="End")));
-		}
 
 		IEnumerable<string> RandomStrings(int count)
 		{

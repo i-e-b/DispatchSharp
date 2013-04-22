@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading;
+using DispatchSharp.Internal;
 
 #pragma warning disable 420
 namespace DispatchSharp

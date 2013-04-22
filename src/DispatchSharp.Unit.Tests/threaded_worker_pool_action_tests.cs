@@ -6,7 +6,7 @@ using NUnit.Framework;
 namespace DispatchSharp.Unit.Tests
 {
 	[TestFixture]
-	public class worker_pool_action_tests
+	public class threaded_worker_pool_action_tests
 	{
 		
 		IDispatch<object> _dispatcher;

@@ -5,7 +5,7 @@ using NUnit.Framework;
 namespace DispatchSharp.Unit.Tests
 {
 	[TestFixture]
-	public class worker_pool_tests
+	public class threaded_worker_pool_tests
 	{
 		IDispatch<object> _dispatcher;
 		IWorkerPool<object> _subject;
@@ -16,7 +16,7 @@ namespace DispatchSharp.Unit.Tests
 		{
 			_dispatcher = Substitute.For<IDispatch<object>>();
 			_queue = Substitute.For<IWorkQueue<object>>();
-			_subject = new ThreadedWorkerPool<object>("name", 1);
+			_subject = new ThreadedWorkerPool<object>("name", 4);
 			_subject.SetSource(_dispatcher, _queue);
 		}
 

@@ -1,6 +1,6 @@
 using System.Threading;
 
-namespace DispatchSharp
+namespace DispatchSharp.Internal
 {
 	class CrossThreadWait : IWaitHandle
 	{

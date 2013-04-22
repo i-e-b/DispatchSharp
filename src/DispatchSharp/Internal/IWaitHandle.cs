@@ -1,4 +1,4 @@
-namespace DispatchSharp
+namespace DispatchSharp.Internal
 {
 	public interface IWaitHandle
 	{

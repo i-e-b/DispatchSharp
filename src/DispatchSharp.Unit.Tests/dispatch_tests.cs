@@ -43,6 +43,14 @@ namespace DispatchSharp.Unit.Tests
 		}
 
 		[Test]
+		public void the_worker_pool_available_trigger_is_set_when_work_is_added ()
+		{
+			var thing = new object();
+			_subject.AddWork(thing);
+			_pool.Received().TriggerAvailable();
+		}
+
+		[Test]
 		public void added_workers_are_available_to_enumerate ()
 		{
 			Action<object> a = o => { }, b = o => { };
