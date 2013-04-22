@@ -24,7 +24,6 @@ namespace DispatchSharp.Unit.Tests
 		public void worker_pool_does_nothing_if_not_started ()
 		{
 			Thread.Sleep(250);
-			_dispatcher.Available.DidNotReceive().WaitOne();
 			_queue.DidNotReceive().TryDequeue();
 		}
 
@@ -38,16 +37,7 @@ namespace DispatchSharp.Unit.Tests
 
 			Thread.Sleep(250);
 			
-			_dispatcher.Available.DidNotReceive().WaitOne();
 			_queue.DidNotReceive().TryDequeue();
-		}
-
-		[Test]
-		public void worker_requests_available_flag_of_dispatcher ()
-		{
-			Go();
-
-			_dispatcher.Available.Received().WaitOne();
 		}
 
 		[Test]
@@ -72,10 +62,8 @@ namespace DispatchSharp.Unit.Tests
 			ItemAvailable(false);
 			Go();
 
-			_dispatcher.Available.Received().WaitOne();
 			_queue.Received().TryDequeue();
 			_dispatcher.DidNotReceive().WorkActions();
-			_dispatcher.Available.Received().WaitOne();
 		}
 
 		[Test]
@@ -84,14 +72,14 @@ namespace DispatchSharp.Unit.Tests
 			ItemAvailable(true);
 			Go();
 
-			_dispatcher.Available.Received().WaitOne();
 			_queue.Received().TryDequeue();
 			_dispatcher.Received().WorkActions();
 		}
 
 		void Available(bool b)
 		{
-			_dispatcher.Available.WaitOne().Returns(b);
+			if (b) _subject.Available.Set();
+			else _subject.Available.Reset();
 		}
 		void Go()
 		{
@@ -101,7 +89,6 @@ namespace DispatchSharp.Unit.Tests
 		}
 		void ItemAvailable(bool yes)
 		{
-			_dispatcher.Available.WaitOne().Returns(true, false);
 			var item = Substitute.For<IWorkQueueItem<object>>();
 			item.HasItem.Returns(yes);
 			_queue.TryDequeue().Returns(item);

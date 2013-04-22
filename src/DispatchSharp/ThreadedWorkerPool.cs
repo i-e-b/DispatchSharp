@@ -14,12 +14,15 @@ namespace DispatchSharp
 		volatile object _started;
 		volatile int _inflight;
 
+		public IWaitHandle Available { get; set; }
+
 		public ThreadedWorkerPool(string name, int threadCount)
 		{
 			_name = name ?? "UnnamedWorkerPool";
 			_pool = new Thread[threadCount];
 			_started = null;
 			_inflight = 0;
+			Available = new CrossThreadWait(true);
 		}
 
 		public void SetSource(IDispatch<T> dispatch, IWorkQueue<T> queue)
@@ -55,7 +58,7 @@ namespace DispatchSharp
 			Func<bool> running = () => _started == reference;
 			while (running())
 			{
-				if (!_dispatch.Available.WaitOne()) continue;
+				if (!Available.WaitOne()) continue;
 				IWorkQueueItem<T> work;
 				while (running() && (work = _queue.TryDequeue()).HasItem)
 				{
@@ -77,5 +80,6 @@ namespace DispatchSharp
 				}
 			}
 		}
+
 	}
 }

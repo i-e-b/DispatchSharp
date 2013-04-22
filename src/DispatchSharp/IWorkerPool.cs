@@ -5,5 +5,6 @@ namespace DispatchSharp
 		void SetSource(IDispatch<T> dispatch, IWorkQueue<T> queue);
 		void Start();
 		void Stop();
+		IWaitHandle Available { get; }
 	}
 }

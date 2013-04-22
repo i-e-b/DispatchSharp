@@ -16,5 +16,7 @@ namespace DispatchSharp
 		public void Stop()
 		{
 		}
+
+		public IWaitHandle Available { get; private set; }
 	}
 }

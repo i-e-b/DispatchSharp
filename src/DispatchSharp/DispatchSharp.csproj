@@ -34,9 +34,11 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CrossThreadWait.cs" />
     <Compile Include="DirectWorkerPool.cs" />
     <Compile Include="Dispatch.cs" />
     <Compile Include="IDispatch.cs" />
+    <Compile Include="IWaitHandle.cs" />
     <Compile Include="IWorkerPool.cs" />
     <Compile Include="IWorkQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

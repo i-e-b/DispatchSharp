@@ -12,7 +12,6 @@ namespace DispatchSharp
 	{
 		void AddConsumer(Action<T> action);
 		void AddWork(T work);
-		IWaitHandle Available { get; }
 		IEnumerable<Action<T>> WorkActions();
 		event EventHandler<ExceptionEventArgs> Exceptions;
 
@@ -20,12 +19,5 @@ namespace DispatchSharp
 
 		/// <summary> Stop consuming work and return when all in-progress work is complete </summary>
 		void Stop();
-	}
-
-	public interface IWaitHandle
-	{
-		bool WaitOne();
-		void Set();
-		void Reset();
 	}
 }

@@ -69,7 +69,6 @@ namespace DispatchSharp.Unit.Tests
 		{
 			var item = Substitute.For<IWorkQueueItem<object>>();
 			item.HasItem.Returns(true);
-			_dispatcher.Available.WaitOne().Returns(true, false);
 			_queue.TryDequeue().Returns(item);
 			return item;
 		}
