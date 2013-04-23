@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 namespace DispatchSharp.QueueTypes
@@ -27,7 +28,7 @@ namespace DispatchSharp.QueueTypes
 			{
 				if (_queue.Count < 1) return NoItem();
 
-				return new WorkQueueItem<T>(_queue.Dequeue());
+				return new WorkQueueItem<T>(_queue.Dequeue(), null, Enqueue);
 			}
 		}
 
@@ -39,6 +40,8 @@ namespace DispatchSharp.QueueTypes
 
 	public class WorkQueueItem<T>:IWorkQueueItem<T>
 	{
+		readonly Action<T> _finish;
+		readonly Action<T> _cancel;
 		public bool HasItem { get; set; }
 		public T Item { get; set; }
 
@@ -46,18 +49,22 @@ namespace DispatchSharp.QueueTypes
 		{
 			HasItem = false;
 		}
-		public WorkQueueItem(T item)
+		public WorkQueueItem(T item, Action<T> finish, Action<T> cancel)
 		{
+			_finish = finish ?? (t => { });
+			_cancel = cancel ?? (t => { });
 			HasItem = true;
 			Item = item;
 		}
 
 		public void Finish()
 		{
+			_finish(Item);
 		}
 
 		public void Cancel()
 		{
+			_cancel(Item);
 		}
 	}
 }
