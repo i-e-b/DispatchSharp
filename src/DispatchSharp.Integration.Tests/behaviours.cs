@@ -55,9 +55,15 @@ namespace DispatchSharp.Integration.Tests
 		[Test]
 		public void a_consumer_that_throws_an_exception_fires_an_event_but_does_not_stop_the_worker ()
 		{
+			var once = true;
 			_subject.AddConsumer(s =>
 			{
-				if (s == "THROW") throw new Exception("Woggle");
+				if (s == "THROW") {
+					if (once) {
+						once = false;
+						throw new Exception("Woggle");
+					} else return;
+				}
 				Console.WriteLine(s);
 				_output.Add(s);
 			});
