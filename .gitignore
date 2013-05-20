@@ -30,3 +30,4 @@ build
 *.ncrunchproject
 *.ncrunchsolution.user
 *ncrunch*
+*.userprefs

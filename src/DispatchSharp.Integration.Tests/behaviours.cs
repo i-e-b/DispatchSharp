@@ -31,7 +31,7 @@ namespace DispatchSharp.Integration.Tests
 				_subject.AddWork(str);
 			}
 
-			Thread.Sleep(1000);
+			Thread.Sleep(2000);
 			_subject.Stop();
 			Assert.That(_output.Count, Is.EqualTo(1000));
 		}
