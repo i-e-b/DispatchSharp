@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DispatchSharp.Internal;
 
 namespace DispatchSharp
 {
@@ -13,6 +14,8 @@ namespace DispatchSharp
 
 		public Dispatch(IWorkQueue<T> workQueue, IWorkerPool<T> workerPool)
 		{
+			MaximumInflight = Default.ThreadCount;
+
 			_queue = workQueue;
 			_pool = workerPool;
 
@@ -20,6 +23,13 @@ namespace DispatchSharp
 			_workActions = new List<Action<T>>();
 
 			_pool.SetSource(this, _queue);
+		}
+
+		public int MaximumInflight { get; set; }
+
+		public int CurrentInflight()
+		{
+			return _pool.WorkersInflight();
 		}
 
 		public void AddConsumer(Action<T> action)
@@ -63,7 +73,15 @@ namespace DispatchSharp
 
 		public void Stop()
 		{
-			_pool.Stop();
+			var oldMax = MaximumInflight;
+			try
+			{
+				MaximumInflight = 0;
+				_pool.Stop();
+			} finally
+			{
+				MaximumInflight = oldMax;
+			}
 		}
 	}
 }

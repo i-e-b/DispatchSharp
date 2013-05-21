@@ -10,6 +10,12 @@ namespace DispatchSharp
 
 	public interface IDispatch<T>
 	{
+		/// <summary> Maximum number of work items being processed at any one time </summary>
+		int MaximumInflight { get; set; }
+
+		/// <summary> Snapshot of number of work items being processed </summary>
+		int CurrentInflight();
+
 		/// <summary> Add an action to take when work is processed </summary>
 		void AddConsumer(Action<T> action);
 

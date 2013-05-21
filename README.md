@@ -11,10 +11,10 @@ Plans and requirements
 Limited-life job handlers: (IWorkerPool)
  * Deals with threading and names all threads [done]
  * Can add items and have them started [done]
- * can query number of items in flight
- * can set a maximum number of jobs
+ * can query number of items in flight [done]
+ * can set a maximum number of jobs [done]
  * can block waiting for jobs to go below max level
- * can set max to zero (as part of shutdown)
+ * can set max to zero (as part of shutdown) [done]
  * can wait for all jobs to finish (as part of shutdown)
  * can do persistent store and forward for waiting jobs.
 
@@ -27,7 +27,7 @@ Job managers: (IDispatch)
  * Can be stopped -- waits for job handler [done]
  * Can be started [done]
 
-Master manager:
+Master manager: [TODO]
  * Keeps a set of managers
  * handles starting and stopping
  * handles adding and removing managers

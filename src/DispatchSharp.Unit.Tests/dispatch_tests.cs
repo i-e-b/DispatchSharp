@@ -1,4 +1,5 @@
 ﻿using System;
+using DispatchSharp.Internal;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -87,6 +88,32 @@ namespace DispatchSharp.Unit.Tests
 			_subject.OnExceptions(new Exception());
 
 			Assert.That(triggered);
+		}
+
+		[Test]
+		public void default_maximum_inflight_is_same_as_processor_count ()
+		{
+			Assert.That(_subject.MaximumInflight, Is.EqualTo(Default.ThreadCount));
+		}
+
+		[Test]
+		public void maximum_inflight_can_be_set ()
+		{
+			int newSetting = 2;
+			_subject.MaximumInflight = newSetting;
+			Assert.That(_subject.MaximumInflight, Is.EqualTo(newSetting));
+		}
+
+		[Test]
+		public void inflight_is_read_from_worker_pool ()
+		{
+			var expected = 14;
+			_pool.WorkersInflight().Returns(expected);
+			_pool.DidNotReceive().WorkersInflight();
+			var actual = _subject.CurrentInflight();
+
+			_pool.Received().WorkersInflight();
+			Assert.That(actual, Is.EqualTo(expected));
 		}
 	}
 }

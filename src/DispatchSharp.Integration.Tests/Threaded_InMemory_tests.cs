@@ -13,7 +13,7 @@ namespace DispatchSharp.Integration.Tests
 		public override void setup()
 		{
 			_output = new List<string>();
-			_subject = new Dispatch<string>(new InMemoryWorkQueue<string>(), new ThreadedWorkerPool<string>("Test", 2));
+			_subject = new Dispatch<string>(new InMemoryWorkQueue<string>(), new ThreadedWorkerPool<string>("Test", 8));
 		}
 		
 		[Test]
@@ -34,7 +34,8 @@ namespace DispatchSharp.Integration.Tests
 			_subject.Stop();
 
 			Assert.That(_output.Count(), Is.GreaterThan(0));
-			Assert.That(_output.Count(s=>s=="Start"), Is.EqualTo(_output.Count(s=>s=="End")));
+			Assert.That(_output.Count(s => s == "Start"), Is.EqualTo(_output.Count(s => s == "End"))
+				, "Mismatch between started and ended consumers");
 		}
 
 		[Test]
@@ -67,6 +68,31 @@ namespace DispatchSharp.Integration.Tests
 			Assert.That(_output.Count(), Is.GreaterThan(0));
 			Assert.That(_output.Count(s => s == "Start"), Is.EqualTo(_output.Count(s => s == "End"))
 				, "Mismatch between started and ended consumers");
+		}
+
+		
+		[Test]
+		[TestCase(1)]
+		[TestCase(2)]
+		[TestCase(4)]
+		[TestCase(6)]
+		public void maximum_inflight_is_respected (int limit)
+		{
+			var counts = new List<int>();
+			_subject.AddConsumer(s => counts.Add(_subject.CurrentInflight()));
+
+			_subject.MaximumInflight =limit;
+			_subject.Start();
+
+			for (int i = 0; i < 100; i++) { _subject.AddWork(""); }
+
+			Thread.Sleep(1500);
+
+			_subject.Stop();
+
+			Assert.That(counts.Count(), Is.GreaterThan(0), "No actions ran");
+			Assert.That(counts.Min(), Is.GreaterThan(0), "Inflight count is invalid");
+			Assert.That(counts.Max(), Is.LessThanOrEqualTo(limit));
 		}
 	}
 }

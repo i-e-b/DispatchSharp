@@ -35,6 +35,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Internal\CrossThreadWait.cs" />
+    <Compile Include="Internal\Default.cs" />
     <Compile Include="WorkerPools\DirectWorkerPool.cs" />
     <Compile Include="Dispatch.cs" />
     <Compile Include="IDispatch.cs" />

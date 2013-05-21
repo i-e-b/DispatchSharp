@@ -5,12 +5,8 @@ using NUnit.Framework;
 namespace DispatchSharp.Unit.Tests
 {
 	[TestFixture]
-	public class threaded_worker_pool_tests
+	public class threaded_worker_pool_tests:threaded_worker_pool_base
 	{
-		IDispatch<object> _dispatcher;
-		IWorkerPool<object> _subject;
-		IWorkQueue<object> _queue;
-
 		[SetUp]
 		public void setup ()
 		{
@@ -74,24 +70,6 @@ namespace DispatchSharp.Unit.Tests
 
 			_queue.Received().TryDequeue();
 			_dispatcher.Received().AllConsumers();
-		}
-
-		void Available(bool b)
-		{
-			if (b) ((ThreadedWorkerPool<object>)_subject).Available.Set();
-			else ((ThreadedWorkerPool<object>)_subject).Available.Reset();
-		}
-		void Go()
-		{
-			_subject.Start();
-			Thread.Sleep(20);
-			_subject.Stop();
-		}
-		void ItemAvailable(bool yes)
-		{
-			var item = Substitute.For<IWorkQueueItem<object>>();
-			item.HasItem.Returns(yes);
-			_queue.TryDequeue().Returns(item);
 		}
 	}
 }

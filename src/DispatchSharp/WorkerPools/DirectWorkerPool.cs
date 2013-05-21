@@ -46,5 +46,10 @@ namespace DispatchSharp
 				}
 			}
 		}
+
+		public int WorkersInflight()
+		{
+			return 0;
+		}
 	}
 }

@@ -59,6 +59,11 @@ namespace DispatchSharp
 			Available.Set();
 		}
 
+		public int WorkersInflight()
+		{
+			return _inflight;
+		}
+
 		void WorkLoop(object reference)
 		{
 			Func<bool> running = () => _started == reference;
@@ -66,6 +71,9 @@ namespace DispatchSharp
 			{
 				if (!Available.WaitOne()) continue;
 				IWorkQueueItem<T> work;
+
+				if (_inflight >= _dispatch.MaximumInflight) continue;
+
 				Interlocked.Increment(ref _inflight);
 				while (running() && (work = _queue.TryDequeue()).HasItem)
 				{

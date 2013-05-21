@@ -7,5 +7,6 @@ namespace DispatchSharp
 		void Stop();
 
 		void TriggerAvailable();
+		int WorkersInflight();
 	}
 }

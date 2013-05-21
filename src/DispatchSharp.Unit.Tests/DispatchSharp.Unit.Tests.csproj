@@ -46,6 +46,7 @@
     <Compile Include="in_memory_work_queue_tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="threaded_worker_pool_action_tests.cs" />
+    <Compile Include="threaded_worker_pool_base.cs" />
     <Compile Include="threaded_worker_pool_inflight_tests.cs" />
     <Compile Include="threaded_worker_pool_tests.cs" />
   </ItemGroup>

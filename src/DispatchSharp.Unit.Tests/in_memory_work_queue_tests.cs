@@ -14,7 +14,6 @@ namespace DispatchSharp.Unit.Tests
 			_subject = new InMemoryWorkQueue<object>();
 		}
 
-
 		[Test]
 		public void enqueued_items_can_be_dequeued()
 		{
