@@ -60,11 +60,13 @@ namespace DispatchSharp.Integration.Tests
 			var once = true;
 			_subject.AddConsumer(s =>
 			{
-				if (s == "THROW") {
+				if (s == "THROW")
+				{
 					if (once) {
 						once = false;
 						throw new Exception("Woggle");
-					} else return;
+					}
+					return;
 				}
 				Console.WriteLine(s);
 				_output.Add(s);

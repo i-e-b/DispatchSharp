@@ -26,7 +26,6 @@ namespace DispatchSharp.Unit.Tests
 			_subject.AddConsumer(o => { });
 			_pool.DidNotReceive().Start();
 		}
-		
 
 		[Test]
 		public void if_pool_is_started_with_no_consumers_an_exception_is_thrown()

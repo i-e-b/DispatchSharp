@@ -66,11 +66,11 @@ namespace DispatchSharp
 			{
 				if (!Available.WaitOne()) continue;
 				IWorkQueueItem<T> work;
+				Interlocked.Increment(ref _inflight);
 				while (running() && (work = _queue.TryDequeue()).HasItem)
 				{
 					foreach (var action in _dispatch.AllConsumers().ToArray())
 					{
-						Interlocked.Increment(ref _inflight);
 						try
 						{
 							action(work.Item);
@@ -81,9 +81,9 @@ namespace DispatchSharp
 							work.Cancel();
 							_dispatch.OnExceptions(ex);
 						}
-						Interlocked.Decrement(ref _inflight);
 					}
 				}
+				Interlocked.Decrement(ref _inflight);
 			}
 		}
 

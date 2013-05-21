@@ -36,5 +36,37 @@ namespace DispatchSharp.Integration.Tests
 			Assert.That(_output.Count(), Is.GreaterThan(0));
 			Assert.That(_output.Count(s=>s=="Start"), Is.EqualTo(_output.Count(s=>s=="End")));
 		}
+
+		[Test]
+		public void can_repeatedly_start_and_stop_a_dispatcher ()
+		{
+			_subject.AddConsumer(s =>
+			{
+				_output.Add("Start");
+				Thread.Sleep(2000);
+				_output.Add("End");
+			});
+
+			for (int i = 0; i < 5; i++)
+			{
+				_subject.Stop();
+				_subject.Start();
+			}
+
+			for (int i = 0; i < 100; i++) { _subject.AddWork(""); }
+
+			Thread.Sleep(1500);
+			
+			for (int i = 0; i < 5; i++)
+			{
+				_subject.Start();
+				Thread.Sleep(150);
+				_subject.Stop();
+			}
+
+			Assert.That(_output.Count(), Is.GreaterThan(0));
+			Assert.That(_output.Count(s => s == "Start"), Is.EqualTo(_output.Count(s => s == "End"))
+				, "Mismatch between started and ended consumers");
+		}
 	}
 }
