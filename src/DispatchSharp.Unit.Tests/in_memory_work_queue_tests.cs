@@ -59,5 +59,21 @@ namespace DispatchSharp.Unit.Tests
 			Assert.True(result.HasItem);
 			Assert.That(result.Item, Is.EqualTo(source));
 		}
+
+		[Test]
+		public void queue_length_represents_number_of_items_on_the_queue ()
+		{
+			for (int i = 0; i < 10; i++)
+			{
+				Assert.That(_subject.Length(), Is.EqualTo(i));
+				_subject.Enqueue(new object());
+			}
+
+			for (int i = 9; i >= 0; i--)
+			{
+				_subject.TryDequeue();
+				Assert.That(_subject.Length(), Is.EqualTo(i));
+			}
+		}
 	}
 }

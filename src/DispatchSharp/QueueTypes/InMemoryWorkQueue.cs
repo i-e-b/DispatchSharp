@@ -32,6 +32,14 @@ namespace DispatchSharp.QueueTypes
 			}
 		}
 
+		public int Length()
+		{
+			lock (_lockObject)
+			{
+				return _queue.Count;
+			}
+		}
+
 		IWorkQueueItem<T> NoItem()
 		{
 			return new WorkQueueItem<T>();
