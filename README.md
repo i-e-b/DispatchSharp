@@ -13,10 +13,8 @@ Limited-life job handlers: (IWorkerPool)
  * Can add items and have them started [done]
  * can query number of items in flight [done]
  * can set a maximum number of jobs [done]
- * can block waiting for jobs to go below max level
  * can set max to zero (as part of shutdown) [done]
- * can wait for all jobs to finish (as part of shutdown)
- * can do persistent store and forward for waiting jobs.
+ * can wait for all jobs to finish (as part of shutdown) [done]
 
 Job managers: (IDispatch)
  * Given a ready/read/complete/cancel delegate (IWorkQueue), and a job handler [done]
@@ -26,8 +24,20 @@ Job managers: (IDispatch)
  * cancels otherwise [done]
  * Can be stopped -- waits for job handler [done]
  * Can be started [done]
+ * can block waiting for jobs to go below max level
+
+Work queue:
+ * Encapsulate a ready/read/complete/cancel delegate [done]
+ * can do persistent store and forward for waiting jobs.
+ * can be queried for current length
 
 Master manager: [TODO]
  * Keeps a set of managers
  * handles starting and stopping
  * handles adding and removing managers
+
+Safety valve [TODO]
+------------
+An important feature when incoming jobs are spawning outgoing jobs.
+One work dispatcher should be able to stop if another's work queue
+exceeds a predefined length.
