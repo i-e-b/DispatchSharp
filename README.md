@@ -24,19 +24,13 @@ Job managers: (IDispatch)
  * cancels otherwise [done]
  * Can be stopped -- waits for job handler [done]
  * Can be started [done]
- * can block waiting for jobs to go below max level
 
 Work queue:
  * Encapsulate a ready/read/complete/cancel delegate [done]
  * can do persistent store and forward for waiting jobs.
- * can be queried for current length
+ * can be queried for current length [done]
 
-Master manager: [TODO]
- * Keeps a set of managers
- * handles starting and stopping
- * handles adding and removing managers
-
-Safety valve [TODO]
+Safety valve
 ------------
 An important feature when incoming jobs are spawning outgoing jobs.
 One work dispatcher should be able to stop if another's work queue

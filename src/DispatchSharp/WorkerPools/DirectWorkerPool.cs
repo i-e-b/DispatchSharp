@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 
-namespace DispatchSharp
+namespace DispatchSharp.WorkerPools
 {
 	/// <summary>
 	/// Single threaded on-demand pool for integration testing

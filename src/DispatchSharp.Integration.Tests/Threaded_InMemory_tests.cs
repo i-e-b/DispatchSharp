@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading;
 using DispatchSharp.QueueTypes;
+using DispatchSharp.WorkerPools;
 using NUnit.Framework;
 
 namespace DispatchSharp.Integration.Tests
@@ -92,7 +93,7 @@ namespace DispatchSharp.Integration.Tests
 
 			Assert.That(counts.Count(), Is.GreaterThan(0), "No actions ran");
 			Assert.That(counts.Min(), Is.GreaterThan(0), "Inflight count is invalid");
-			Assert.That(counts.Max(), Is.LessThanOrEqualTo(limit));
+			Assert.That(counts.Max(), Is.LessThanOrEqualTo(limit), "More workers run in parallel than limit");
 		}
 	}
 }

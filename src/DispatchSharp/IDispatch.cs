@@ -36,5 +36,6 @@ namespace DispatchSharp
 
 		/// <summary> Stop consuming work and return when all in-progress work is complete </summary>
 		void Stop();
+
 	}
 }

@@ -1,4 +1,5 @@
 using System.Threading;
+using DispatchSharp.WorkerPools;
 using NSubstitute;
 
 namespace DispatchSharp.Unit.Tests

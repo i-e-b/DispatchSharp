@@ -1,4 +1,5 @@
-﻿using NSubstitute;
+﻿using DispatchSharp.WorkerPools;
+using NSubstitute;
 using NUnit.Framework;
 
 namespace DispatchSharp.Unit.Tests

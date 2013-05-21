@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using DispatchSharp.QueueTypes;
+using DispatchSharp.WorkerPools;
 using NUnit.Framework;
 using System.Linq;
 

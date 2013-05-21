@@ -1,4 +1,5 @@
 ﻿using System.Threading;
+using DispatchSharp.WorkerPools;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -11,6 +12,7 @@ namespace DispatchSharp.Unit.Tests
 		public void setup ()
 		{
 			_dispatcher = Substitute.For<IDispatch<object>>();
+			_dispatcher.MaximumInflight.Returns(4);
 			_queue = Substitute.For<IWorkQueue<object>>();
 			_subject = new ThreadedWorkerPool<object>("name", 4);
 			_subject.SetSource(_dispatcher, _queue);
