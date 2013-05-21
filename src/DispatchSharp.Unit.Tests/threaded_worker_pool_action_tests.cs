@@ -48,7 +48,7 @@ namespace DispatchSharp.Unit.Tests
 
 		void ForSuccessfulAction()
 		{
-			_dispatcher.WorkActions().Returns(
+			_dispatcher.AllConsumers().Returns(
 				new Action<object>[]{
 					o => {_actionCalled = true; }
 				}
@@ -56,7 +56,7 @@ namespace DispatchSharp.Unit.Tests
 		}
 		void ForFailingAction()
 		{
-			_dispatcher.WorkActions().Returns(
+			_dispatcher.AllConsumers().Returns(
 				new Action<object>[]{
 					o => {
 						_actionCalled = true;

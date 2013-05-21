@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.Threading;
+using System.Linq;
 
 namespace DispatchSharp
 {
@@ -10,7 +10,6 @@ namespace DispatchSharp
 		readonly IWorkerPool<T> _pool;
 		readonly IList<Action<T>> _workActions;
 		readonly object _lockObject;
-
 
 		public Dispatch(IWorkQueue<T> workQueue, IWorkerPool<T> workerPool)
 		{
@@ -29,7 +28,6 @@ namespace DispatchSharp
 			{
 				_workActions.Add(action);
 			}
-			_pool.Start();
 		}
 
 		public void AddWork(T work)
@@ -38,7 +36,7 @@ namespace DispatchSharp
 			_pool.TriggerAvailable();
 		}
 
-		public IEnumerable<Action<T>> WorkActions()
+		public IEnumerable<Action<T>> AllConsumers()
 		{
 			lock (_lockObject)
 			{
@@ -57,11 +55,15 @@ namespace DispatchSharp
 			if (handler != null) handler(this, new ExceptionEventArgs { SourceException = e });
 		}
 
+		public void Start()
+		{
+			if (!_workActions.Any()) throw new InvalidOperationException("A dispatcher can't be started until it has at least one consumer");
+			_pool.Start();
+		}
+
 		public void Stop()
 		{
 			_pool.Stop();
 		}
-
-		
 	}
 }

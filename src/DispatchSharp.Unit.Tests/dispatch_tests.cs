@@ -20,10 +20,28 @@ namespace DispatchSharp.Unit.Tests
 		}
 
 		[Test]
-		public void pool_is_started_when_the_first_worker_is_supplied()
+		public void pool_is_not_started_when_the_first_worker_is_supplied()
 		{
 			_pool.DidNotReceive().Start();
 			_subject.AddConsumer(o => { });
+			_pool.DidNotReceive().Start();
+		}
+		
+
+		[Test]
+		public void if_pool_is_started_with_no_consumers_an_exception_is_thrown()
+		{
+			_pool.DidNotReceive().Start();
+			var ex = Assert.Throws<InvalidOperationException>(()=>_subject.Start());
+			Assert.That(ex.Message, Is.StringContaining("A dispatcher can't be started until it has at least one consumer"));
+		}
+
+		[Test]
+		public void pool_is_started_when_dispatcher_is_started()
+		{
+			_pool.DidNotReceive().Start();
+			_subject.AddConsumer(o => { });
+			_subject.Start();
 			_pool.Received().Start();
 		}
 
@@ -58,7 +76,7 @@ namespace DispatchSharp.Unit.Tests
 			_subject.AddConsumer(a);
 			_subject.AddConsumer(b);
 
-			Assert.That(_subject.WorkActions(), Is.EquivalentTo(new []{a,b}));
+			Assert.That(_subject.AllConsumers(), Is.EquivalentTo(new []{a,b}));
 		}
 
 		[Test]

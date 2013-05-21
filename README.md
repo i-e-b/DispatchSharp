@@ -8,9 +8,9 @@ Models a job dispatch pattern and provides both threaded and non threaded implem
 Plans and requirements
 ----------------------
 
-Limited-life job handlers:
- * Deals with threading and names all threads
- * Can add items and have them started
+Limited-life job handlers: (IWorkerPool)
+ * Deals with threading and names all threads [done]
+ * Can add items and have them started [done]
  * can query number of items in flight
  * can set a maximum number of jobs
  * can block waiting for jobs to go below max level
@@ -18,14 +18,14 @@ Limited-life job handlers:
  * can wait for all jobs to finish (as part of shutdown)
  * can do persistent store and forward for waiting jobs.
 
-Job managers:
- * Given a ready/read/complete/cancel delegate, and a job handler
- * sleeps until ready
- * reads and sends to job handler
- * completes if no exception
- * cancels otherwise
- * Can be stopped -- waits for job handler
- * Can be started
+Job managers: (IDispatch)
+ * Given a ready/read/complete/cancel delegate (IWorkQueue), and a job handler [done]
+ * sleeps until ready [done]
+ * reads and sends to job handler [done]
+ * completes if no exception [done]
+ * cancels otherwise [done]
+ * Can be stopped -- waits for job handler [done]
+ * Can be started [done]
 
 Master manager:
  * Keeps a set of managers

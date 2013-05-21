@@ -31,7 +31,7 @@ namespace DispatchSharp
 			IWorkQueueItem<T> work;
 			while ((work = _queue.TryDequeue()).HasItem)
 			{
-				foreach (var action in _dispatch.WorkActions().ToArray())
+				foreach (var action in _dispatch.AllConsumers().ToArray())
 				{
 					try
 					{

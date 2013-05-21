@@ -26,6 +26,7 @@ namespace DispatchSharp.Integration.Tests
 				_output.Add(s);
 				Thread.Sleep(_random.Next(0,10));
 			});
+			_subject.Start();
 			foreach (var str in input) { 
 				Thread.Sleep(_random.Next(0,10));
 				_subject.AddWork(str);
@@ -44,6 +45,7 @@ namespace DispatchSharp.Integration.Tests
 				Console.WriteLine(s);
 				_output.Add(s);
 			});
+			_subject.Start();
 
 			_subject.AddWork("Hello");
 			_subject.AddWork("World");
@@ -67,6 +69,7 @@ namespace DispatchSharp.Integration.Tests
 				Console.WriteLine(s);
 				_output.Add(s);
 			});
+			_subject.Start();
 
 			_subject.Exceptions += (e, ex) => _output.Add("Wiggle" + ex.SourceException.Message);
 

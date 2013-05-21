@@ -1,5 +1,5 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
+Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DispatchSharp", "src\DispatchSharp\DispatchSharp.csproj", "{2CEB6361-6E20-4F3B-BDA3-49D6B4B90A37}"
 EndProject
@@ -10,6 +10,11 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DispatchSharp.Unit.Tests", "src\DispatchSharp.Unit.Tests\DispatchSharp.Unit.Tests.csproj", "{D3FC124A-CF92-4632-968F-E6B7A14DFD0A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DispatchSharp.Integration.Tests", "src\DispatchSharp.Integration.Tests\DispatchSharp.Integration.Tests.csproj", "{419781D1-6407-49D4-98F6-08F5D73E20AD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Info", "Info", "{522979D2-B1B8-43AB-83F0-BFFC7788ABE2}"
+	ProjectSection(SolutionItems) = preProject
+		README.md = README.md
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

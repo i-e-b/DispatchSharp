@@ -68,7 +68,7 @@ namespace DispatchSharp
 				IWorkQueueItem<T> work;
 				while (running() && (work = _queue.TryDequeue()).HasItem)
 				{
-					foreach (var action in _dispatch.WorkActions().ToArray())
+					foreach (var action in _dispatch.AllConsumers().ToArray())
 					{
 						Interlocked.Increment(ref _inflight);
 						try

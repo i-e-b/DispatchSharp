@@ -63,7 +63,7 @@ namespace DispatchSharp.Unit.Tests
 			Go();
 
 			_queue.Received().TryDequeue();
-			_dispatcher.DidNotReceive().WorkActions();
+			_dispatcher.DidNotReceive().AllConsumers();
 		}
 
 		[Test]
@@ -73,7 +73,7 @@ namespace DispatchSharp.Unit.Tests
 			Go();
 
 			_queue.Received().TryDequeue();
-			_dispatcher.Received().WorkActions();
+			_dispatcher.Received().AllConsumers();
 		}
 
 		void Available(bool b)
