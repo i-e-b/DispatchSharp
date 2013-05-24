@@ -72,23 +72,35 @@ namespace DispatchSharp.Integration.Tests
 		}
 
 		
-		[Test]
+		[Test, Explicit("Slow tests")]
 		[TestCase(1)]
 		[TestCase(2)]
+		[TestCase(3)]
 		[TestCase(4)]
+		[TestCase(5)]
 		[TestCase(6)]
 		public void maximum_inflight_is_respected (int limit)
 		{
 			var counts = new List<int>();
-			_subject.AddConsumer(s => counts.Add(_subject.CurrentInflight()));
+			long completed = 0;
+
+			_subject.AddConsumer(s => {
+				Thread.Sleep(15);
+				counts.Add(_subject.CurrentInflight());
+				Interlocked.Increment(ref completed);
+				Thread.Sleep(15);
+			});
 
 			_subject.MaximumInflight =limit;
 			_subject.Start();
 
-			for (int i = 0; i < 100; i++) { _subject.AddWork(""); }
+			const int runs = 100;
+			for (int i = 0; i < runs; i++) { _subject.AddWork(""); }
 
-			Thread.Sleep(1500);
-
+			while (Interlocked.Read(ref completed) < runs)
+			{
+				Thread.Sleep(500);
+			}
 			_subject.Stop();
 
 			Assert.That(counts.Count(), Is.GreaterThan(0), "No actions ran");
