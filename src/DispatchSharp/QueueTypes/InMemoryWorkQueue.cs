@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DispatchSharp.Internal;
 
 namespace DispatchSharp.QueueTypes
 {
@@ -7,17 +8,20 @@ namespace DispatchSharp.QueueTypes
 	{
 		readonly object _lockObject;
 		readonly Queue<T> _queue;
+		readonly IWaitHandle _waitHandle;
 
 		public InMemoryWorkQueue()
 		{
 			_queue = new Queue<T>();
 			_lockObject = new object();
+			_waitHandle = new CrossThreadWait(false);
 		}
 
 		public void Enqueue(T work)
 		{
 			lock (_lockObject)
 			{
+				_waitHandle.Set();
 				_queue.Enqueue(work);
 			}
 		}
@@ -27,8 +31,10 @@ namespace DispatchSharp.QueueTypes
 			lock(_lockObject)
 			{
 				if (_queue.Count < 1) return NoItem();
-
-				return new WorkQueueItem<T>(_queue.Dequeue(), null, Enqueue);
+				var data = _queue.Dequeue();
+				
+				if (_queue.Count < 1) _waitHandle.Reset();
+				return new WorkQueueItem<T>(data, null, Enqueue);
 			}
 		}
 
@@ -43,6 +49,10 @@ namespace DispatchSharp.QueueTypes
 		IWorkQueueItem<T> NoItem()
 		{
 			return new WorkQueueItem<T>();
+		}
+
+		public void BlockUntilReady() {
+			_waitHandle.WaitOne();
 		}
 	}
 

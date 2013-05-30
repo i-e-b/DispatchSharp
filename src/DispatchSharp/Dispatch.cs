@@ -43,7 +43,6 @@ namespace DispatchSharp
 		public void AddWork(T work)
 		{
 			_queue.Enqueue(work);
-			_pool.TriggerAvailable();
 		}
 
 		public IEnumerable<Action<T>> AllConsumers()
@@ -67,7 +66,8 @@ namespace DispatchSharp
 
 		public void Start()
 		{
-			if (!_workActions.Any()) throw new InvalidOperationException("A dispatcher can't be started until it has at least one consumer");
+			if (!_workActions.Any())
+				throw new InvalidOperationException("A dispatcher can't be started until it has at least one consumer");
 			_pool.Start();
 		}
 

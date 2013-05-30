@@ -27,6 +27,7 @@ namespace DispatchSharp.Integration.Tests
 				_output.Add("End");
 			});
 
+			_subject.Start();
 			for (int i = 0; i < 10; i++) { _subject.AddWork(""); }
 			_subject.Stop();
 

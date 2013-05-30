@@ -10,6 +10,9 @@ namespace DispatchSharp
 
 		/// <summary> Approximate snapshot length </summary>
 		int Length();
+
+		/// <summary> Returns when at least one item is available. Implementations are free to return immediately. </summary>
+		void BlockUntilReady();
 	}
 
 	public interface IWorkQueueItem<T>

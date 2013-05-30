@@ -26,7 +26,7 @@ namespace DispatchSharp.Unit.Tests
 		[Test]
 		public void ignores_started_message ()
 		{
-			_subject.Start();
+			//_subject.Start();
 			_queue.DidNotReceive().TryDequeue();
 		}
 
@@ -36,7 +36,7 @@ namespace DispatchSharp.Unit.Tests
 			_subject.Start();
 			_subject.Stop();
 
-			_subject.TriggerAvailable();
+			//_subject.TriggerAvailable();
 			
 			_queue.Received().TryDequeue();
 		}
@@ -44,8 +44,8 @@ namespace DispatchSharp.Unit.Tests
 		[Test]
 		public void processes_all_available_work_as_soon_as_the_availability_trigger_is_set ()
 		{
-			_subject.TriggerAvailable();
-			_subject.TriggerAvailable();
+			//_subject.TriggerAvailable();
+			//_subject.TriggerAvailable();
 			_queue.Received(2).TryDequeue();
 		}
 	}
