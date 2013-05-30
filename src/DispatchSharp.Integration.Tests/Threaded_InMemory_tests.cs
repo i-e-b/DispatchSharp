@@ -16,7 +16,7 @@ namespace DispatchSharp.Integration.Tests
 			_output = new List<string>();
 			_subject = new Dispatch<string>(new InMemoryWorkQueue<string>(), new ThreadedWorkerPool<string>("Test", 8));
 		}
-		
+
 		[Test]
 		public void stopping_the_dispatcher_completes_all_current_actions_before_stopping()
 		{
