@@ -5,8 +5,6 @@ deploy
 *.suo
 *.cache
 *.nupkg
-~$*
-*~
 *ReSharper*
 *.swp
 *.testsettings
