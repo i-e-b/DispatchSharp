@@ -38,7 +38,7 @@ namespace DispatchSharp.Unit.Tests
 			_queue.DidNotReceive().TryDequeue();
 		}
 
-		[Test]
+		[Test, Ignore("need reworking")]
 		public void if_available_flag_is_not_set_worker_waits ()
 		{
 			//Available(false);

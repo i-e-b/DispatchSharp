@@ -47,12 +47,9 @@ namespace DispatchSharp
 
 		public IEnumerable<Action<T>> AllConsumers()
 		{
-			lock (_lockObject)
+			foreach (var workAction in _workActions)
 			{
-				foreach (var workAction in _workActions)
-				{
-					yield return workAction;
-				}
+				yield return workAction;
 			}
 		}
 

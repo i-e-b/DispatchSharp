@@ -26,7 +26,7 @@ namespace DispatchSharp.WorkerPools
 			if (safety != null) return;
 
 			_running = true;
-			_worker = new Thread(DoWork){IsBackground = true};
+			_worker = new Thread(DoWork){IsBackground = true, Name = "SingleThreadedWorker"};
 			_worker.Start();
 		}
 
@@ -37,7 +37,10 @@ namespace DispatchSharp.WorkerPools
 			var local = Interlocked.Exchange(ref _worker, null);
 			if (local == null) return;
 
-			local.Join();
+			while (!local.Join(1000))
+			{
+				Thread.Sleep(500);
+			}
 		}
 
 		void DoWork()

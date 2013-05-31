@@ -52,7 +52,7 @@ namespace DispatchSharp.QueueTypes
 		}
 
 		public void BlockUntilReady() {
-		//	_waitHandle.WaitOne();
+			_waitHandle.WaitOne();
 		}
 	}
 
