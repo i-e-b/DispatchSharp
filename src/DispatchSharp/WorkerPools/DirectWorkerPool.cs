@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Linq;
+using DispatchSharp.Internal;
 
 namespace DispatchSharp.WorkerPools
 {
@@ -13,6 +14,12 @@ namespace DispatchSharp.WorkerPools
 		IWorkQueue<T> _queue;
 		Thread _worker;
 		volatile bool _running = true;
+		readonly IWaitHandle _started;
+
+		public DirectWorkerPool()
+		{
+			_started = new CrossThreadWait(false);
+		}
 
 		public void SetSource(IDispatch<T> dispatch, IWorkQueue<T> queue)
 		{
@@ -26,8 +33,10 @@ namespace DispatchSharp.WorkerPools
 			if (safety != null) return;
 
 			_running = true;
-			_worker = new Thread(DoWork){IsBackground = true, Name = "SingleThreadedWorker"};
+			_started.Reset();
+			_worker = new Thread(DoWork){IsBackground = true, Name = "SingleThreadedWorker_"+typeof(T).Name};
 			_worker.Start();
+			_started.WaitOne();
 		}
 
 		public void Stop()
@@ -45,9 +54,10 @@ namespace DispatchSharp.WorkerPools
 
 		void DoWork()
 		{
+			Func<bool> started = () => { _started.Set(); return false; };
 			while (_running) {
 				IWorkQueueItem<T> work;
-				while ((work = _queue.TryDequeue()).HasItem)
+				while ((work = _queue.TryDequeue()).HasItem || started())
 				{
 					foreach (var action in _dispatch.AllConsumers().ToArray())
 					{

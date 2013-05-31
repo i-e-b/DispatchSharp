@@ -51,8 +51,8 @@ namespace DispatchSharp.QueueTypes
 			return new WorkQueueItem<T>();
 		}
 
-		public void BlockUntilReady() {
-			_waitHandle.WaitOne();
+		public bool BlockUntilReady() {
+			return _waitHandle.WaitOne();
 		}
 	}
 

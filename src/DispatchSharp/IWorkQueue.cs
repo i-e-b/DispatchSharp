@@ -11,8 +11,14 @@ namespace DispatchSharp
 		/// <summary> Approximate snapshot length </summary>
 		int Length();
 
-		/// <summary> Returns when at least one item is available. Implementations are free to return immediately. </summary>
-		void BlockUntilReady();
+		/// <summary>
+		/// Advisory method: block if the queue is waiting to be populated.
+		/// Should return true when items are available.
+		/// Implementations may return false if polling and no items are available.
+		/// Implementations are free to return immediately.
+		/// Implementations are free to return true even if no items are available.
+		/// </summary>
+		bool BlockUntilReady();
 	}
 
 	public interface IWorkQueueItem<T>

@@ -13,13 +13,15 @@ namespace DispatchSharp.WorkerPools
 		IWorkQueue<T> _queue;
 		volatile object _started;
 		volatile int _inflight;
+		private readonly object _incrementLock;
 
 		public ThreadedWorkerPool(string name, int threadCount)
 		{
-			_name = name ?? "UnnamedWorkerPool";
+			_name = name ?? "UnnamedWorkerPool_" + typeof(T).Name;
 			_pool = new Thread[threadCount];
 			_started = null;
 			_inflight = 0;
+			_incrementLock = new object();
 		}
 
 		public void SetSource(IDispatch<T> dispatch, IWorkQueue<T> queue)
@@ -48,6 +50,13 @@ namespace DispatchSharp.WorkerPools
 		{
 			_started = null;
 			while (_inflight > 0) Thread.Sleep(1);
+
+			if (_pool == null) return;
+			foreach (var thread in _pool)
+			{
+				if (thread == null) return;
+				thread.Join(1000);
+			}
 		}
 
 		public int WorkersInflight()
@@ -55,7 +64,6 @@ namespace DispatchSharp.WorkerPools
 			return _inflight;
 		}
 
-		private static readonly object IncrementLock = new object();
 
 		void WorkLoop(object reference)
 		{
@@ -64,7 +72,7 @@ namespace DispatchSharp.WorkerPools
 			{
 				_queue.BlockUntilReady();
 
-				lock (IncrementLock)
+				lock (_incrementLock)
 				{
 					if (_inflight >= _dispatch.MaximumInflight) continue;
 					Interlocked.Increment(ref _inflight);
