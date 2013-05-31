@@ -2,9 +2,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DispatchSharp.Internal;
+using DispatchSharp.QueueTypes;
+using DispatchSharp.WorkerPools;
 
 namespace DispatchSharp
 {
+	/// <summary>
+	/// Default dispatcher
+	/// </summary>
+	/// <typeparam name="T">Type of work item to be processed</typeparam>
 	public class Dispatch<T> : IDispatch<T>
 	{
 		readonly IWorkQueue<T> _queue;
@@ -12,6 +18,19 @@ namespace DispatchSharp
 		readonly IList<Action<T>> _workActions;
 		readonly object _lockObject;
 
+		/// <summary>
+		/// Create a dispatcher with defaults for processing non-persistent items
+		/// using all the CPU cores on the local machine
+		/// </summary>
+		/// <param name="name">Name of the dispatcher (useful for debugging)</param>
+		public static IDispatch<T> CreateDefaultMultithreaded(string name)
+		{
+			return new Dispatch<T>(new InMemoryWorkQueue<T>(), new ThreadedWorkerPool<T>(name));
+		}
+
+		/// <summary>
+		/// Create a dispatcher with a specific queue and worker pool
+		/// </summary>
 		public Dispatch(IWorkQueue<T> workQueue, IWorkerPool<T> workerPool)
 		{
 			MaximumInflight = Default.ThreadCount;
@@ -25,13 +44,16 @@ namespace DispatchSharp
 			_pool.SetSource(this, _queue);
 		}
 
+		/// <summary> Maximum number of work items being processed at any one time </summary>
 		public int MaximumInflight { get; set; }
 
+		/// <summary> Snapshot of number of work items being processed </summary>
 		public int CurrentInflight()
 		{
 			return _pool.WorkersInflight();
 		}
 
+		/// <summary> Add an action to take when work is processed </summary>
 		public void AddConsumer(Action<T> action)
 		{
 			lock (_lockObject)
@@ -40,11 +62,13 @@ namespace DispatchSharp
 			}
 		}
 
+		/// <summary> Add a work item to process </summary>
 		public void AddWork(T work)
 		{
 			_queue.Enqueue(work);
 		}
 
+		/// <summary> All consumers added to this dispatcher </summary>
 		public IEnumerable<Action<T>> AllConsumers()
 		{
 			foreach (var workAction in _workActions)
@@ -53,14 +77,17 @@ namespace DispatchSharp
 			}
 		}
 
+		/// <summary> Event triggered when a consumer throws an exception </summary>
 		public event EventHandler<ExceptionEventArgs> Exceptions;
 
+		/// <summary> Trigger to call when a consumer throws an exception </summary>
 		public void OnExceptions(Exception e)
 		{
 			var handler = Exceptions;
 			if (handler != null) handler(this, new ExceptionEventArgs { SourceException = e });
 		}
 
+		/// <summary> Start consuming work and continue until stopped </summary>
 		public void Start()
 		{
 			lock (_lockObject)
@@ -71,6 +98,7 @@ namespace DispatchSharp
 			}
 		}
 
+		/// <summary> Stop consuming work and return when all in-progress work is complete </summary>
 		public void Stop()
 		{
 			lock (_lockObject)

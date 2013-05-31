@@ -1,5 +1,10 @@
 namespace DispatchSharp
 {
+	/// <summary>
+	/// Contract for an ordered queue of work to be acted upon.
+	/// All implementations should be thread-safe.
+	/// </summary>
+	/// <typeparam name="T">Type of item to be stored</typeparam>
 	public interface IWorkQueue<T>
 	{
 		/// <summary> Add an item to the queue </summary>
@@ -19,14 +24,5 @@ namespace DispatchSharp
 		/// Implementations are free to return true even if no items are available.
 		/// </summary>
 		bool BlockUntilReady();
-	}
-
-	public interface IWorkQueueItem<T>
-	{
-		bool HasItem { get; }
-		T Item { get; }
-
-		void Finish();
-		void Cancel();
 	}
 }

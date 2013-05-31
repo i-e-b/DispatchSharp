@@ -3,11 +3,22 @@ using System.Collections.Generic;
 
 namespace DispatchSharp
 {
+	/// <summary>
+	/// Arguments for events triggered by uncaught exceptions
+	/// </summary>
 	public class ExceptionEventArgs : EventArgs
 	{
+		/// <summary>
+		/// Triggering exception
+		/// </summary>
 		public Exception SourceException { get; set; }
 	}
 
+	/// <summary>
+	/// Dispatcher co-ordinated a worker pool with a work item queue,
+	/// and keeps track of actions to be taken with work items.
+	/// </summary>
+	/// <typeparam name="T">Type of work items to be processed</typeparam>
 	public interface IDispatch<T>
 	{
 		/// <summary> Maximum number of work items being processed at any one time </summary>

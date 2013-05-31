@@ -1,15 +1,21 @@
-using System;
 using System.Collections.Generic;
 using DispatchSharp.Internal;
 
 namespace DispatchSharp.QueueTypes
 {
+	/// <summary>
+	/// A non-persistent lock-based worker queue.
+	/// </summary>
+	/// <typeparam name="T">Type of items to be stored</typeparam>
 	public class InMemoryWorkQueue<T> : IWorkQueue<T>
 	{
 		readonly object _lockObject;
 		readonly Queue<T> _queue;
 		readonly IWaitHandle _waitHandle;
 
+		/// <summary>
+		/// Create a new empty worker queue
+		/// </summary>
 		public InMemoryWorkQueue()
 		{
 			_queue = new Queue<T>();
@@ -17,6 +23,7 @@ namespace DispatchSharp.QueueTypes
 			_waitHandle = new CrossThreadWait(false);
 		}
 
+		/// <summary> Add an item to the queue </summary>
 		public void Enqueue(T work)
 		{
 			lock (_lockObject)
@@ -26,6 +33,7 @@ namespace DispatchSharp.QueueTypes
 			}
 		}
 
+		/// <summary> Try and get an item from this queue. Success is encoded in the IWorkQueueItem result 'HasItem' </summary>
 		public IWorkQueueItem<T> TryDequeue()
 		{
 			lock(_lockObject)
@@ -38,6 +46,7 @@ namespace DispatchSharp.QueueTypes
 			}
 		}
 
+		/// <summary> Current queue length </summary>
 		public int Length()
 		{
 			lock (_lockObject)
@@ -51,38 +60,12 @@ namespace DispatchSharp.QueueTypes
 			return new WorkQueueItem<T>();
 		}
 
+		/// <summary>
+		/// Blocks the current thread until an item is available on the queue.
+		/// Will block indefinitely. Does not guarantee an item will be dequeued successfully.
+		/// </summary>
 		public bool BlockUntilReady() {
 			return _waitHandle.WaitOne();
-		}
-	}
-
-	public class WorkQueueItem<T>:IWorkQueueItem<T>
-	{
-		readonly Action<T> _finish;
-		readonly Action<T> _cancel;
-		public bool HasItem { get; set; }
-		public T Item { get; set; }
-
-		public WorkQueueItem()
-		{
-			HasItem = false;
-		}
-		public WorkQueueItem(T item, Action<T> finish, Action<T> cancel)
-		{
-			_finish = finish ?? (t => { });
-			_cancel = cancel ?? (t => { });
-			HasItem = true;
-			Item = item;
-		}
-
-		public void Finish()
-		{
-			_finish(Item);
-		}
-
-		public void Cancel()
-		{
-			_cancel(Item);
 		}
 	}
 }

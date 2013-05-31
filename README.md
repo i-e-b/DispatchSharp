@@ -8,10 +8,7 @@ Models a job dispatch pattern and provides both threaded and non threaded implem
 Getting Started
 ---------------
 ```csharp
-IDispatcher dispatcher = new Dispatch<object>(
-		new InMemoryWorkQueue<object>(),
-		new ThreadedWorkerPool<object>("myDispatcher", Environment.ProcessorCount)
-	);
+var dispatcher = Dispatch<object>.CreateDefaultMultithreaded("MyTask");
 
 dispatcher.AddConsumer(MyWorkMethod);
 
@@ -28,11 +25,4 @@ void MyWorkMethod(object obj)
 	. . .
 }
 ```
-
-Todo:
-------
-
-Work queue:
- * self-populating queues
- * persistent store and forward for waiting jobs.
  

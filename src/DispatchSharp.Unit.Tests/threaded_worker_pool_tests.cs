@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using DispatchSharp.WorkerPools;
 using NSubstitute;
 using NUnit.Framework;
@@ -16,6 +17,28 @@ namespace DispatchSharp.Unit.Tests
 			_queue = Substitute.For<IWorkQueue<object>>();
 			_subject = new ThreadedWorkerPool<object>("name", 4);
 			_subject.SetSource(_dispatcher, _queue);
+		}
+
+		[Test]
+		[TestCase(-1)]
+		[TestCase(0)]
+		public void creating_a_worker_pool_with_no_threads_causes_an_exception (int threadCount)
+		{
+			var ex = Assert.Throws<ArgumentException>(() => new ThreadedWorkerPool<object>("name", threadCount));
+			Assert.That(ex.Message, Contains.Substring("thread count must be at least one"));
+		}
+		
+		[Test]
+		public void creating_a_worker_pool_with_a_huge_number_of_threads_causes_an_exception ()
+		{
+			Assert.Throws<ArgumentException>(() => new ThreadedWorkerPool<object>("name", 1000000));
+		}
+
+		[Test]
+		public void default_number_of_threads_is_equal_to_logical_processor_count ()
+		{
+			var withDefaults = new ThreadedWorkerPool<object>("name");
+			Assert.That(withDefaults.PoolSize(), Is.EqualTo(Environment.ProcessorCount));
 		}
 
 		[Test]

@@ -7,6 +7,7 @@ namespace DispatchSharp.WorkerPools
 {
 	/// <summary>
 	/// Single threaded on-demand pool for integration testing
+	/// WARNING: this pool with continue to work if the queue is kept populated
 	/// </summary>
 	public class DirectWorkerPool<T> : IWorkerPool<T>
 	{
@@ -16,17 +17,26 @@ namespace DispatchSharp.WorkerPools
 		volatile bool _running = true;
 		readonly IWaitHandle _started;
 
+		/// <summary>
+		/// Create a new direct worker pool
+		/// </summary>
 		public DirectWorkerPool()
 		{
 			_started = new CrossThreadWait(false);
 		}
 
+		/// <summary>
+		/// Set source queue and managing dispatcher
+		/// </summary>
 		public void SetSource(IDispatch<T> dispatch, IWorkQueue<T> queue)
 		{
 			_dispatch = dispatch;
 			_queue = queue;
 		}
 
+		/// <summary>
+		/// Start processing queue items as they become available
+		/// </summary>
 		public void Start()
 		{
 			var safety = Interlocked.CompareExchange(ref _worker, null, null);
@@ -39,6 +49,10 @@ namespace DispatchSharp.WorkerPools
 			_started.WaitOne();
 		}
 
+		/// <summary>
+		/// Stop processing once work queue is exhausted.
+		/// WARNING: this pool with continue to work if the queue is kept populated
+		/// </summary>
 		public void Stop()
 		{
 			_running = false;
@@ -76,6 +90,9 @@ namespace DispatchSharp.WorkerPools
 			}
 		}
 
+		/// <summary>
+		/// Current number of workers running actions against queue items
+		/// </summary>
 		public int WorkersInflight()
 		{
 			return 0;
