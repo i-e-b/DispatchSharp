@@ -21,7 +21,7 @@ namespace DispatchSharp.Unit.Tests
 		public void if_dispatcher_maximum_inflight_is_less_than_one_no_tasks_will_be_started ()
 		{
 			_dispatcher.MaximumInflight.Returns(0);
-			Available(true);
+			//Available(true);
 			Go();
 			_queue.DidNotReceive().TryDequeue();
 		}
@@ -30,7 +30,7 @@ namespace DispatchSharp.Unit.Tests
 		public void if_maximum_inflight_is_greater_than_zero_tasks_will_be_started ()
 		{
 			_dispatcher.MaximumInflight.Returns(1);
-			Available(true);
+			//Available(true);
 			Go();
 			_queue.Received().TryDequeue();
 		}

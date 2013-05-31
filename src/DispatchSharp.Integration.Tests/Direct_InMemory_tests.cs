@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading;
 using DispatchSharp.QueueTypes;
 using DispatchSharp.WorkerPools;
 using NUnit.Framework;
@@ -29,6 +30,7 @@ namespace DispatchSharp.Integration.Tests
 
 			_subject.Start();
 			for (int i = 0; i < 10; i++) { _subject.AddWork(""); }
+			Thread.Sleep(10);
 			_subject.Stop();
 
 			Assert.That(_output.Count(), Is.EqualTo(20));

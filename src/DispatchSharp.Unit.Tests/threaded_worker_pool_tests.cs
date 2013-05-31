@@ -41,7 +41,7 @@ namespace DispatchSharp.Unit.Tests
 		[Test]
 		public void if_available_flag_is_not_set_worker_waits ()
 		{
-			Available(false);
+			//Available(false);
 			Go();
 			_queue.DidNotReceive().TryDequeue();
 		}
@@ -49,7 +49,7 @@ namespace DispatchSharp.Unit.Tests
 		[Test]
 		public void if_available_flag_is_set_worker_polls_for_work_item()
 		{
-			Available(true);
+			//Available(true);
 			Go();
 			_queue.Received().TryDequeue();
 		}

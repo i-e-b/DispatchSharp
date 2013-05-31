@@ -21,8 +21,8 @@ namespace DispatchSharp.QueueTypes
 		{
 			lock (_lockObject)
 			{
-				_waitHandle.Set();
 				_queue.Enqueue(work);
+				_waitHandle.Set();
 			}
 		}
 
@@ -52,7 +52,7 @@ namespace DispatchSharp.QueueTypes
 		}
 
 		public void BlockUntilReady() {
-			_waitHandle.WaitOne();
+		//	_waitHandle.WaitOne();
 		}
 	}
 

@@ -79,6 +79,7 @@ namespace DispatchSharp.Integration.Tests
 			_subject.AddWork("THROW");
 			_subject.AddWork("World");
 			Thread.Sleep(1000);
+			_subject.Stop();
 			Assert.That(_output, Is.EquivalentTo(new[] { "Hello", "WiggleWoggle", "World" }));
 		}
 

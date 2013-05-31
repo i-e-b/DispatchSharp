@@ -32,18 +32,18 @@ namespace DispatchSharp.WorkerPools
 
 		public void Stop()
 		{
+			_running = false;
+
 			var local = Interlocked.Exchange(ref _worker, null);
 			if (local == null) return;
 
-			_running = false;
 			local.Join();
 		}
 
 		void DoWork()
 		{
-			IWorkQueueItem<T> work;
 			while (_running) {
-				_queue.BlockUntilReady();
+				IWorkQueueItem<T> work;
 				while ((work = _queue.TryDequeue()).HasItem)
 				{
 					foreach (var action in _dispatch.AllConsumers().ToArray())

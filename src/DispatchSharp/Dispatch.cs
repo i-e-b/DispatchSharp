@@ -66,21 +66,19 @@ namespace DispatchSharp
 
 		public void Start()
 		{
-			if (!_workActions.Any())
-				throw new InvalidOperationException("A dispatcher can't be started until it has at least one consumer");
-			_pool.Start();
+			lock (_lockObject)
+			{
+				if (!_workActions.Any())
+					throw new InvalidOperationException("A dispatcher can't be started until it has at least one consumer");
+				_pool.Start();
+			}
 		}
 
 		public void Stop()
 		{
-			var oldMax = MaximumInflight;
-			try
+			lock (_lockObject)
 			{
-				MaximumInflight = 0;
 				_pool.Stop();
-			} finally
-			{
-				MaximumInflight = oldMax;
 			}
 		}
 	}

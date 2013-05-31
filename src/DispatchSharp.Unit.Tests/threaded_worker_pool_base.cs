@@ -10,12 +10,6 @@ namespace DispatchSharp.Unit.Tests
 		public IWorkerPool<object> _subject;
 		public IWorkQueue<object> _queue;
 		
-
-		public void Available(bool b)
-		{
-			if (b) ((ThreadedWorkerPool<object>)_subject).Available.Set();
-			else ((ThreadedWorkerPool<object>)_subject).Available.Reset();
-		}
 		public void Go()
 		{
 			_subject.Start();
