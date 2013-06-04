@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using DispatchSharp.Internal;
 
@@ -65,7 +66,7 @@ namespace DispatchSharp.QueueTypes
 		/// Will block indefinitely. Does not guarantee an item will be dequeued successfully.
 		/// </summary>
 		public bool BlockUntilReady() {
-			return _waitHandle.WaitOne();
+			return _waitHandle.WaitOne(TimeSpan.FromMilliseconds(500));
 		}
 	}
 }

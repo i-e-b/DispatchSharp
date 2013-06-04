@@ -12,10 +12,13 @@ namespace DispatchSharp.WorkerPools
 	/// Worker pool that delegates work to happen on a set number of worker threads.
 	/// Does not consume any more items than there are free workers.
 	/// Strictly obeys inflight limit from dispatcher.
+	/// Once a worker starts an item it will try to finish it even if the dispatcher is
+	/// shut down. Threads will be left to die after one minute.
 	/// </summary>
 	/// <typeparam name="T">Type of item on the work queue</typeparam>
 	public class ThreadedWorkerPool<T> : IWorkerPool<T>
 	{
+		const int OneMinute = 60000;
 		readonly string _name;
 		readonly Thread[] _pool;
 		IDispatch<T> _dispatch;
@@ -85,10 +88,34 @@ namespace DispatchSharp.WorkerPools
 			while (_inflight > 0) Thread.Sleep(1);
 
 			if (_pool == null) return;
-			foreach (var thread in _pool)
+			foreach (var thread in _pool) SafeKillThread(thread);
+		}
+
+		/// <summary>
+		/// Wait for working threads to finish (up to 1 minute)
+		/// Kill waiting threads immediately.
+		/// 
+		/// Waiting threads are marked by a non-normal thread priority
+		/// </summary>
+		static void SafeKillThread(Thread thread)
+		{
+			if (thread == null) return;
+			if (!thread.IsAlive) return;
+			try
 			{
-				if (thread == null) return;
-				thread.Join(10000);
+				if (thread.Priority == ThreadPriority.Normal)
+				{
+					thread.Join(OneMinute);
+				}
+				else
+				{
+					thread.Abort();
+
+				}
+			}
+			catch
+			{
+				Thread.ResetAbort();
 			}
 		}
 
@@ -114,7 +141,8 @@ namespace DispatchSharp.WorkerPools
 			Func<bool> running = () => _started == reference;
 			while (running())
 			{
-				_queue.BlockUntilReady();
+				WaitForQueueIfStillActive();
+				if (!running()) return;
 
 				lock (_incrementLock)
 				{
@@ -143,5 +171,14 @@ namespace DispatchSharp.WorkerPools
 			}
 		}
 
+		/// <summary>
+		/// Mark the thread as low priority while it is waiting for queue work.
+		/// </summary>
+		void WaitForQueueIfStillActive()
+		{
+			Thread.CurrentThread.Priority = ThreadPriority.BelowNormal;
+			_queue.BlockUntilReady();
+			Thread.CurrentThread.Priority = ThreadPriority.Normal;
+		}
 	}
 }

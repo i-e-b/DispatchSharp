@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Threading;
 using DispatchSharp.WorkerPools;
 using NSubstitute;
@@ -62,11 +63,17 @@ namespace DispatchSharp.Unit.Tests
 		}
 
 		[Test]
-		public void if_available_flag_is_not_set_worker_waits ()
+		public void if_available_flag_is_not_set_worker_waits_and_aborts_if_still_waiting ()
 		{
-			_queue.BlockUntilReady().ReturnsForAnyArgs(i => { Thread.Sleep(100000); return false; });
+			var sw = new Stopwatch();
+			sw.Start();
+
+			_queue.BlockUntilReady().ReturnsForAnyArgs(i => { Thread.Sleep(1000000); return false; });
 			Go();
 			_queue.DidNotReceive().TryDequeue();
+
+			sw.Stop();
+			Assert.That(sw.ElapsedMilliseconds, Is.LessThan(1000));
 		}
 
 		[Test]

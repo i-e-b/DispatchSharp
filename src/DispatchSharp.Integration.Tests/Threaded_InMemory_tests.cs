@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using DispatchSharp.QueueTypes;
@@ -15,6 +16,22 @@ namespace DispatchSharp.Integration.Tests
 		{
 			_output = new List<string>();
 			_subject = new Dispatch<string>(new InMemoryWorkQueue<string>(), new ThreadedWorkerPool<string>("Test", 8));
+		}
+
+		[Test]
+		public void can_start_and_stop_in_a_reasonable_time ()
+		{
+			_subject.AddConsumer(x => { });
+
+			var stopwatch = new Stopwatch();
+			stopwatch.Start();
+			
+			_subject.Start();
+			Thread.Sleep(125);
+			_subject.Stop();
+
+			stopwatch.Stop();
+			Assert.That(stopwatch.ElapsedMilliseconds, Is.LessThan(1000));
 		}
 
 		[Test]

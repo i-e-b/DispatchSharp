@@ -1,3 +1,5 @@
+using System;
+
 namespace DispatchSharp.Internal
 {
 	/// <summary>
@@ -9,6 +11,12 @@ namespace DispatchSharp.Internal
 		/// Wait for signal to be Set
 		/// </summary>
 		bool WaitOne();
+		
+		/// <summary>
+		/// Wait for signal to be Set,
+		/// wait up to timeout, but no longer.
+		/// </summary>
+		bool WaitOne(TimeSpan timeout);
 
 		/// <summary>
 		/// Set signal, unblocking all waiting threads

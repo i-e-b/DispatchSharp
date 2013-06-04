@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 
 namespace DispatchSharp.Internal
@@ -13,6 +14,11 @@ namespace DispatchSharp.Internal
 		public bool WaitOne()
 		{
 			return _base.WaitOne();
+		}
+
+		public bool WaitOne(TimeSpan timeout)
+		{
+			return _base.WaitOne(timeout);
 		}
 
 		public void Set()
