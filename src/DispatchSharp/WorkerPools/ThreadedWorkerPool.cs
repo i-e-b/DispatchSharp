@@ -110,7 +110,6 @@ namespace DispatchSharp.WorkerPools
 				else
 				{
 					thread.Abort();
-
 				}
 			}
 			catch
@@ -176,9 +175,16 @@ namespace DispatchSharp.WorkerPools
 		/// </summary>
 		void WaitForQueueIfStillActive()
 		{
-			Thread.CurrentThread.Priority = ThreadPriority.BelowNormal;
-			_queue.BlockUntilReady();
-			Thread.CurrentThread.Priority = ThreadPriority.Normal;
+			try
+			{
+				Thread.CurrentThread.Priority = ThreadPriority.BelowNormal;
+				_queue.BlockUntilReady();
+				Thread.CurrentThread.Priority = ThreadPriority.Normal;
+			}
+			catch (ThreadAbortException)
+			{
+				Thread.ResetAbort();
+			}
 		}
 	}
 }
