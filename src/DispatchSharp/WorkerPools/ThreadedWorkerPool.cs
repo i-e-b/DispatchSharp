@@ -145,7 +145,7 @@ namespace DispatchSharp.WorkerPools
 
 				lock (_incrementLock)
 				{
-					if (_inflight >= _dispatch.MaximumInflight) continue;
+					if (_inflight >= _dispatch.MaximumInflight()) continue;
 					Interlocked.Increment(ref _inflight);
 				}
 

@@ -40,7 +40,7 @@ namespace DispatchSharp.Integration.Tests
 		[Test]
 		public void batch_helper_completes_work_and_calls_back_to_exception_handler ()
 		{
-			Dispatch<string>.ProcessBatch("MyBatch", _work, Action, e => _exceptions.Add(e.Message));
+			Dispatch<string>.ProcessBatch("MyBatch", _work, Action, 1, e => _exceptions.Add(e.Message));
 			
 			Assert.That(_output, Is.EquivalentTo(_expected));
 			Assert.That(_exceptions, Is.EquivalentTo(new [] {"Yo!"}));

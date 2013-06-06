@@ -97,5 +97,13 @@ namespace DispatchSharp.WorkerPools
 		{
 			return 0;
 		}
+
+		/// <summary>
+		/// Returns number of worker threads in use
+		/// </summary>
+		public int PoolSize()
+		{
+			return 1;
+		}
 	}
 }

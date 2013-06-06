@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DispatchSharp.Internal;
+using DispatchSharp.WorkerPools;
 
 namespace DispatchSharp
 {
@@ -15,13 +16,14 @@ namespace DispatchSharp
 		readonly IWorkerPool<T> _pool;
 		readonly IList<Action<T>> _workActions;
 		readonly object _lockObject;
+		int _maximumInflight;
 
 		/// <summary>
 		/// Create a dispatcher with a specific queue and worker pool
 		/// </summary>
 		public Dispatch(IWorkQueue<T> workQueue, IWorkerPool<T> workerPool)
 		{
-			MaximumInflight = Default.ThreadCount;
+			_maximumInflight = workerPool.PoolSize();
 
 			_queue = workQueue;
 			_pool = workerPool;
@@ -33,7 +35,16 @@ namespace DispatchSharp
 		}
 
 		/// <summary> Maximum number of work items being processed at any one time </summary>
-		public int MaximumInflight { get; set; }
+		public int MaximumInflight()
+		{
+			return _maximumInflight; }
+
+		/// <summary>
+		/// Maximum number of work items being processed at any one time
+		/// </summary>
+		public void SetMaximumInflight(int max) {
+			 _maximumInflight = max;
+		}
 
 		/// <summary> Snapshot of number of work items being processed </summary>
 		public int CurrentInflight()

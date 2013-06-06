@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DispatchSharp.Internal;
 using DispatchSharp.QueueTypes;
 using DispatchSharp.WorkerPools;
 
@@ -12,18 +13,25 @@ namespace DispatchSharp
 		/// using all the CPU cores on the local machine
 		/// </summary>
 		/// <param name="name">Name of the dispatcher (useful for debugging)</param>
-		public static IDispatch<T> CreateDefaultMultithreaded(string name)
+		/// <param name="threadCount">Number of thread to use. Default is number of cores in the host.</param>
+		public static IDispatch<T> CreateDefaultMultithreaded(string name, int threadCount = 0)
 		{
-			return new Dispatch<T>(new InMemoryWorkQueue<T>(), new ThreadedWorkerPool<T>(name));
+			var threads = (threadCount > 0) ? threadCount : Default.ThreadCount;
+			return new Dispatch<T>(new InMemoryWorkQueue<T>(), new ThreadedWorkerPool<T>(name, threads));
 		}
 
 		/// <summary>
 		/// Process a batch of work with all defaults and a given action.
 		/// Blocks until all work complete.
 		/// </summary>
-		public static void ProcessBatch(string name, IEnumerable<T> batch, Action<T> task, Action<Exception> exceptionHandler = null)
+		public static void ProcessBatch(
+			string name,
+			IEnumerable<T> batch,
+			Action<T> task,
+			int threadCount = 0,
+			Action<Exception> exceptionHandler = null)
 		{
-			var dispatcher = CreateDefaultMultithreaded(name);
+			var dispatcher = CreateDefaultMultithreaded(name, threadCount);
 			if (exceptionHandler != null) dispatcher.Exceptions += (s,e) => exceptionHandler(e.SourceException); 
 			dispatcher.AddConsumer(task);
 			dispatcher.Start();

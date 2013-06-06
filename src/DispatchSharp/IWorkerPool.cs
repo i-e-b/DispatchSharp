@@ -27,5 +27,10 @@ namespace DispatchSharp
 		/// Current number of workers running actions against queue items
 		/// </summary>
 		int WorkersInflight();
+
+		/// <summary>
+		/// Returns number of worker threads in use
+		/// </summary>
+		int PoolSize();
 	}
 }

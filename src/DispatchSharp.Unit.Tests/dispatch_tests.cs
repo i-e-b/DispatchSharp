@@ -17,7 +17,14 @@ namespace DispatchSharp.Unit.Tests
 		{
 			_queue = Substitute.For<IWorkQueue<object>>();
 			_pool = Substitute.For<IWorkerPool<object>>();
+			_pool.PoolSize().Returns(10000);
 			_subject = new Dispatch<object>(_queue, _pool);
+		}
+
+		[Test]
+		public void default_inflight_limit_is_same_as_pool_size ()
+		{
+			Assert.That(_subject.MaximumInflight(), Is.EqualTo(10000));
 		}
 
 		[Test]
@@ -102,17 +109,11 @@ namespace DispatchSharp.Unit.Tests
 		}
 
 		[Test]
-		public void default_maximum_inflight_is_same_as_processor_count ()
-		{
-			Assert.That(_subject.MaximumInflight, Is.EqualTo(Default.ThreadCount));
-		}
-
-		[Test]
 		public void maximum_inflight_can_be_set ()
 		{
 			int newSetting = 2;
-			_subject.MaximumInflight = newSetting;
-			Assert.That(_subject.MaximumInflight, Is.EqualTo(newSetting));
+			_subject.SetMaximumInflight(newSetting);
+			Assert.That(_subject.MaximumInflight(), Is.EqualTo(newSetting));
 		}
 
 		[Test]

@@ -108,7 +108,7 @@ namespace DispatchSharp.Integration.Tests
 				Thread.Sleep(15);
 			});
 
-			_subject.MaximumInflight =limit;
+			_subject.SetMaximumInflight(limit);
 			_subject.Start();
 
 			const int runs = 100;

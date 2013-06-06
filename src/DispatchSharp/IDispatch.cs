@@ -22,7 +22,12 @@ namespace DispatchSharp
 	public interface IDispatch<T>
 	{
 		/// <summary> Maximum number of work items being processed at any one time </summary>
-		int MaximumInflight { get; set; }
+		int MaximumInflight();
+
+		/// <summary>
+		/// Maximum number of work items being processed at any one time
+		/// </summary>
+		void SetMaximumInflight(int max);
 
 		/// <summary> Snapshot of number of work items being processed </summary>
 		int CurrentInflight();
