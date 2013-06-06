@@ -61,6 +61,25 @@ namespace DispatchSharp.Unit.Tests
 		}
 
 		[Test]
+		public void added_work_enumerables_are_all_added_to_queue ()
+		{
+			var thing = new []{new object(), new object(), new object()};
+			_subject.AddWork(thing);
+			_queue.Received(3).Enqueue(Arg.Any<object>());
+		}
+
+		[Test]
+		public void waiting_stop_polls_queue_and_eventually_stops ()
+		{
+			_queue.Length().Returns(3,2,1,0);
+
+			_subject.WaitForEmptyQueueAndStop();
+
+			_queue.Received(4).Length();
+			_pool.Received().Stop();
+		}
+
+		[Test]
 		public void added_workers_are_available_to_enumerate ()
 		{
 			Action<object> a = o => { }, b = o => { };

@@ -7,15 +7,27 @@ Models a job dispatch pattern and provides both threaded and non threaded implem
 
 Getting Started
 ---------------
+Doing a batch of work:
 ```csharp
-var dispatcher = Dispatch<object>.CreateDefaultMultithreaded("MyTask");
+void DoBatch(IEnumerable<object> workToDo) {
+	var dispatcher = Dispatch<object>.CreateDefaultMultithreaded("MyTask");
 
-dispatcher.AddConsumer(MyWorkMethod);
-
-for (int i = 0; i < 10; i++)
-{
-	dispatcher.AddWork(new object());
+	dispatcher.AddConsumer(MyWorkMethod);
+	dispatcher.Start();
+	dispatcher.AddWork(workToDo);
+	dispatcher.WaitForEmptyQueueAndStop();	// only call this if you're not filling the queue from elsewhere
 }
+```
+
+Handling long running incoming jobs:
+```csharp
+dispatcher = Dispatch<object>.CreateDefaultMultithreaded("MyService");
+dispatcher.AddConsumer(MyWorkMethod);
+dispatcher.Start();
+.
+.
+.
+dispatcher.AddWork(...);
 ```
 
 with a method defined like
@@ -25,4 +37,6 @@ void MyWorkMethod(object obj)
 	. . .
 }
 ```
+
+
  

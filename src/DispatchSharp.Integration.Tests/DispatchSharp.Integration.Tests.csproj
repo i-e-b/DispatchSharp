@@ -39,6 +39,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BatchOfWorkTests.cs" />
     <Compile Include="behaviours.cs" />
     <Compile Include="Direct_InMemory_tests.cs" />
     <Compile Include="Threaded_InMemory_tests.cs" />

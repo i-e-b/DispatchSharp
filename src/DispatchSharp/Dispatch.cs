@@ -2,8 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DispatchSharp.Internal;
-using DispatchSharp.QueueTypes;
-using DispatchSharp.WorkerPools;
 
 namespace DispatchSharp
 {
@@ -11,22 +9,12 @@ namespace DispatchSharp
 	/// Default dispatcher
 	/// </summary>
 	/// <typeparam name="T">Type of work item to be processed</typeparam>
-	public class Dispatch<T> : IDispatch<T>
+	public partial class Dispatch<T> : IDispatch<T>
 	{
 		readonly IWorkQueue<T> _queue;
 		readonly IWorkerPool<T> _pool;
 		readonly IList<Action<T>> _workActions;
 		readonly object _lockObject;
-
-		/// <summary>
-		/// Create a dispatcher with defaults for processing non-persistent items
-		/// using all the CPU cores on the local machine
-		/// </summary>
-		/// <param name="name">Name of the dispatcher (useful for debugging)</param>
-		public static IDispatch<T> CreateDefaultMultithreaded(string name)
-		{
-			return new Dispatch<T>(new InMemoryWorkQueue<T>(), new ThreadedWorkerPool<T>(name));
-		}
 
 		/// <summary>
 		/// Create a dispatcher with a specific queue and worker pool
@@ -68,6 +56,15 @@ namespace DispatchSharp
 			_queue.Enqueue(work);
 		}
 
+		/// <summary> Add multiple work items to process </summary>
+		public void AddWork(IEnumerable<T> workList)
+		{
+			foreach (var item in workList)
+			{
+				_queue.Enqueue(item);
+			}
+		}
+
 		/// <summary> All consumers added to this dispatcher </summary>
 		public IEnumerable<Action<T>> AllConsumers()
 		{
@@ -105,6 +102,16 @@ namespace DispatchSharp
 			{
 				_pool.Stop();
 			}
+		}
+
+		/// <summary>
+		/// Continue consuming work and return when the queue reports 0 items waiting.
+		/// If you continue to add work, this method will continue to block.
+		/// </summary>
+		public void WaitForEmptyQueueAndStop()
+		{
+			while(_queue.BlockUntilReady() || _queue.Length() > 0) { }
+			Stop();
 		}
 	}
 }

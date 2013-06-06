@@ -63,7 +63,7 @@ namespace DispatchSharp.QueueTypes
 
 		/// <summary>
 		/// Blocks the current thread until an item is available on the queue.
-		/// Will block indefinitely. Does not guarantee an item will be dequeued successfully.
+		/// Will block for up to 500ms. Does not guarantee an item will be dequeued successfully.
 		/// </summary>
 		public bool BlockUntilReady() {
 			return _waitHandle.WaitOne(TimeSpan.FromMilliseconds(500));

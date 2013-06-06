@@ -32,6 +32,9 @@ namespace DispatchSharp
 
 		/// <summary> Add a work item to process </summary>
 		void AddWork(T work);
+		
+		/// <summary> Add multiple work items to process </summary>
+		void AddWork(IEnumerable<T> workList);
 
 		/// <summary> All consumers added to this dispatcher </summary>
 		IEnumerable<Action<T>> AllConsumers();
@@ -48,5 +51,9 @@ namespace DispatchSharp
 		/// <summary> Stop consuming work and return when all in-progress work is complete </summary>
 		void Stop();
 
+		/// <summary>
+		/// Continue consuming work and return when the queue reports 0 items waiting. 
+		/// </summary>
+		void WaitForEmptyQueueAndStop();
 	}
 }

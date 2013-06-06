@@ -38,14 +38,14 @@ namespace DispatchSharp.Unit.Tests
 		}
 
 		[Test]
-		public void a_failing_action_results_in_item_cancellation ()
+		public void a_failing_action_results_in_item_being_finished ()
 		{
 			ForFailingAction();
 			var item = ItemAvailable();
 			Go();
 
 			Assert.That(_actionCalled);
-			item.Received().Cancel();
+			item.Received().Finish();
 		}
 
 		void ForSuccessfulAction()

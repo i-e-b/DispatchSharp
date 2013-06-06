@@ -157,12 +157,14 @@ namespace DispatchSharp.WorkerPools
 						try
 						{
 							action(work.Item);
-							work.Finish();
 						}
 						catch (Exception ex)
 						{
-							work.Cancel();
 							_dispatch.OnExceptions(ex);
+						}
+						finally
+						{
+							work.Finish();
 						}
 					}
 				}

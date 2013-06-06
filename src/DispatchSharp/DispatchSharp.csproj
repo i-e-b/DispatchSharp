@@ -35,6 +35,7 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DispatchStatics.cs" />
     <Compile Include="Internal\CrossThreadWait.cs" />
     <Compile Include="Internal\Default.cs" />
     <Compile Include="IWorkQueueItem.cs" />
