@@ -17,6 +17,7 @@ namespace DispatchSharp
 		/// The work item that caused the exception.
 		/// You can use the Cancel or Finish methods to control work
 		/// rescheduling.
+		/// If you don't call Cancel, the work item will be Finished by default.
 		/// </summary>
 		public IWorkQueueItem<T> WorkItem { get; set; }
 	}
