@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 
 namespace DispatchSharp.QueueTypes
 {
@@ -10,6 +11,7 @@ namespace DispatchSharp.QueueTypes
 	{
 		readonly Action<T> _finish;
 		readonly Action<T> _cancel;
+		object _completionActionToken;
 
 		/// <summary>
 		/// Has an item been dequeued?
@@ -28,6 +30,7 @@ namespace DispatchSharp.QueueTypes
 		public WorkQueueItem()
 		{
 			HasItem = false;
+			_completionActionToken = null;
 		}
 
 		/// <summary>
@@ -42,13 +45,18 @@ namespace DispatchSharp.QueueTypes
 			_cancel = cancel ?? (t => { });
 			HasItem = true;
 			Item = item;
+			_completionActionToken = new object();
 		}
 
 		/// <summary>
-		/// Call this to permanently remove an item from the queue
+		/// Call this to permanently remove an item from the queue.
+		/// This wrapper has a safety to ensure that only one of Finish/Cancel can be called, 
+		/// and that the underlying method is called only once.
 		/// </summary>
 		public void Finish()
 		{
+			var token = Interlocked.Exchange(ref _completionActionToken, null);
+			if (token == null) return;
 			_finish(Item);
 		}
 
@@ -58,6 +66,8 @@ namespace DispatchSharp.QueueTypes
 		/// </summary>
 		public void Cancel()
 		{
+			var token = Interlocked.Exchange(ref _completionActionToken, null);
+			if (token == null) return;
 			_cancel(Item);
 		}
 	}

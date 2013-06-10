@@ -49,6 +49,7 @@
     <Compile Include="threaded_worker_pool_base.cs" />
     <Compile Include="threaded_worker_pool_inflight_tests.cs" />
     <Compile Include="threaded_worker_pool_tests.cs" />
+    <Compile Include="work_queue_item_tests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

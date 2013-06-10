@@ -85,9 +85,9 @@ namespace DispatchSharp.WorkerPools
 		public void Stop()
 		{
 			_started = null;
-			while (_inflight > 0) Thread.Sleep(1);
+			while (_inflight > 0) Thread.Sleep(10);
 
-			if (_pool == null) return;
+			if (_pool == null) throw new Exception("stop error!");
 			foreach (var thread in _pool) SafeKillThread(thread);
 		}
 
@@ -160,7 +160,7 @@ namespace DispatchSharp.WorkerPools
 						}
 						catch (Exception ex)
 						{
-							_dispatch.OnExceptions(ex);
+							TryFireExceptions(ex, work);
 						}
 						finally
 						{
@@ -170,6 +170,14 @@ namespace DispatchSharp.WorkerPools
 				}
 				Interlocked.Decrement(ref _inflight);
 			}
+		}
+
+		void TryFireExceptions(Exception exception, IWorkQueueItem<T> work)
+		{
+			var dint = _dispatch as IDispatchInternal<T>;
+			if (dint == null) return;
+
+			dint.OnExceptions(exception, work);
 		}
 
 		/// <summary>

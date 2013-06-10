@@ -37,11 +37,20 @@ namespace DispatchSharp.Integration.Tests
 		[Test]
 		public void stopping_the_dispatcher_completes_all_current_actions_before_stopping()
 		{
+			var _lock = new object();
+
 			_subject.AddConsumer(s =>
 			{
-				_output.Add("Start");
+				lock (_lock)
+				{
+					_output.Add("Start");
+				}
 				Thread.Sleep(2000);
-				_output.Add("End");
+				lock (_lock)
+				{
+					_output.Add("End");
+				}
+				Thread.Sleep(100);
 			});
 			_subject.Start();
 
@@ -51,8 +60,10 @@ namespace DispatchSharp.Integration.Tests
 
 			_subject.Stop();
 
-			Assert.That(_output.Count(), Is.GreaterThan(0));
-			Assert.That(_output.Count(s => s == "Start"), Is.EqualTo(_output.Count(s => s == "End"))
+			var done = _output.ToArray();
+
+			Assert.That(done.Length, Is.GreaterThan(0));
+			Assert.That(done.Count(s => s == "Start"), Is.EqualTo(done.Count(s => s == "End"))
 				, "Mismatch between started and ended consumers");
 		}
 
@@ -100,13 +111,16 @@ namespace DispatchSharp.Integration.Tests
 		{
 			var counts = new List<int>();
 			long completed = 0;
+			var _lock = new object();
 
+// ReSharper disable AccessToModifiedClosure
 			_subject.AddConsumer(s => {
 				Thread.Sleep(15);
-				counts.Add(_subject.CurrentInflight());
+				lock (_lock) { counts.Add(_subject.CurrentInflight()); }
 				Interlocked.Increment(ref completed);
 				Thread.Sleep(15);
 			});
+// ReSharper restore AccessToModifiedClosure
 
 			_subject.SetMaximumInflight(limit);
 			_subject.Start();

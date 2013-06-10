@@ -6,12 +6,19 @@ namespace DispatchSharp
 	/// <summary>
 	/// Arguments for events triggered by uncaught exceptions
 	/// </summary>
-	public class ExceptionEventArgs : EventArgs
+	public class ExceptionEventArgs<T> : EventArgs
 	{
 		/// <summary>
 		/// Triggering exception
 		/// </summary>
 		public Exception SourceException { get; set; }
+
+		/// <summary>
+		/// The work item that caused the exception.
+		/// You can use the Cancel or Finish methods to control work
+		/// rescheduling.
+		/// </summary>
+		public IWorkQueueItem<T> WorkItem { get; set; }
 	}
 
 	/// <summary>
@@ -32,12 +39,17 @@ namespace DispatchSharp
 		/// <summary> Snapshot of number of work items being processed </summary>
 		int CurrentInflight();
 
-		/// <summary> Add an action to take when work is processed </summary>
+		/// <summary>
+		/// Add an action to take when work is processed.
+		/// Simple actions have their work removed from the queue by default
+		/// after completion or failure. If you wish to cancel a failed work item,
+		/// use the Exceptions event
+		/// </summary>
 		void AddConsumer(Action<T> action);
 
 		/// <summary> Add a work item to process </summary>
 		void AddWork(T work);
-		
+
 		/// <summary> Add multiple work items to process </summary>
 		void AddWork(IEnumerable<T> workList);
 
@@ -45,11 +57,8 @@ namespace DispatchSharp
 		IEnumerable<Action<T>> AllConsumers();
 
 		/// <summary> Event triggered when a consumer throws an exception </summary>
-		event EventHandler<ExceptionEventArgs> Exceptions;
+		event EventHandler<ExceptionEventArgs<T>> Exceptions;
 
-		/// <summary> Trigger to call when a consumer throws an exception </summary>
-		void OnExceptions(Exception e);
-		
 		/// <summary> Start consuming work and continue until stopped </summary>
 		void Start();
 
@@ -60,5 +69,14 @@ namespace DispatchSharp
 		/// Continue consuming work and return when the queue reports 0 items waiting. 
 		/// </summary>
 		void WaitForEmptyQueueAndStop();
+	}
+
+	/// <summary>
+	/// Interfaces for dispatcher internal methods.
+	/// These should not be used in production code.
+	/// </summary>
+	public interface IDispatchInternal<T> {
+		/// <summary> INTERNAL: Trigger to call when a consumer throws an exception </summary>
+		void OnExceptions(Exception e, IWorkQueueItem<T> work);
 	}
 }

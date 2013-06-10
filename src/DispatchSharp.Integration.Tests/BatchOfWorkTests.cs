@@ -22,6 +22,7 @@ namespace DispatchSharp.Integration.Tests
 		}
 
 		[Test]
+		[Repeat(3)]
 		public void single_batch_of_work_completes_all_items()
 		{
 			var dispatcher = Dispatch<string>.CreateDefaultMultithreaded("MyTask");

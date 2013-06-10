@@ -78,16 +78,26 @@ namespace DispatchSharp.WorkerPools
 						try
 						{
 							action(work.Item);
-							work.Finish();
 						}
 						catch (Exception ex)
 						{
-							work.Cancel();
-							_dispatch.OnExceptions(ex);
+							TryFireExceptions(ex, work);
+						}
+						finally
+						{
+							work.Finish();
 						}
 					}
 				}
 			}
+		}
+
+		void TryFireExceptions(Exception exception, IWorkQueueItem<T> work)
+		{
+			var dint = _dispatch as IDispatchInternal<T>;
+			if (dint == null) return;
+
+			dint.OnExceptions(exception, work);
 		}
 
 		/// <summary>

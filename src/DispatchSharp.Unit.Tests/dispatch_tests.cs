@@ -1,5 +1,5 @@
 ﻿using System;
-using DispatchSharp.Internal;
+using DispatchSharp.QueueTypes;
 using NSubstitute;
 using NUnit.Framework;
 
@@ -103,7 +103,7 @@ namespace DispatchSharp.Unit.Tests
 			var triggered = false;
 			_subject.Exceptions += (a,b)=> { triggered = true; };
 
-			_subject.OnExceptions(new Exception());
+			((IDispatchInternal<object>)_subject).OnExceptions(new Exception(), new WorkQueueItem<object>(null, o => { }, o => { }));
 
 			Assert.That(triggered);
 		}

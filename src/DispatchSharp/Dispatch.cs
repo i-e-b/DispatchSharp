@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DispatchSharp.Internal;
-using DispatchSharp.WorkerPools;
 
 namespace DispatchSharp
 {
@@ -10,7 +8,7 @@ namespace DispatchSharp
 	/// Default dispatcher
 	/// </summary>
 	/// <typeparam name="T">Type of work item to be processed</typeparam>
-	public partial class Dispatch<T> : IDispatch<T>
+	public partial class Dispatch<T> : IDispatch<T>, IDispatchInternal<T>
 	{
 		readonly IWorkQueue<T> _queue;
 		readonly IWorkerPool<T> _pool;
@@ -86,13 +84,13 @@ namespace DispatchSharp
 		}
 
 		/// <summary> Event triggered when a consumer throws an exception </summary>
-		public event EventHandler<ExceptionEventArgs> Exceptions;
+		public event EventHandler<ExceptionEventArgs<T>> Exceptions;
 
 		/// <summary> Trigger to call when a consumer throws an exception </summary>
-		public void OnExceptions(Exception e)
+		public void OnExceptions(Exception e, IWorkQueueItem<T> work)
 		{
 			var handler = Exceptions;
-			if (handler != null) handler(this, new ExceptionEventArgs { SourceException = e });
+			if (handler != null) handler(this, new ExceptionEventArgs<T> { SourceException = e, WorkItem = work });
 		}
 
 		/// <summary> Start consuming work and continue until stopped </summary>
