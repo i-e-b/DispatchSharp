@@ -71,6 +71,9 @@ namespace DispatchSharp.QueueTypes
 			Thread.Sleep(BurstSleep());
 		}
 
+		/// <summary>
+		/// Increments sleep duration and returns new sleep duration
+		/// </summary>
 		public int BurstSleep()
 		{
 			_sleep = (_sleep < 255) ? (_sleep * 2) + 1 : 255;
