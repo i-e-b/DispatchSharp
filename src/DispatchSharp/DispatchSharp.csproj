@@ -39,6 +39,8 @@
     <Compile Include="Internal\CrossThreadWait.cs" />
     <Compile Include="Internal\Default.cs" />
     <Compile Include="IWorkQueueItem.cs" />
+    <Compile Include="IPollSource.cs" />
+    <Compile Include="QueueTypes\PollingWorkQueue.cs" />
     <Compile Include="QueueTypes\WorkQueueItem.cs" />
     <Compile Include="WorkerPools\DirectWorkerPool.cs" />
     <Compile Include="Dispatch.cs" />

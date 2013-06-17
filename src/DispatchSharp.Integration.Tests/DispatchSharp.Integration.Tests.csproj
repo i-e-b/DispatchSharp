@@ -43,6 +43,7 @@
     <Compile Include="behaviours.cs" />
     <Compile Include="Direct_InMemory_tests.cs" />
     <Compile Include="ExceptionTests.cs" />
+    <Compile Include="PollingWorkExample.cs" />
     <Compile Include="Threaded_InMemory_tests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -21,6 +21,20 @@ namespace DispatchSharp
 		}
 
 		/// <summary>
+		/// Poll a source object for data and act on it.
+		/// You must add a consumer to the returned dispatcher, then start
+		/// the dispatcher.
+		/// </summary>
+		/// <param name="name">Name of the dispatcher (useful for debugging)</param>
+		/// <param name="source">object to poll for data</param>
+		/// <param name="threadCount">Number of thread to use. Default is number of cores in the host.</param>
+		public static IDispatch<T> PollAndProces(string name, IPollSource<T> source, int threadCount = 0)
+		{
+			var threads = (threadCount > 0) ? threadCount : Default.ThreadCount;
+			return new Dispatch<T>(new PollingWorkQueue<T>(source), new ThreadedWorkerPool<T>(name, threads));
+		}
+
+		/// <summary>
 		/// Process a batch of work with all defaults and a given action.
 		/// Blocks until all work complete.
 		/// </summary>
