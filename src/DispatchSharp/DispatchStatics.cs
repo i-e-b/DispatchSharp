@@ -52,5 +52,25 @@ namespace DispatchSharp
 			dispatcher.AddWork(batch);
 			dispatcher.WaitForEmptyQueueAndStop();
 		}
+		
+
+		/// <summary>
+		/// Process a batch of work with all defaults and a given action.
+		/// Blocks until all work complete.
+		/// </summary>
+		public static void ProcessBatch(
+			string name,
+			IEnumerable<T> batch,
+			Action<T> task,
+			int threadCount,
+			Action<ExceptionEventArgs<T>> exceptionHandler = null)
+		{
+			var dispatcher = CreateDefaultMultithreaded(name, threadCount);
+			if (exceptionHandler != null) dispatcher.Exceptions += (s,e) => exceptionHandler(e); 
+			dispatcher.AddConsumer(task);
+			dispatcher.AddWork(batch);
+			dispatcher.Start();
+			dispatcher.WaitForEmptyQueueAndStop();
+		}
 	}
 }
