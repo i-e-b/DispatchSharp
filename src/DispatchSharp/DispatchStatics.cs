@@ -62,8 +62,8 @@ namespace DispatchSharp
 			string name,
 			IEnumerable<T> batch,
 			Action<T> task,
-			int threadCount,
-			Action<ExceptionEventArgs<T>> exceptionHandler = null)
+			Action<ExceptionEventArgs<T>> exceptionHandler,
+			int threadCount)
 		{
 			var dispatcher = CreateDefaultMultithreaded(name, threadCount);
 			if (exceptionHandler != null) dispatcher.Exceptions += (s,e) => exceptionHandler(e); 
