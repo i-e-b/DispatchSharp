@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 
 namespace DispatchSharp
 {
@@ -112,14 +114,29 @@ namespace DispatchSharp
 				_pool.Stop();
 			}
 		}
-
+		
 		/// <summary>
 		/// Continue consuming work and return when the queue reports 0 items waiting.
 		/// If you continue to add work, this method will continue to block.
 		/// </summary>
 		public void WaitForEmptyQueueAndStop()
 		{
-			while(_queue.BlockUntilReady() || _queue.Length() > 0) { }
+			WaitForEmptyQueueAndStop(TimeSpan.MaxValue);
+		}
+
+		/// <summary>
+		/// Continue consuming work and return when the queue reports 0 items waiting. 
+		/// </summary>
+		/// <param name="maxWait">Maximum duration to wait. The dispatcher will be stopped if this duration is exceeded</param>
+		public void WaitForEmptyQueueAndStop(TimeSpan maxWait)
+		{
+			var sw = new Stopwatch();
+			sw.Start();
+
+			while(
+				(_queue.BlockUntilReady() || _queue.Length() > 0)
+				&& sw.Elapsed <= maxWait
+				) { Thread.Sleep(100); }
 			Stop();
 		}
 	}

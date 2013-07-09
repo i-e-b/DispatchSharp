@@ -70,6 +70,12 @@ namespace DispatchSharp
 		/// Continue consuming work and return when the queue reports 0 items waiting. 
 		/// </summary>
 		void WaitForEmptyQueueAndStop();
+
+		/// <summary>
+		/// Continue consuming work and return when the queue reports 0 items waiting. 
+		/// </summary>
+		/// <param name="maxWait">Maximum duration to wait. The dispatcher will be stopped if this duration is exceeded</param>
+		void WaitForEmptyQueueAndStop(TimeSpan maxWait);
 	}
 
 	/// <summary>

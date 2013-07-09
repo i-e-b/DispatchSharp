@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
 using NUnit.Framework;
 
 namespace DispatchSharp.Integration.Tests
@@ -37,6 +39,30 @@ namespace DispatchSharp.Integration.Tests
 			Assert.That(_exceptions, Is.EquivalentTo(new [] {"Yo!"}));
 		}
 
+		[Test]
+		public void wait_for_stop_respects_timeout ()
+		{
+			var dispatcher = Dispatch<string>.CreateDefaultMultithreaded("MyTask");
+
+			dispatcher.SetMaximumInflight(1);
+			dispatcher.AddConsumer(SlowAction); // one second per job
+			for (int i = 0; i < 100; i++)
+			{
+				dispatcher.AddWork(_work);
+			}
+			dispatcher.Start();
+
+
+			var sw = new Stopwatch();
+			sw.Start();
+			dispatcher.WaitForEmptyQueueAndStop(TimeSpan.FromSeconds(2));
+			sw.Stop();
+
+			Assert.That(sw.Elapsed, Is.GreaterThanOrEqualTo(TimeSpan.FromSeconds(2.0)));
+			Assert.That(sw.Elapsed, Is.LessThanOrEqualTo(TimeSpan.FromSeconds(3.1)));
+		}
+
+
 
 		[Test]
 		public void batch_helper_completes_work_and_calls_back_to_exception_handler ()
@@ -46,6 +72,12 @@ namespace DispatchSharp.Integration.Tests
 			Assert.That(_output, Is.EquivalentTo(_expected));
 			Assert.That(_exceptions, Is.EquivalentTo(new [] {"Yo!"}));
 		}
+
+		void SlowAction(string obj)
+		{
+			Thread.Sleep(1000);
+		}
+
 
 		void Action(string str)
 		{
