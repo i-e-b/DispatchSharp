@@ -69,12 +69,13 @@ namespace DispatchSharp.WorkerPools
 
 			for (int i = 0; i < _pool.Length; i++)
 			{
-				_pool[i] = new Thread(() => WorkLoop(closedObject))
+				var threadIndex = i;
+				_pool[threadIndex] = new Thread(() => WorkLoop(threadIndex, closedObject))
 				{
 					IsBackground = true,
-					Name = _name + "_Thread_" + i
+					Name = _name + "_Thread_" + threadIndex
 				};
-				_pool[i].Start();
+				_pool[threadIndex].Start();
 			}
 		}
 
@@ -135,12 +136,12 @@ namespace DispatchSharp.WorkerPools
 			return _pool.Length;
 		}
 
-		void WorkLoop(object reference)
+		void WorkLoop(int index, object reference)
 		{
 			Func<bool> running = () => _started == reference;
 			while (running())
 			{
-				WaitForQueueIfStillActive();
+				WaitForQueueIfStillActive(index);
 				if (!running()) return;
 
 				lock (_incrementLock)
@@ -172,6 +173,14 @@ namespace DispatchSharp.WorkerPools
 			}
 		}
 
+		void BlockUntilUsable(int threadIndex)
+		{
+			while (threadIndex >= _dispatch.MaximumInflight())
+			{
+				Thread.Sleep(500);
+			}
+		}
+
 		void TryFireExceptions(Exception exception, IWorkQueueItem<T> work)
 		{
 			var dint = _dispatch as IDispatchInternal<T>;
@@ -183,11 +192,12 @@ namespace DispatchSharp.WorkerPools
 		/// <summary>
 		/// Mark the thread as low priority while it is waiting for queue work.
 		/// </summary>
-		void WaitForQueueIfStillActive()
+		void WaitForQueueIfStillActive(int threadIndex)
 		{
 			try
 			{
 				Thread.CurrentThread.Priority = ThreadPriority.BelowNormal;
+				BlockUntilUsable(threadIndex);
 				_queue.BlockUntilReady();
 				Thread.CurrentThread.Priority = ThreadPriority.Normal;
 			}
