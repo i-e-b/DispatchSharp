@@ -41,6 +41,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="bounded_work_queue_item_tests.cs" />
     <Compile Include="bounded_work_queue_tests.cs" />
     <Compile Include="direct_worker_pool_tests.cs" />
     <Compile Include="dispatch_tests.cs" />

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading;
 using DispatchSharp.QueueTypes;
 using NSubstitute;
@@ -32,12 +31,8 @@ namespace DispatchSharp.Unit.Tests
         [Test]
         public void delegate_try_dequeue()
         {
-            var expectedItem = Substitute.For<IWorkQueueItem<object>>();
-            _mockQueue.TryDequeue().Returns(expectedItem);
-
-            var actualItem = _subject.TryDequeue();
+            _subject.TryDequeue();
             _mockQueue.Received().TryDequeue();
-            Assert.That(actualItem, Is.EqualTo(expectedItem));
         }
 
         [Test]
@@ -82,6 +77,25 @@ namespace DispatchSharp.Unit.Tests
 
             Assert.That(sw.ElapsedMilliseconds, Is.GreaterThanOrEqualTo(100));
         }
+
+        [Test]
+        public void dequeued_items_that_have_been_cancelled_can_be_dequeued_again()
+        {
+            var source = "Hello, please mind the gap";
+            var iwqi = Substitute.For<IWorkQueueItem<object>>();
+            iwqi.HasItem.Returns(true);
+            iwqi.Item.Returns(source);
+
+            _mockQueue.TryDequeue().Returns(iwqi);
+
+            _subject.Enqueue(source);
+            _subject.TryDequeue().Cancel();
+            var result = _subject.TryDequeue();
+
+            Assert.True(result.HasItem);
+            Assert.That(result.Item, Is.EqualTo(source));
+        }
+
 
         [Test, Timeout(1000)]
         public void enqueue_is_exception_safe()

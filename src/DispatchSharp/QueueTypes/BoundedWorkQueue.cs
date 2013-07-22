@@ -1,17 +1,16 @@
-using System.Threading;
+using DispatchSharp.Internal;
 
 namespace DispatchSharp.QueueTypes
 {
     public class BoundedWorkQueue<T> : IWorkQueue<T>
     {
         private readonly IWorkQueue<T> _queue;
-        private readonly SemaphoreSlim _semaphore;
+        private readonly IWaitHandle _waitHandle;
 
         public BoundedWorkQueue(IWorkQueue<T> queue, int bound)
         {
             _queue = queue;
-            _semaphore = new SemaphoreSlim(0, bound);
-            _semaphore.Release(bound);
+            _waitHandle = new SemaphoreWait(bound, bound);
         }
 
         public BoundedWorkQueue(int bound): this(new InMemoryWorkQueue<T>(), bound)
@@ -20,14 +19,14 @@ namespace DispatchSharp.QueueTypes
 
         public void Enqueue(T work)
         {
-            _semaphore.Wait();
+            _waitHandle.WaitOne();
             try
             {
                 _queue.Enqueue(work);
             }
             catch
             {
-                _semaphore.Release();
+                _waitHandle.Set();
                 throw;
             }
         }
@@ -37,10 +36,11 @@ namespace DispatchSharp.QueueTypes
             var workQueueItem = _queue.TryDequeue();
             if (workQueueItem.HasItem)
             {
-                _semaphore.Release();
+                _waitHandle.Set();
             }
-            return workQueueItem;
+            return new BoundedWorkQueueItem<T>(workQueueItem, _waitHandle);
         }
+
 
         public int Length()
         {
