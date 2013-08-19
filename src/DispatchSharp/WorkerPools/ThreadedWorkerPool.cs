@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using DispatchSharp.Internal;
@@ -18,9 +19,10 @@ namespace DispatchSharp.WorkerPools
 	/// <typeparam name="T">Type of item on the work queue</typeparam>
 	public class ThreadedWorkerPool<T> : IWorkerPool<T>
 	{
+		readonly int _threadCount;
 		const int OneMinute = 60000;
 		readonly string _name;
-		readonly Thread[] _pool;
+		readonly List<Thread> _pool;
 		IDispatch<T> _dispatch;
 		IWorkQueue<T> _queue;
 		volatile object _started;
@@ -34,11 +36,12 @@ namespace DispatchSharp.WorkerPools
 		/// <param name="threadCount">Number of threads to pool</param>
 		public ThreadedWorkerPool(string name, int threadCount)
 		{
+			_threadCount = threadCount;
 			if (threadCount < 1) throw new ArgumentException("thread count must be at least one", "threadCount");
 			if (threadCount > 1000) throw new ArgumentException("thread count should not be more than 1000", "threadCount");
 
 			_name = name ?? "UnnamedWorkerPool_" + typeof(T).Name;
-			_pool = new Thread[threadCount];
+			_pool = new List<Thread>();
 			_started = null;
 			_inflight = 0;
 			_incrementLock = new object();
@@ -67,15 +70,16 @@ namespace DispatchSharp.WorkerPools
 			var closedObject = new object();
 			if (Interlocked.CompareExchange(ref _started, closedObject, null) != null) return;
 
-			for (int i = 0; i < _pool.Length; i++)
+			for (int i = 0; i < _threadCount; i++)
 			{
 				var threadIndex = i;
-				_pool[threadIndex] = new Thread(() => WorkLoop(threadIndex, closedObject))
+				var newThread = new Thread(() => WorkLoop(threadIndex, closedObject))
 				{
 					IsBackground = true,
 					Name = _name + "_Thread_" + threadIndex
 				};
-				_pool[threadIndex].Start();
+				newThread.Start();
+				_pool.Add(newThread);
 			}
 		}
 
@@ -133,7 +137,7 @@ namespace DispatchSharp.WorkerPools
 		public int PoolSize()
 		{
 			if (_pool == null) return 0;
-			return _pool.Length;
+			return _threadCount;
 		}
 
 		void WorkLoop(int index, object reference)
