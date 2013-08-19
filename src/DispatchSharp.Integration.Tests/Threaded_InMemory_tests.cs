@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
@@ -135,6 +136,8 @@ namespace DispatchSharp.Integration.Tests
 				Thread.Sleep(500);
 			}
 			_subject.Stop();
+
+			Console.WriteLine(counts.Max());
 
 			Assert.That(counts.Count(), Is.GreaterThan(0), "No actions ran");
 			Assert.That(counts.Min(), Is.GreaterThan(0), "Inflight count is invalid");

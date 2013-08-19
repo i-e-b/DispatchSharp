@@ -70,65 +70,6 @@ namespace DispatchSharp.WorkerPools
 			NewWorkerThread().Start(); // this one will boot-strap all the other workers up to the dispatcher limit
 		}
 
-		bool SetStartedFlag()
-		{
-			var closedObject = new object();
-			return Interlocked.CompareExchange(ref _started, closedObject, null) != null;
-		}
-
-		/// <summary>
-		/// Create a new worker thread and add it to the pool.
-		/// The thread is returned unstarted.
-		/// </summary>
-		Thread NewWorkerThread()
-		{
-			lock (_threadPoolLock)
-			{
-				var threadIndex = _pool.Count;
-				if (_started == null) return null;
-				var newThread = new Thread(() => WorkLoop(threadIndex, _started))
-				{
-					IsBackground = true,
-					Name = _name + "_Thread_" + threadIndex
-				};
-				_pool.Add(newThread);
-				return newThread;
-			}
-		}
-
-		void MaintainThreadPool()
-		{
-			if (_started == null) return;
-			RemoveStoppedThreads();
-			AddNewThreadsUntilConcurrencyLimit();
-		}
-
-		void AddNewThreadsUntilConcurrencyLimit()
-		{
-			lock (_threadPoolLock)
-			{
-				int safeInflightLimit = Math.Min(100, _dispatch.MaximumInflight());
-				int missing = safeInflightLimit - _pool.Count;
-				if (missing < 1) return;
-
-				for (int i = 0; i < missing; i++)
-				{
-					NewWorkerThread().Start();
-				}
-			}
-		}
-
-		void RemoveStoppedThreads()
-		{
-			lock (_threadPoolLock)
-			{
-				if (_pool.All(t=>t.IsAlive)) return;
-				var alive = _pool.Where(t => t.IsAlive).ToList();
-				_pool.Clear();
-				_pool.AddRange(alive);
-			}
-		}
-
 		/// <summary>
 		/// Stop processing incoming queue items.
 		/// Current work should be finished or cancelled before returning.
@@ -190,13 +131,30 @@ namespace DispatchSharp.WorkerPools
 			return _pool.Count;
 		}
 
+		/// <summary>
+		/// Mark the thread as low priority while it is waiting for queue work.
+		/// </summary>
+		void WaitForQueueIfStillActive()
+		{
+			try
+			{
+				Thread.CurrentThread.Priority = ThreadPriority.BelowNormal;
+				_queue.BlockUntilReady();
+				Thread.CurrentThread.Priority = ThreadPriority.Normal;
+			}
+			catch (ThreadAbortException)
+			{
+				Thread.ResetAbort();
+			}
+		}
+
 		void WorkLoop(int index, object reference)
 		{
 			Func<bool> running = () => reference != null && _started == reference;
 			while (running())
 			{
 				if (ThreadIsNoLongerNeeded(index)) return;
-				MaintainThreadPool();
+				if (index == 0) MaintainThreadPool();
 				WaitForQueueIfStillActive();
 				if (!running()) return;
 
@@ -244,19 +202,61 @@ namespace DispatchSharp.WorkerPools
 		}
 
 		/// <summary>
-		/// Mark the thread as low priority while it is waiting for queue work.
+		/// Create a new worker thread and add it to the pool.
+		/// The thread is returned unstarted.
 		/// </summary>
-		void WaitForQueueIfStillActive()
+		Thread NewWorkerThread()
 		{
-			try
+			lock (_threadPoolLock)
 			{
-				Thread.CurrentThread.Priority = ThreadPriority.BelowNormal;
-				_queue.BlockUntilReady();
-				Thread.CurrentThread.Priority = ThreadPriority.Normal;
+				var threadIndex = _pool.Count;
+				if (_started == null) return null;
+				var newThread = new Thread(() => WorkLoop(threadIndex, _started))
+				{
+					IsBackground = true,
+					Name = _name + "_Thread_" + threadIndex
+				};
+				_pool.Add(newThread);
+				return newThread;
 			}
-			catch (ThreadAbortException)
+		}
+
+		bool SetStartedFlag()
+		{
+			var closedObject = new object();
+			return Interlocked.CompareExchange(ref _started, closedObject, null) != null;
+		}
+
+		void MaintainThreadPool()
+		{
+			if (_started == null) return;
+			RemoveStoppedThreads();
+			AddNewThreadsUntilConcurrencyLimit();
+		}
+
+		void AddNewThreadsUntilConcurrencyLimit()
+		{
+			lock (_threadPoolLock)
 			{
-				Thread.ResetAbort();
+				int safeInflightLimit = Math.Min(100, _dispatch.MaximumInflight());
+				int missing = safeInflightLimit - _pool.Count;
+				if (missing < 1) return;
+
+				for (int i = 0; i < missing; i++)
+				{
+					NewWorkerThread().Start();
+				}
+			}
+		}
+
+		void RemoveStoppedThreads()
+		{
+			lock (_threadPoolLock)
+			{
+				if (_pool.All(t=>t.IsAlive)) return;
+				var alive = _pool.Where(t => t.IsAlive).ToList();
+				_pool.Clear();
+				_pool.AddRange(alive);
 			}
 		}
 	}
