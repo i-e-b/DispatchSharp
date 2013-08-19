@@ -136,8 +136,8 @@ namespace DispatchSharp.WorkerPools
 		/// </summary>
 		public int PoolSize()
 		{
-			if (_pool == null) return 0;
-			return _threadCount;
+			if (_pool == null) throw new Exception("Pool was null. Maybe this object has been disposed?");
+			return _pool.Count;
 		}
 
 		void WorkLoop(int index, object reference)

@@ -22,9 +22,9 @@ namespace DispatchSharp.Unit.Tests
 		}
 
 		[Test]
-		public void default_inflight_limit_is_same_as_pool_size ()
+		public void default_inflight_limit_is_same_as_cpu_core_count ()
 		{
-			Assert.That(_subject.MaximumInflight(), Is.EqualTo(10000));
+			Assert.That(_subject.MaximumInflight(), Is.EqualTo(Environment.ProcessorCount));
 		}
 
 		[Test]

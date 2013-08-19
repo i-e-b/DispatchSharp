@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using DispatchSharp.Internal;
 
 namespace DispatchSharp
 {
@@ -23,7 +24,7 @@ namespace DispatchSharp
 		/// </summary>
 		public Dispatch(IWorkQueue<T> workQueue, IWorkerPool<T> workerPool)
 		{
-			_maximumInflight = workerPool.PoolSize();
+			_maximumInflight = Default.ThreadCount;
 
 			_queue = workQueue;
 			_pool = workerPool;
@@ -37,7 +38,8 @@ namespace DispatchSharp
 		/// <summary> Maximum number of work items being processed at any one time </summary>
 		public int MaximumInflight()
 		{
-			return _maximumInflight; }
+			return _maximumInflight;
+		}
 
 		/// <summary>
 		/// Maximum number of work items being processed at any one time

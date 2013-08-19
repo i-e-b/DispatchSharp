@@ -39,7 +39,9 @@ namespace DispatchSharp.Unit.Tests
 		public void default_number_of_threads_is_equal_to_logical_processor_count ()
 		{
 			var withDefaults = new ThreadedWorkerPool<object>("name");
+			withDefaults.Start();
 			Assert.That(withDefaults.PoolSize(), Is.EqualTo(Environment.ProcessorCount));
+			withDefaults.Stop();
 		}
 
 		[Test]
