@@ -16,23 +16,8 @@ namespace DispatchSharp.Unit.Tests
 			_dispatcher = Substitute.For<IDispatch<object>>();
 			_dispatcher.MaximumInflight().Returns(4);
 			_queue = Substitute.For<IWorkQueue<object>>();
-			_subject = new ThreadedWorkerPool<object>("name", 4);
+			_subject = new ThreadedWorkerPool<object>("name");
 			_subject.SetSource(_dispatcher, _queue);
-		}
-
-		[Test]
-		[TestCase(-1)]
-		[TestCase(0)]
-		public void creating_a_worker_pool_with_no_threads_causes_an_exception (int threadCount)
-		{
-			var ex = Assert.Throws<ArgumentException>(() => new ThreadedWorkerPool<object>("name", threadCount));
-			Assert.That(ex.Message, Contains.Substring("thread count must be at least one"));
-		}
-		
-		[Test]
-		public void creating_a_worker_pool_with_a_huge_number_of_threads_causes_an_exception ()
-		{
-			Assert.Throws<ArgumentException>(() => new ThreadedWorkerPool<object>("name", 1000000));
 		}
 
 		[Test]

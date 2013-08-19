@@ -17,7 +17,7 @@ namespace DispatchSharp
 		public static IDispatch<T> CreateDefaultMultithreaded(string name, int threadCount = 0)
 		{
 			var threads = (threadCount > 0) ? threadCount : Default.ThreadCount;
-			return new Dispatch<T>(new InMemoryWorkQueue<T>(), new ThreadedWorkerPool<T>(name, threads))
+			return new Dispatch<T>(new InMemoryWorkQueue<T>(), new ThreadedWorkerPool<T>(name))
 				{InflightLimit = threads};
 		}
 
@@ -32,7 +32,7 @@ namespace DispatchSharp
 		public static IDispatch<T> PollAndProces(string name, IPollSource<T> source, int threadCount = 0)
 		{
 			var threads = (threadCount > 0) ? threadCount : Default.ThreadCount;
-			return new Dispatch<T>(new PollingWorkQueue<T>(source), new ThreadedWorkerPool<T>(name, threads))
+			return new Dispatch<T>(new PollingWorkQueue<T>(source), new ThreadedWorkerPool<T>(name))
 				{InflightLimit = threads};
 		}
 

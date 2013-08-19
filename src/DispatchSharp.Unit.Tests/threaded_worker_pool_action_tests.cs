@@ -22,7 +22,7 @@ namespace DispatchSharp.Unit.Tests
 			_dispatcher = Substitute.For<IDispatch<object>>();
 			_dispatcher.MaximumInflight().Returns(1);
 			_queue = Substitute.For<IWorkQueue<object>>();
-			_subject = new ThreadedWorkerPool<object>("name", 1);
+			_subject = new ThreadedWorkerPool<object>("name");
 			_subject.SetSource(_dispatcher, _queue);
 		}
 

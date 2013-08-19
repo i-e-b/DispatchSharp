@@ -16,7 +16,7 @@ namespace DispatchSharp.Integration.Tests
 		public override void setup()
 		{
 			_output = new List<string>();
-			_subject = new Dispatch<string>(new InMemoryWorkQueue<string>(), new ThreadedWorkerPool<string>("Test", 8));
+			_subject = new Dispatch<string>(new InMemoryWorkQueue<string>(), new ThreadedWorkerPool<string>("Test"));
 		}
 
 		[Test]

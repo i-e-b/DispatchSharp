@@ -35,22 +35,20 @@ namespace DispatchSharp.WorkerPools
 		/// </summary>
 		/// <param name="name">Name of this worker pool (useful during debugging)</param>
 		/// <param name="threadCount">Number of threads to pool</param>
+		[Obsolete("Thread count is currently ignored. Please use `ThreadedWorkerPool(string name)` instead")]
 		public ThreadedWorkerPool(string name, int threadCount)
-		{
-			if (threadCount < 1) throw new ArgumentException("thread count must be at least one", "threadCount");
-			if (threadCount > 1000) throw new ArgumentException("thread count should not be more than 1000", "threadCount");
+			:this(name) { }
 
+		/// <summary>
+		/// Create a worker with a self-balancing pool of threads.
+		/// </summary>
+		/// <param name="name">Name of this worker pool (useful during debugging)</param>
+		public ThreadedWorkerPool(string name) {
 			_name = name ?? "UnnamedWorkerPool_" + typeof(T).Name;
 			_pool = new List<Thread>();
 			_started = null;
 			_inflight = 0;
 		}
-
-		/// <summary>
-		/// Create a worker pool with a thread per logical cpu core. 
-		/// </summary>
-		/// <param name="name">Name of this worker pool (useful during debugging)</param>
-		public ThreadedWorkerPool(string name) : this(name, Default.ThreadCount) { }
 
 		/// <summary>
 		/// Set source queue and managing dispatcher

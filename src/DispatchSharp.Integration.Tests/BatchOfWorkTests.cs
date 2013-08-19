@@ -31,8 +31,8 @@ namespace DispatchSharp.Integration.Tests
 
 			dispatcher.AddConsumer(Action);
 			dispatcher.Exceptions += (s,e) => _exceptions.Add(e.SourceException.Message);
-			dispatcher.Start();
 			dispatcher.AddWork(_work);
+			dispatcher.Start();
 			dispatcher.WaitForEmptyQueueAndStop();
 
 			Assert.That(_output, Is.EquivalentTo(_expected));
