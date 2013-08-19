@@ -19,7 +19,9 @@ namespace DispatchSharp.WorkerPools
 	/// <typeparam name="T">Type of item on the work queue</typeparam>
 	public class ThreadedWorkerPool<T> : IWorkerPool<T>
 	{
-		readonly int _threadCount;
+		readonly object _incrementLock = new object();
+		readonly object _threadPoolLock = new object();
+
 		const int OneMinute = 60000;
 		readonly string _name;
 		readonly List<Thread> _pool;
@@ -27,7 +29,6 @@ namespace DispatchSharp.WorkerPools
 		IWorkQueue<T> _queue;
 		volatile object _started;
 		volatile int _inflight;
-		private readonly object _incrementLock;
 
 		/// <summary>
 		/// Create a worker pool with a specific number of threads. 
@@ -36,7 +37,6 @@ namespace DispatchSharp.WorkerPools
 		/// <param name="threadCount">Number of threads to pool</param>
 		public ThreadedWorkerPool(string name, int threadCount)
 		{
-			_threadCount = threadCount;
 			if (threadCount < 1) throw new ArgumentException("thread count must be at least one", "threadCount");
 			if (threadCount > 1000) throw new ArgumentException("thread count should not be more than 1000", "threadCount");
 
@@ -44,7 +44,6 @@ namespace DispatchSharp.WorkerPools
 			_pool = new List<Thread>();
 			_started = null;
 			_inflight = 0;
-			_incrementLock = new object();
 		}
 
 		/// <summary>
@@ -67,19 +66,66 @@ namespace DispatchSharp.WorkerPools
 		/// </summary>
 		public void Start()
 		{
-			var closedObject = new object();
-			if (Interlocked.CompareExchange(ref _started, closedObject, null) != null) return;
+			if (SetStartedFlag()) return;
+			NewWorkerThread().Start(); // this one will boot-strap all the other workers up to the dispatcher limit
+		}
 
-			for (int i = 0; i < _threadCount; i++)
+		bool SetStartedFlag()
+		{
+			var closedObject = new object();
+			return Interlocked.CompareExchange(ref _started, closedObject, null) != null;
+		}
+
+		/// <summary>
+		/// Create a new worker thread and add it to the pool.
+		/// The thread is returned unstarted.
+		/// </summary>
+		Thread NewWorkerThread()
+		{
+			lock (_threadPoolLock)
 			{
-				var threadIndex = i;
-				var newThread = new Thread(() => WorkLoop(threadIndex, closedObject))
+				var threadIndex = _pool.Count;
+				if (_started == null) return null;
+				var newThread = new Thread(() => WorkLoop(threadIndex, _started))
 				{
 					IsBackground = true,
 					Name = _name + "_Thread_" + threadIndex
 				};
-				newThread.Start();
 				_pool.Add(newThread);
+				return newThread;
+			}
+		}
+
+		void MaintainThreadPool()
+		{
+			if (_started == null) return;
+			RemoveStoppedThreads();
+			AddNewThreadsUntilConcurrencyLimit();
+		}
+
+		void AddNewThreadsUntilConcurrencyLimit()
+		{
+			lock (_threadPoolLock)
+			{
+				int safeInflightLimit = Math.Min(100, _dispatch.MaximumInflight());
+				int missing = safeInflightLimit - _pool.Count;
+				if (missing < 1) return;
+
+				for (int i = 0; i < missing; i++)
+				{
+					NewWorkerThread().Start();
+				}
+			}
+		}
+
+		void RemoveStoppedThreads()
+		{
+			lock (_threadPoolLock)
+			{
+				if (_pool.All(t=>t.IsAlive)) return;
+				var alive = _pool.Where(t => t.IsAlive).ToList();
+				_pool.Clear();
+				_pool.AddRange(alive);
 			}
 		}
 
@@ -92,8 +138,12 @@ namespace DispatchSharp.WorkerPools
 			_started = null;
 			while (_inflight > 0) Thread.Sleep(10);
 
-			if (_pool == null) throw new Exception("stop error!");
-			foreach (var thread in _pool) SafeKillThread(thread);
+			lock (_threadPoolLock)
+			{
+				if (_pool == null) throw new Exception("stop error!");
+				var toKill = _pool.ToArray();
+				foreach (var thread in toKill) SafeKillThread(thread);
+			}
 		}
 
 		/// <summary>
@@ -142,10 +192,12 @@ namespace DispatchSharp.WorkerPools
 
 		void WorkLoop(int index, object reference)
 		{
-			Func<bool> running = () => _started == reference;
+			Func<bool> running = () => reference != null && _started == reference;
 			while (running())
 			{
-				WaitForQueueIfStillActive(index);
+				if (ThreadIsNoLongerNeeded(index)) return;
+				MaintainThreadPool();
+				WaitForQueueIfStillActive();
 				if (!running()) return;
 
 				lock (_incrementLock)
@@ -177,12 +229,10 @@ namespace DispatchSharp.WorkerPools
 			}
 		}
 
-		void BlockUntilUsable(int threadIndex)
+		bool ThreadIsNoLongerNeeded(int index)
 		{
-			while (threadIndex >= _dispatch.MaximumInflight())
-			{
-				Thread.Sleep(500);
-			}
+			if (index < 1) return false; // always keep one thread open
+			return index > _dispatch.MaximumInflight();
 		}
 
 		void TryFireExceptions(Exception exception, IWorkQueueItem<T> work)
@@ -196,12 +246,11 @@ namespace DispatchSharp.WorkerPools
 		/// <summary>
 		/// Mark the thread as low priority while it is waiting for queue work.
 		/// </summary>
-		void WaitForQueueIfStillActive(int threadIndex)
+		void WaitForQueueIfStillActive()
 		{
 			try
 			{
 				Thread.CurrentThread.Priority = ThreadPriority.BelowNormal;
-				BlockUntilUsable(threadIndex);
 				_queue.BlockUntilReady();
 				Thread.CurrentThread.Priority = ThreadPriority.Normal;
 			}

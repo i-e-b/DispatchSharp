@@ -83,9 +83,11 @@ namespace DispatchSharp.Integration.Tests
 				_subject.Start();
 			}
 
-			for (int i = 0; i < 100; i++) { _subject.AddWork(""); }
+			for (int i = 0; i < 100; i++) { 
+				_subject.AddWork("");
+			}
 
-			Thread.Sleep(1500);
+			Thread.Sleep(150);
 			
 			for (int i = 0; i < 5; i++)
 			{

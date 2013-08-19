@@ -17,14 +17,14 @@ namespace DispatchSharp
 		readonly IWorkerPool<T> _pool;
 		readonly IList<Action<T>> _workActions;
 		readonly object _lockObject;
-		int _maximumInflight;
+		protected int InflightLimit;
 
 		/// <summary>
 		/// Create a dispatcher with a specific queue and worker pool
 		/// </summary>
 		public Dispatch(IWorkQueue<T> workQueue, IWorkerPool<T> workerPool)
 		{
-			_maximumInflight = Default.ThreadCount;
+			InflightLimit = Default.ThreadCount;
 
 			_queue = workQueue;
 			_pool = workerPool;
@@ -38,14 +38,14 @@ namespace DispatchSharp
 		/// <summary> Maximum number of work items being processed at any one time </summary>
 		public int MaximumInflight()
 		{
-			return _maximumInflight;
+			return InflightLimit;
 		}
 
 		/// <summary>
 		/// Maximum number of work items being processed at any one time
 		/// </summary>
 		public void SetMaximumInflight(int max) {
-			 _maximumInflight = max;
+			 InflightLimit = max;
 		}
 
 		/// <summary> Snapshot of number of work items being processed </summary>
