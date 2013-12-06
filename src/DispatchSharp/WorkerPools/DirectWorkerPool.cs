@@ -53,8 +53,7 @@ namespace DispatchSharp.WorkerPools
 		/// Stop processing once work queue is exhausted.
 		/// WARNING: this pool with continue to work if the queue is kept populated
 		/// </summary>
-		/// <param name="maxWait"> </param>
-		public void Stop(TimeSpan maxWait)
+		public void Stop()
 		{
 			_running = false;
 

@@ -21,6 +21,13 @@ namespace DispatchSharp.Integration.Tests
 			_subject = new Dispatch<string>(new InMemoryWorkQueue<string>(), new ThreadedWorkerPool<string>("Test"));
 		}
 
+		[TearDown]
+		public void cleanup()
+		{
+			_subject.Stop();
+			Thread.Sleep(100);
+		}
+
 		[Test]
 		public void can_start_and_stop_in_a_reasonable_time ()
 		{
@@ -31,7 +38,7 @@ namespace DispatchSharp.Integration.Tests
 			
 			_subject.Start();
 			Thread.Sleep(125);
-			_subject.Stop(_defaultTimeout);
+			_subject.Stop();
 
 			stopwatch.Stop();
 			Assert.That(stopwatch.ElapsedMilliseconds, Is.LessThan(1000));
@@ -61,7 +68,7 @@ namespace DispatchSharp.Integration.Tests
 
 			Thread.Sleep(1500);
 
-			_subject.Stop(_defaultTimeout);
+			_subject.Stop();
 
 			var done = _output.ToArray();
 
@@ -71,35 +78,38 @@ namespace DispatchSharp.Integration.Tests
 		}
 
 		[Test]
-		public void can_repeatedly_start_and_stop_a_dispatcher ()
-		{
+		public void a_can_repeatedly_start_and_stop_a_dispatcher ()
+		{			
 			_subject.AddConsumer(s =>
 			{
+				Console.WriteLine("Start");
 				_output.Add("Start");
 				Thread.Sleep(2000);
 				_output.Add("End");
+				Console.WriteLine("End");
 			});
 
 			for (int i = 0; i < 5; i++)
 			{
-				_subject.Stop(_defaultTimeout);
+				_subject.Stop();
+				Thread.Sleep(250);
 				_subject.Start();
 			}
+			_subject.Start();
 
 			for (int i = 0; i < 100; i++) { 
 				_subject.AddWork("");
 			}
 
-			Thread.Sleep(150);
-			
 			for (int i = 0; i < 5; i++)
 			{
 				_subject.Start();
-				Thread.Sleep(150);
-				_subject.Stop(_defaultTimeout);
+				Thread.Sleep(250);
+				_subject.Stop();
 			}
 
 			Assert.That(_output.Count(), Is.GreaterThan(0));
+			Console.WriteLine(_output.Count());
 			Assert.That(_output.Count(s => s == "Start"), Is.EqualTo(_output.Count(s => s == "End"))
 				, "Mismatch between started and ended consumers");
 		}
@@ -137,7 +147,7 @@ namespace DispatchSharp.Integration.Tests
 			{
 				Thread.Sleep(500);
 			}
-			_subject.Stop(_defaultTimeout);
+			_subject.Stop();
 
 			Console.WriteLine(counts.Max());
 

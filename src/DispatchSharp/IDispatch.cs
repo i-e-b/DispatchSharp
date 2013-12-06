@@ -64,7 +64,7 @@ namespace DispatchSharp
 		void Start();
 
 		/// <summary> Stop consuming work and return when all in-progress work is complete </summary>
-		void Stop(TimeSpan maxWait);
+		void Stop();
 
 		/// <summary>
 		/// Continue consuming work and return when the queue reports 0 items waiting. 

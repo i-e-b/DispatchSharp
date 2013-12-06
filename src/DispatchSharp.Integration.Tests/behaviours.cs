@@ -33,7 +33,7 @@ namespace DispatchSharp.Integration.Tests
 			}
 
 			Thread.Sleep(2000);
-			_subject.Stop(TimeSpan.FromSeconds(10));
+			_subject.WaitForEmptyQueueAndStop();
 			Assert.That(_output.Count, Is.EqualTo(1000));
 		}
 
@@ -79,7 +79,7 @@ namespace DispatchSharp.Integration.Tests
 			_subject.AddWork("THROW");
 			_subject.AddWork("World");
 			Thread.Sleep(1000);
-			_subject.Stop(TimeSpan.MinValue);
+			_subject.Stop();
 			Assert.That(_output, Is.EquivalentTo(new[] { "Hello", "WiggleWoggle", "World" }));
 		}
 

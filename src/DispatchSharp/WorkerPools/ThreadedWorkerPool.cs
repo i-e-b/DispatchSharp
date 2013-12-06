@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
-using DispatchSharp.Internal;
 
 // ignore ref/volatile conflict:
 #pragma warning disable 420
@@ -31,15 +30,6 @@ namespace DispatchSharp.WorkerPools
 		volatile int _inflight;
 
 		/// <summary>
-		/// Create a worker pool with a specific number of threads. 
-		/// </summary>
-		/// <param name="name">Name of this worker pool (useful during debugging)</param>
-		/// <param name="threadCount">Number of threads to pool</param>
-		[Obsolete("Thread count is currently ignored. Please use `ThreadedWorkerPool(string name)` instead")]
-		public ThreadedWorkerPool(string name, int threadCount)
-			:this(name) { }
-
-		/// <summary>
 		/// Create a worker with a self-balancing pool of threads.
 		/// </summary>
 		/// <param name="name">Name of this worker pool (useful during debugging)</param>
@@ -64,16 +54,15 @@ namespace DispatchSharp.WorkerPools
 		/// </summary>
 		public void Start()
 		{
-			if (SetStartedFlag()) return;
-			NewWorkerThread().Start(); // this one will boot-strap all the other workers up to the dispatcher limit
+			SetStartedFlag();
+			MaintainThreadPool(); // this one will boot-strap all the other workers up to the dispatcher limit
 		}
 
 		/// <summary>
 		/// Stop processing incoming queue items.
-		/// Current work should be finished or cancelled before returning.
+		/// Current work must be finished or cancelled before returning.
 		/// </summary>
-		/// <param name="maxWait"> </param>
-		public void Stop(TimeSpan maxWait)
+		public void Stop()
 		{
 			_started = null;
 			while (_inflight > 0) Thread.Sleep(10);
@@ -85,18 +74,10 @@ namespace DispatchSharp.WorkerPools
 
 				var sw = new Stopwatch();
 				sw.Start();
-				var allClosed = false;
-
-				while (!allClosed && sw.Elapsed <= maxWait)
+				foreach (var thread in toKill)
 				{
-					allClosed = true;
-					foreach (var thread in toKill)
-					{
-						allClosed &= TryThread(thread);
-					}
+					TryJoinThread(thread);
 				}
-
-				if (allClosed) return;
 
 				foreach (var thread in toKill)
 				{
@@ -129,24 +110,25 @@ namespace DispatchSharp.WorkerPools
 		/// 
 		/// Waiting threads are marked by a non-normal thread priority
 		/// </summary>
-		static bool TryThread(Thread thread)
+		static void TryJoinThread(Thread thread)
 		{
-			if (thread == null) return true;
-			if (!thread.IsAlive) return true;
+			if (thread == null) return ;
+			if (!thread.IsAlive) return ;
 			try
 			{
 				if (thread.Priority == ThreadPriority.Normal)
 				{
-					return thread.Join(10); // return from here if working
+					thread.Join(10); // return from here if working
 				}
-
-				thread.Abort();
+				else
+				{
+					thread.Abort();
+				}
 			}
 			catch
 			{
 				Thread.ResetAbort();
 			}
-			return true; // return from here if not working, and just got aborted
 		}
 
 		/// <summary>
@@ -179,6 +161,7 @@ namespace DispatchSharp.WorkerPools
 			}
 			catch (ThreadAbortException)
 			{
+				Console.WriteLine("Ended while waiting. Ideal");
 				Thread.ResetAbort();
 			}
 		}
@@ -284,7 +267,8 @@ namespace DispatchSharp.WorkerPools
 
 				for (int i = 0; i < missing; i++)
 				{
-					NewWorkerThread().Start();
+					var t = NewWorkerThread();
+					if (t != null) t.Start();
 				}
 			}
 		}
@@ -293,7 +277,7 @@ namespace DispatchSharp.WorkerPools
 		{
 			lock (_threadPoolLock)
 			{
-				if (_pool.All(t=>t.IsAlive)) return;
+				if (_pool.All(t => t != null && t.IsAlive)) return;
 				var alive = _pool.Where(t => t.IsAlive).ToList();
 				_pool.Clear();
 				_pool.AddRange(alive);

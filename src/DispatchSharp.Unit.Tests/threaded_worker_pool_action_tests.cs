@@ -78,7 +78,7 @@ namespace DispatchSharp.Unit.Tests
 		{
 			_subject.Start();
 			Thread.Sleep(20);
-			_subject.Stop(TimeSpan.FromSeconds(10));
+			_subject.Stop();
 		}
 	}
 }

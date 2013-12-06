@@ -108,16 +108,16 @@ namespace DispatchSharp
 				if (!_workActions.Any())
 					throw new InvalidOperationException("A dispatcher can't be started until it has at least one consumer");
 				_pool.Start();
+				Thread.Sleep(1);
 			}
 		}
 
 		/// <summary> Stop consuming work and return when all in-progress work is complete </summary>
-		/// <param name="maxWait"> </param>
-		public void Stop(TimeSpan maxWait)
+		public void Stop()
 		{
 			lock (_lockObject)
 			{
-				_pool.Stop(maxWait);
+				_pool.Stop();
 			}
 		}
 		
@@ -145,7 +145,7 @@ namespace DispatchSharp
 				) { Thread.Sleep(100); }
 			sw.Stop();
 
-			Stop(maxWait);
+			Stop();
 		}
 	}
 }

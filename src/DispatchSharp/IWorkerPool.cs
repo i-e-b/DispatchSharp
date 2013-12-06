@@ -1,5 +1,3 @@
-using System;
-
 namespace DispatchSharp
 {
 	/// <summary>
@@ -23,7 +21,7 @@ namespace DispatchSharp
 		/// Stop processing incoming queue items.
 		/// Current work should be finished or cancelled before returning.
 		/// </summary>
-		void Stop(TimeSpan maxWait);
+		void Stop();
 
 		/// <summary>
 		/// Current number of workers running actions against queue items
