@@ -17,6 +17,9 @@ namespace DispatchSharp
 		readonly IWorkerPool<T> _pool;
 		readonly IList<Action<T>> _workActions;
 		readonly object _lockObject;
+		/// <summary>
+		/// Internal inflight limit.
+		/// </summary>
 		protected int InflightLimit;
 
 		/// <summary>
