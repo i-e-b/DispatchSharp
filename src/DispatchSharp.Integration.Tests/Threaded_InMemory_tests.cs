@@ -12,6 +12,8 @@ namespace DispatchSharp.Integration.Tests
 	[TestFixture]
 	public class Threaded_InMemory_tests : behaviours
 	{
+		readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(10);
+
 		[SetUp]
 		public override void setup()
 		{
@@ -29,7 +31,7 @@ namespace DispatchSharp.Integration.Tests
 			
 			_subject.Start();
 			Thread.Sleep(125);
-			_subject.Stop();
+			_subject.Stop(_defaultTimeout);
 
 			stopwatch.Stop();
 			Assert.That(stopwatch.ElapsedMilliseconds, Is.LessThan(1000));
@@ -59,7 +61,7 @@ namespace DispatchSharp.Integration.Tests
 
 			Thread.Sleep(1500);
 
-			_subject.Stop();
+			_subject.Stop(_defaultTimeout);
 
 			var done = _output.ToArray();
 
@@ -80,7 +82,7 @@ namespace DispatchSharp.Integration.Tests
 
 			for (int i = 0; i < 5; i++)
 			{
-				_subject.Stop();
+				_subject.Stop(_defaultTimeout);
 				_subject.Start();
 			}
 
@@ -94,7 +96,7 @@ namespace DispatchSharp.Integration.Tests
 			{
 				_subject.Start();
 				Thread.Sleep(150);
-				_subject.Stop();
+				_subject.Stop(_defaultTimeout);
 			}
 
 			Assert.That(_output.Count(), Is.GreaterThan(0));
@@ -135,7 +137,7 @@ namespace DispatchSharp.Integration.Tests
 			{
 				Thread.Sleep(500);
 			}
-			_subject.Stop();
+			_subject.Stop(_defaultTimeout);
 
 			Console.WriteLine(counts.Max());
 

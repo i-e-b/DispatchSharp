@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using DispatchSharp.QueueTypes;
 using DispatchSharp.WorkerPools;
@@ -31,7 +32,7 @@ namespace DispatchSharp.Integration.Tests
 			_subject.Start();
 			for (int i = 0; i < 10; i++) { _subject.AddWork(""); }
 			Thread.Sleep(10);
-			_subject.Stop();
+			_subject.Stop(TimeSpan.MinValue);
 
 			Assert.That(_output.Count(), Is.EqualTo(20));
 			Assert.That(_output.Count(s=>s=="Start"), Is.EqualTo(_output.Count(s=>s=="End")));

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using DispatchSharp.Internal;
@@ -22,7 +23,6 @@ namespace DispatchSharp.WorkerPools
 		readonly object _incrementLock = new object();
 		readonly object _threadPoolLock = new object();
 
-		const int OneMinute = 60000;
 		readonly string _name;
 		readonly List<Thread> _pool;
 		IDispatch<T> _dispatch;
@@ -72,7 +72,8 @@ namespace DispatchSharp.WorkerPools
 		/// Stop processing incoming queue items.
 		/// Current work should be finished or cancelled before returning.
 		/// </summary>
-		public void Stop()
+		/// <param name="maxWait"> </param>
+		public void Stop(TimeSpan maxWait)
 		{
 			_started = null;
 			while (_inflight > 0) Thread.Sleep(10);
@@ -81,7 +82,44 @@ namespace DispatchSharp.WorkerPools
 			{
 				if (_pool == null) throw new Exception("stop error!");
 				var toKill = _pool.ToArray();
-				foreach (var thread in toKill) SafeKillThread(thread);
+
+				var sw = new Stopwatch();
+				sw.Start();
+				var allClosed = false;
+
+				while (!allClosed && sw.Elapsed <= maxWait)
+				{
+					allClosed = true;
+					foreach (var thread in toKill)
+					{
+						allClosed &= TryThread(thread);
+					}
+				}
+
+				if (allClosed) return;
+
+				foreach (var thread in toKill)
+				{
+					AbortIfRunning(thread);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Quietly kill a thread if it's still running.
+		/// </summary>
+		void AbortIfRunning(Thread thread)
+		{
+			if (thread == null) return;
+			if (!thread.IsAlive) return;
+
+			try
+			{
+				thread.Abort();
+			}
+			catch
+			{
+				Thread.ResetAbort();
 			}
 		}
 
@@ -91,25 +129,24 @@ namespace DispatchSharp.WorkerPools
 		/// 
 		/// Waiting threads are marked by a non-normal thread priority
 		/// </summary>
-		static void SafeKillThread(Thread thread)
+		static bool TryThread(Thread thread)
 		{
-			if (thread == null) return;
-			if (!thread.IsAlive) return;
+			if (thread == null) return true;
+			if (!thread.IsAlive) return true;
 			try
 			{
 				if (thread.Priority == ThreadPriority.Normal)
 				{
-					thread.Join(OneMinute);
+					return thread.Join(10); // return from here if working
 				}
-				else
-				{
-					thread.Abort();
-				}
+
+				thread.Abort();
 			}
 			catch
 			{
 				Thread.ResetAbort();
 			}
+			return true; // return from here if not working, and just got aborted
 		}
 
 		/// <summary>
@@ -146,6 +183,10 @@ namespace DispatchSharp.WorkerPools
 			}
 		}
 
+
+		/// <summary>
+		/// This is the core loop that all worker threads run.
+		/// </summary>
 		void WorkLoop(int index, object reference)
 		{
 			Func<bool> running = () => reference != null && _started == reference;
@@ -214,6 +255,7 @@ namespace DispatchSharp.WorkerPools
 					IsBackground = true,
 					Name = _name + "_Thread_" + threadIndex
 				};
+				newThread.Priority = ThreadPriority.BelowNormal;
 				_pool.Add(newThread);
 				return newThread;
 			}

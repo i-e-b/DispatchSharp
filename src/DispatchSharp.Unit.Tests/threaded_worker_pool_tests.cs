@@ -38,7 +38,7 @@ namespace DispatchSharp.Unit.Tests
 		public void worker_pool_does_nothing_after_being_stopped ()
 		{
 			_subject.Start();
-			_subject.Stop();
+			_subject.Stop(TimeSpan.FromSeconds(10));
 			_dispatcher.ClearReceivedCalls();
 			_queue.ClearReceivedCalls();
 

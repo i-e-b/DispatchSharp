@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using DispatchSharp.QueueTypes;
 using NUnit.Framework;
@@ -8,6 +9,8 @@ namespace DispatchSharp.Integration.Tests
 	[TestFixture]
 	public class PollingWorkExample
 	{
+		readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(10);
+
 		[Test]
 		public void using_a_polling_source_to_do_long_term_work()
 		{
@@ -20,7 +23,7 @@ namespace DispatchSharp.Integration.Tests
 
 			dispatcher.Start();
 			Thread.Sleep(250);
-			dispatcher.Stop();
+			dispatcher.Stop(_defaultTimeout);
 
 			Assert.That(result, Is.EquivalentTo(
 				new []{"item 0", "item 1", "item 2", "item 3", "item 4", "item 5", "item 6", "item 7", "item 8", "item 9"}

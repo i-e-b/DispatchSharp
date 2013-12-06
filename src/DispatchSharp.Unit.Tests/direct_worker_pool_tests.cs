@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using DispatchSharp.QueueTypes;
 using DispatchSharp.WorkerPools;
 using NSubstitute;
@@ -44,7 +45,7 @@ namespace DispatchSharp.Unit.Tests
 			_dispatcher.DidNotReceive().AllConsumers();
 
 			_subject.Start();
-			_subject.Stop();
+			_subject.Stop(TimeSpan.FromSeconds(10));
 			
 			_dispatcher.Received(2).AllConsumers();
 		}
@@ -60,7 +61,7 @@ namespace DispatchSharp.Unit.Tests
 			Thread.Sleep(100);
 			_dispatcher.Received(2).AllConsumers();
 
-			_subject.Stop();
+			_subject.Stop(TimeSpan.FromSeconds(10));
 		}
 	}
 }

@@ -112,11 +112,12 @@ namespace DispatchSharp
 		}
 
 		/// <summary> Stop consuming work and return when all in-progress work is complete </summary>
-		public void Stop()
+		/// <param name="maxWait"> </param>
+		public void Stop(TimeSpan maxWait)
 		{
 			lock (_lockObject)
 			{
-				_pool.Stop();
+				_pool.Stop(maxWait);
 			}
 		}
 		
@@ -136,13 +137,15 @@ namespace DispatchSharp
 		public void WaitForEmptyQueueAndStop(TimeSpan maxWait)
 		{
 			var sw = new Stopwatch();
-			sw.Start();
 
+			sw.Start();
 			while(
 				(_queue.BlockUntilReady() || _queue.Length() > 0)
 				&& sw.Elapsed <= maxWait
 				) { Thread.Sleep(100); }
-			Stop();
+			sw.Stop();
+
+			Stop(maxWait);
 		}
 	}
 }

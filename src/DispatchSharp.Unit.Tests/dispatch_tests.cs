@@ -55,8 +55,8 @@ namespace DispatchSharp.Unit.Tests
 		[Test]
 		public void pool_is_stopped_when_dispatcher_is_stopped ()
 		{
-			_subject.Stop();
-			_pool.Received().Stop();
+			_subject.Stop(TimeSpan.FromSeconds(1));
+			_pool.Received().Stop(TimeSpan.FromSeconds(1));
 		}
 
 		[Test]
@@ -83,7 +83,7 @@ namespace DispatchSharp.Unit.Tests
 			_subject.WaitForEmptyQueueAndStop();
 
 			_queue.Received(4).Length();
-			_pool.Received().Stop();
+			_pool.Received().Stop(TimeSpan.MaxValue);
 		}
 
 		[Test]

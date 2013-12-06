@@ -1,3 +1,4 @@
+using System;
 using System.Threading;
 using NSubstitute;
 
@@ -13,7 +14,7 @@ namespace DispatchSharp.Unit.Tests
 		{
 			_subject.Start();
 			Thread.Sleep(20);
-			_subject.Stop();
+			_subject.Stop(TimeSpan.FromSeconds(10));
 		}
 		public void ItemAvailable(bool yes)
 		{
