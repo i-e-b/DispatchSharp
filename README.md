@@ -1,5 +1,6 @@
 DispatchSharp
 =============
+[![Build status](https://ci.appveyor.com/api/projects/status/9y7iqsmf50wj1m4s)](https://ci.appveyor.com/project/i-e-b/dispatchsharp)
 
 A library to make multi-threaded dispatch code more testable.
 
