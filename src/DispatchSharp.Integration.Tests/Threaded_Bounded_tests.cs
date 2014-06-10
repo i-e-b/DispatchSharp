@@ -19,7 +19,7 @@ namespace DispatchSharp.Integration.Tests
             _boundedWorkQueue = new BoundedWorkQueue<string>(Bound);
             _subject = new Dispatch<string>(
                 _boundedWorkQueue,
-                new ThreadedWorkerPool<string>("Test", 8));
+                new ThreadedWorkerPool<string>("Test"));
             _maxQueueSize = 0;
         }
 

@@ -12,8 +12,6 @@ namespace DispatchSharp.Integration.Tests
 	[TestFixture]
 	public class Threaded_InMemory_tests : behaviours
 	{
-		readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(10);
-
 		[SetUp]
 		public override void setup()
 		{
@@ -106,7 +104,10 @@ namespace DispatchSharp.Integration.Tests
 				_subject.Start();
 				Thread.Sleep(250);
 				_subject.Stop();
-			}
+            }
+
+            _subject.Stop();
+            Thread.Sleep(125);
 
 			Assert.That(_output.Count(), Is.GreaterThan(0));
 			Console.WriteLine(_output.Count());
