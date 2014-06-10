@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace DispatchSharp.Unit.Tests
 {
-    [TestFixture]
+    [TestFixture, Category(Categories.FastTests)]
     public class bounded_work_queue_item_tests
     {
         private IWorkQueueItem<object> _subject;
@@ -28,7 +28,6 @@ namespace DispatchSharp.Unit.Tests
 
             var hasItem = _subject.HasItem;
             Assert.True(hasItem);
-            var dummy = _item.Received().HasItem;
         }
 
         [Test]
@@ -39,7 +38,6 @@ namespace DispatchSharp.Unit.Tests
 
             var actual = _subject.Item;
             Assert.That(actual, Is.EqualTo(expected));
-            var dummy = _item.Received().Item;
         }
 
         [Test]

@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace DispatchSharp.Unit.Tests
 {
-	[TestFixture]
+    [TestFixture, Category(Categories.FastTests)]
 	public class polling_queue_tests
 	{
 		IWorkQueue<string> _subject;

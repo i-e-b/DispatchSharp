@@ -4,7 +4,7 @@ using NUnit.Framework;
 
 namespace DispatchSharp.Unit.Tests
 {
-	[TestFixture]
+    [TestFixture, Category(Categories.FastTests)]
 	public class threaded_worker_pool_inflight_tests:threaded_worker_pool_base
 	{
 		[SetUp]

@@ -6,7 +6,7 @@ using NUnit.Framework;
 
 namespace DispatchSharp.Unit.Tests
 {
-	[TestFixture]
+    [TestFixture, Category(Categories.FastTests)]
 	public class direct_worker_pool_tests
 	{
 		

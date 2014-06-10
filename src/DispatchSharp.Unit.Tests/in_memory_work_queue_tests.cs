@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace DispatchSharp.Unit.Tests
 {
-	[TestFixture]
+    [TestFixture, Category(Categories.FastTests)]
 	public class in_memory_work_queue_tests
 	{
 		IWorkQueue<object> _subject;

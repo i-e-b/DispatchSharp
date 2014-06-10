@@ -5,7 +5,7 @@ using NUnit.Framework;
 
 namespace DispatchSharp.Unit.Tests
 {
-	[TestFixture]
+    [TestFixture, Category(Categories.FastTests)]
 	public class dispatch_tests
 	{
 		IDispatch<object> _subject;
