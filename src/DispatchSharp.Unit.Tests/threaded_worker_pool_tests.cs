@@ -29,7 +29,7 @@ namespace DispatchSharp.Unit.Tests
 		[Test]
 		public void worker_pool_does_nothing_if_not_started ()
 		{
-			Thread.Sleep(250);
+			Thread.Sleep(100);
 			_queue.DidNotReceive().TryDequeue();
 		}
 
@@ -41,7 +41,7 @@ namespace DispatchSharp.Unit.Tests
 			_dispatcher.ClearReceivedCalls();
 			_queue.ClearReceivedCalls();
 
-			Thread.Sleep(250);
+			Thread.Sleep(100);
 			
 			_queue.DidNotReceive().TryDequeue();
 		}
