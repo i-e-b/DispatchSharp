@@ -75,7 +75,7 @@ namespace DispatchSharp.Integration.Tests
 				, "Mismatch between started and ended consumers");
 		}
 
-		[Test]
+		[Test, Explicit("Slow tests")]
 		public void a_can_repeatedly_start_and_stop_a_dispatcher ()
 		{			
 			_subject.AddConsumer(s =>

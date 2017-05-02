@@ -7,7 +7,7 @@ using NUnit.Framework;
 
 namespace DispatchSharp.Integration.Tests
 {
-    public class Threaded_Bounded_Tests: Threaded_InMemory_tests
+    public class Threaded_Bounded_Tests: behaviours
     {
         private const int Bound = 32;
         private volatile int _maxQueueSize;
