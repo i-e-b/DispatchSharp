@@ -1,6 +1,8 @@
 DispatchSharp
 =============
 
+https://www.nuget.org/packages/DispatchSharp/
+
 A library to make multi-threaded dispatch code more testable.
 
 Models a job dispatch pattern and provides both threaded and non threaded implementations.
