@@ -139,19 +139,22 @@ namespace DispatchSharp.WorkerPools
 			return _inflight;
 		}
 
-		/// <summary>
-		/// Returns number of worker threads in use
-		/// </summary>
-		public int PoolSize()
-		{
-			if (_pool == null) throw new Exception("Pool was null. Maybe this object has been disposed?");
-			return _pool.Count;
-		}
+        /// <summary>
+        /// Returns number of worker threads in use
+        /// </summary>
+        public int PoolSize()
+        {
+            lock (_threadPoolLock)
+            {
+                if (_pool == null) throw new Exception("Pool was null. Maybe this object has been disposed?");
+                return _pool.Count;
+            }
+        }
 
-		/// <summary>
-		/// Mark the thread as low priority while it is waiting for queue work.
-		/// </summary>
-		void WaitForQueueIfStillActive()
+        /// <summary>
+        /// Mark the thread as low priority while it is waiting for queue work.
+        /// </summary>
+        void WaitForQueueIfStillActive()
 		{
 			try
 			{
@@ -161,7 +164,6 @@ namespace DispatchSharp.WorkerPools
 			}
 			catch (ThreadAbortException)
 			{
-				Console.WriteLine("Ended while waiting. Ideal");
 				Thread.ResetAbort();
 			}
 		}
@@ -244,10 +246,10 @@ namespace DispatchSharp.WorkerPools
 			}
 		}
 
-		bool SetStartedFlag()
+		void SetStartedFlag()
 		{
 			var closedObject = new object();
-			return Interlocked.CompareExchange(ref _started, closedObject, null) != null;
+			Interlocked.CompareExchange(ref _started, closedObject, null);
 		}
 
 		void MaintainThreadPool()

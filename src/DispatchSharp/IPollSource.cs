@@ -1,4 +1,4 @@
-namespace DispatchSharp.QueueTypes
+namespace DispatchSharp
 {
 	/// <summary>
 	/// Contract for polling queue sources

@@ -21,6 +21,19 @@ void DoBatch(IEnumerable<object> workToDo) {
 }
 ```
 
+or
+
+```csharp
+Dispatch<int>.ProcessBatch("BatchRequests", Enumerable.Range(0, times).ToArray(), i => {
+        . . .
+    },
+    threadCount,
+    ex => {
+        Console.WriteLine("Error: " + ex.Message);
+    }
+);
+```
+
 Handling long running incoming jobs:
 ```csharp
 dispatcher = Dispatch<object>.CreateDefaultMultithreaded("MyService");
@@ -39,8 +52,8 @@ dispatcher.AddConsumer(MyWorkMethod);
 dispatcher.Start();
 ```
 
-
 with a method defined like
+
 ```csharp
 void MyWorkMethod(object obj)
 {
