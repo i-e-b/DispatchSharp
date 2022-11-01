@@ -6,6 +6,9 @@ using System.Threading;
 using DispatchSharp.QueueTypes;
 using DispatchSharp.WorkerPools;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable InconsistentNaming
+// ReSharper disable AssignNullToNotNullAttribute
 
 namespace DispatchSharp.Integration.Tests
 {
@@ -109,8 +112,8 @@ namespace DispatchSharp.Integration.Tests
             _subject.Stop();
             Thread.Sleep(125);
 
-			Assert.That(_output.Count(), Is.GreaterThan(0));
-			Console.WriteLine(_output.Count());
+			Assert.That(_output.Count, Is.GreaterThan(0));
+			Console.WriteLine(_output.Count);
 			Assert.That(_output.Count(s => s == "Start"), Is.EqualTo(_output.Count(s => s == "End"))
 				, "Mismatch between started and ended consumers");
 		}
@@ -152,7 +155,7 @@ namespace DispatchSharp.Integration.Tests
 
 			Console.WriteLine(counts.Max());
 
-			Assert.That(counts.Count(), Is.GreaterThan(0), "No actions ran");
+			Assert.That(counts.Count, Is.GreaterThan(0), "No actions ran");
 			Assert.That(counts.Min(), Is.GreaterThan(0), "Inflight count is invalid");
 			Assert.That(counts.Max(), Is.LessThanOrEqualTo(limit), "More workers run in parallel than limit");
 		}

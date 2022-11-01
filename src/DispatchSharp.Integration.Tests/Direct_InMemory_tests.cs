@@ -4,6 +4,8 @@ using DispatchSharp.QueueTypes;
 using DispatchSharp.WorkerPools;
 using NUnit.Framework;
 using System.Linq;
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable AssignNullToNotNullAttribute
 
 namespace DispatchSharp.Integration.Tests
 {
@@ -33,7 +35,7 @@ namespace DispatchSharp.Integration.Tests
 			Thread.Sleep(10);
 			_subject.Stop();
 
-			Assert.That(_output.Count(), Is.EqualTo(20));
+			Assert.That(_output.Count, Is.EqualTo(20));
 			Assert.That(_output.Count(s=>s=="Start"), Is.EqualTo(_output.Count(s=>s=="End")));
 		}
 	}

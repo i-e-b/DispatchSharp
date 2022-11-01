@@ -213,7 +213,7 @@ namespace DispatchSharp.WorkerPools
 
 		/// <summary>
 		/// Create a new worker thread and add it to the pool.
-		/// The thread is returned unstarted.
+		/// The thread is returned not started -- you must call `Start()` yourself.
 		/// </summary>
 		Thread? NewWorkerThread()
 		{

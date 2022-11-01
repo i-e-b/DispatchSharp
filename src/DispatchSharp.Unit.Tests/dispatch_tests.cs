@@ -2,15 +2,18 @@
 using DispatchSharp.QueueTypes;
 using NSubstitute;
 using NUnit.Framework;
+// ReSharper disable InconsistentNaming
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable AssignNullToNotNullAttribute
 
 namespace DispatchSharp.Unit.Tests
 {
     [TestFixture, Category(Categories.FastTests)]
 	public class dispatch_tests
 	{
-		IDispatch<object> _subject;
-		IWorkQueue<object> _queue;
-		IWorkerPool<object> _pool;
+		IDispatch<object>? _subject;
+		IWorkQueue<object>? _queue;
+		IWorkerPool<object>? _pool;
 
 		[SetUp]
 		public void setup()

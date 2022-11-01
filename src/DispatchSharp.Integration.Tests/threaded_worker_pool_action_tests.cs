@@ -1,8 +1,11 @@
-﻿namespace DispatchSharp.Integration.Tests
+﻿// ReSharper disable InconsistentNaming
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable AssignNullToNotNullAttribute
+namespace DispatchSharp.Integration.Tests
 {
     using System;
     using System.Threading;
-    using DispatchSharp.WorkerPools;
+    using WorkerPools;
     using NSubstitute;
     using NUnit.Framework;
 
@@ -10,9 +13,9 @@
 	public class threaded_worker_pool_action_tests
 	{
 		
-		IDispatch<object> _dispatcher;
-		IWorkerPool<object> _subject;
-		IWorkQueue<object> _queue;
+		IDispatch<object>? _dispatcher;
+		IWorkerPool<object>? _subject;
+		IWorkQueue<object>? _queue;
 		volatile bool _actionCalled;
 
 		[SetUp]

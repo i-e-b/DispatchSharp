@@ -1,21 +1,24 @@
 using System.Threading;
 using NSubstitute;
+// ReSharper disable InconsistentNaming
+// ReSharper disable PossibleNullReferenceException
 
 namespace DispatchSharp.Unit.Tests
 {
 	public class threaded_worker_pool_base
 	{
-		public IDispatch<object> _dispatcher;
-		public IWorkerPool<object> _subject;
-		public IWorkQueue<object> _queue;
-		
-		public void Go()
+		protected IDispatch<object>? _dispatcher;
+		protected IWorkerPool<object>? _subject;
+		protected IWorkQueue<object>? _queue;
+
+		protected void Go()
 		{
 			_subject.Start();
 			Thread.Sleep(20);
 			_subject.Stop();
 		}
-		public void ItemAvailable(bool yes)
+
+		protected void ItemAvailable(bool yes)
 		{
 			var item = Substitute.For<IWorkQueueItem<object>>();
 			item.HasItem.Returns(yes);

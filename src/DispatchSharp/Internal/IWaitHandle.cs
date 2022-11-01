@@ -1,10 +1,12 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 namespace DispatchSharp.Internal
 {
 	/// <summary>
 	/// Contract for a wait signal
 	/// </summary>
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public interface IWaitHandle
 	{
 		/// <summary>

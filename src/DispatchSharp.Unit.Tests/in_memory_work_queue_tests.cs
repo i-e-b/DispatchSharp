@@ -1,12 +1,14 @@
 ﻿using DispatchSharp.QueueTypes;
 using NUnit.Framework;
+// ReSharper disable InconsistentNaming
+// ReSharper disable PossibleNullReferenceException
 
 namespace DispatchSharp.Unit.Tests
 {
     [TestFixture, Category(Categories.FastTests)]
 	public class in_memory_work_queue_tests
 	{
-		IWorkQueue<object> _subject;
+		IWorkQueue<object>? _subject;
 
 		[SetUp]
 		public void setup()

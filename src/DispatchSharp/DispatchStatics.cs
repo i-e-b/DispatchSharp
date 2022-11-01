@@ -20,7 +20,7 @@ namespace DispatchSharp
 		{
 			var threads = (threadCount > 0) ? threadCount : Default.ThreadCount;
 			return new Dispatch<T>(new InMemoryWorkQueue<T>(), new ThreadedWorkerPool<T>(name))
-				{InflightLimit = threads};
+				{_inflightLimit = threads};
 		}
 
 		/// <summary>
@@ -35,7 +35,7 @@ namespace DispatchSharp
 		{
 			var threads = (threadCount > 0) ? threadCount : Default.ThreadCount;
 			return new Dispatch<T>(new PollingWorkQueue<T>(source), new ThreadedWorkerPool<T>(name))
-				{InflightLimit = threads};
+				{_inflightLimit = threads};
 		}
 
 		/// <summary>

@@ -4,13 +4,15 @@ using System.Threading;
 using DispatchSharp.QueueTypes;
 using DispatchSharp.WorkerPools;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable InconsistentNaming
 
 namespace DispatchSharp.Integration.Tests
 {
     public class Direct_Bounded_tests: Direct_InMemory_tests
     {
         private const int Bound = 32;
-        private IWorkQueue<string> _boundedWorkQueue;
+        private IWorkQueue<string>? _boundedWorkQueue;
         private volatile int _maxQueueSize;
 
         public override void setup()

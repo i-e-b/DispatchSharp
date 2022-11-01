@@ -10,12 +10,6 @@ namespace DispatchSharp.Internal
 		/// <summary>
 		/// Default number of threads to pool on this machine.
 		/// </summary>
-		public static int ThreadCount
-		{
-			get
-			{
-				return Environment.ProcessorCount;
-			}
-		}
+		public static int ThreadCount => Environment.ProcessorCount;
 	}
 }

@@ -2,21 +2,22 @@
 using DispatchSharp.QueueTypes;
 using NSubstitute;
 using NUnit.Framework;
+// ReSharper disable InconsistentNaming
+// ReSharper disable PossibleNullReferenceException
 
 namespace DispatchSharp.Unit.Tests
 {
     [TestFixture, Category(Categories.FastTests)]
 	public class polling_queue_tests
 	{
-		IWorkQueue<string> _subject;
-		IPollSource<string> _pollerSource;
-		string dummy;
+		IWorkQueue<string>? _subject;
+		IPollSource<string>? _pollerSource;
 
 		[SetUp]
 		public void setup()
 		{
 			_pollerSource = Substitute.For<IPollSource<string>>();
-			_pollerSource.TryGet(out dummy).Returns(false);
+			_pollerSource.TryGet(out _).Returns(false);
 
 			_subject = new PollingWorkQueue<string>(_pollerSource);
 		}
@@ -34,7 +35,7 @@ namespace DispatchSharp.Unit.Tests
 		[Test]
 		public void polled_data_is_consumed ()
 		{
-			_pollerSource.TryGet(out dummy).Returns(x => {
+			_pollerSource.TryGet(out _).Returns(x => {
 				x[0] = "phil's face";
 				return true;
 			});
@@ -54,7 +55,7 @@ namespace DispatchSharp.Unit.Tests
 			_subject.TryDequeue();
 			_subject.TryDequeue();
 
-			_pollerSource.Received(1).TryGet(out dummy);
+			_pollerSource.Received(1).TryGet(out _);
 		}
 
 		[Test]

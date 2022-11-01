@@ -17,17 +17,18 @@ namespace DispatchSharp
 		readonly IWorkerPool<T> _pool;
 		readonly IList<Action<T>> _workActions;
 		readonly object _lockObject;
+		
 		/// <summary>
 		/// Internal inflight limit.
 		/// </summary>
-		protected int InflightLimit;
+		protected int _inflightLimit;
 
 		/// <summary>
 		/// Create a dispatcher with a specific queue and worker pool
 		/// </summary>
 		public Dispatch(IWorkQueue<T> workQueue, IWorkerPool<T> workerPool)
 		{
-			InflightLimit = Default.ThreadCount;
+			_inflightLimit = Default.ThreadCount;
 
 			Exceptions = (_, _) => { };
 			_queue = workQueue;
@@ -42,14 +43,14 @@ namespace DispatchSharp
 		/// <summary> Maximum number of work items being processed at any one time </summary>
 		public int MaximumInflight()
 		{
-			return InflightLimit;
+			return _inflightLimit;
 		}
 
 		/// <summary>
 		/// Maximum number of work items being processed at any one time
 		/// </summary>
 		public void SetMaximumInflight(int max) {
-			 InflightLimit = max;
+			 _inflightLimit = max;
 		}
 
 		/// <summary> Snapshot of number of work items being processed </summary>
@@ -98,7 +99,7 @@ namespace DispatchSharp
 		public void OnExceptions(Exception e, IWorkQueueItem<T> work)
 		{
 			var handler = Exceptions;
-			if (handler != null) handler(this, new ExceptionEventArgs<T> { SourceException = e, WorkItem = work });
+			handler(this, new ExceptionEventArgs<T> { SourceException = e, WorkItem = work });
 		}
 
 		/// <summary> Start consuming work and continue until stopped </summary>

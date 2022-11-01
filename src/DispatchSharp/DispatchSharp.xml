@@ -10,7 +10,7 @@
             </summary>
             <typeparam name="T">Type of work item to be processed</typeparam>
         </member>
-        <member name="F:DispatchSharp.Dispatch`1.InflightLimit">
+        <member name="F:DispatchSharp.Dispatch`1._inflightLimit">
             <summary>
             Internal inflight limit.
             </summary>
@@ -598,7 +598,7 @@
         <member name="M:DispatchSharp.WorkerPools.ThreadedWorkerPool`1.NewWorkerThread">
             <summary>
             Create a new worker thread and add it to the pool.
-            The thread is returned unstarted.
+            The thread is returned not started -- you must call `Start()` yourself.
             </summary>
         </member>
     </members>

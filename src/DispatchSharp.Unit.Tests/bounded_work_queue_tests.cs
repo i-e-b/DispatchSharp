@@ -4,14 +4,17 @@ using System.Threading;
 using DispatchSharp.QueueTypes;
 using NSubstitute;
 using NUnit.Framework;
+// ReSharper disable InconsistentNaming
+// ReSharper disable AssignNullToNotNullAttribute
+// ReSharper disable PossibleNullReferenceException
 
 namespace DispatchSharp.Unit.Tests
 {
     [TestFixture, Category(Categories.FastTests)]
     public class bounded_work_queue_tests
     {
-        private IWorkQueue<object> _subject;
-        private IWorkQueue<object> _mockQueue;
+        private IWorkQueue<object>? _subject;
+        private IWorkQueue<object>? _mockQueue;
         private const int Bound = 8;
 
         [SetUp]
@@ -83,11 +86,11 @@ namespace DispatchSharp.Unit.Tests
         public void dequeued_items_that_have_been_cancelled_can_be_dequeued_again()
         {
             var source = "Hello, please mind the gap";
-            var iwqi = Substitute.For<IWorkQueueItem<object>>();
-            iwqi.HasItem.Returns(true);
-            iwqi.Item.Returns(source);
+            var item = Substitute.For<IWorkQueueItem<object>>();
+            item.HasItem.Returns(true);
+            item.Item.Returns(source);
 
-            _mockQueue.TryDequeue().Returns(iwqi);
+            _mockQueue.TryDequeue().Returns(item);
 
             _subject.Enqueue(source);
             _subject.TryDequeue().Cancel();
@@ -105,7 +108,7 @@ namespace DispatchSharp.Unit.Tests
 
             var objectToThrowAt = new object();
             _mockQueue.When(queue => queue.Enqueue(objectToThrowAt))
-                      .Do(_ => { throw new DummyException(); });
+                      .Do(_ => throw new DummyException());
 
             try
             {

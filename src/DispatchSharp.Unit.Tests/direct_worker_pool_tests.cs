@@ -3,6 +3,9 @@ using DispatchSharp.QueueTypes;
 using DispatchSharp.WorkerPools;
 using NSubstitute;
 using NUnit.Framework;
+// ReSharper disable InconsistentNaming
+// ReSharper disable AssignNullToNotNullAttribute
+// ReSharper disable PossibleNullReferenceException
 
 namespace DispatchSharp.Unit.Tests
 {
@@ -10,9 +13,9 @@ namespace DispatchSharp.Unit.Tests
 	public class direct_worker_pool_tests
 	{
 		
-		IDispatch<object> _dispatcher;
-		IWorkerPool<object> _subject;
-		IWorkQueue<object> _queue;
+		IDispatch<object>? _dispatcher;
+		IWorkerPool<object>? _subject;
+		IWorkQueue<object>? _queue;
 		 
 		
 		[SetUp]

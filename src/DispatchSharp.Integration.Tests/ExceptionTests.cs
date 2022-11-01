@@ -1,12 +1,14 @@
 ﻿using System;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
+#pragma warning disable CS8618
 
 namespace DispatchSharp.Integration.Tests
 {
 	[TestFixture]
 	public class ExceptionTests
 	{
-		IDispatch<object> _subject;
+		IDispatch<object>? _subject;
 		int _calls;
 
 		[SetUp]
@@ -26,7 +28,7 @@ namespace DispatchSharp.Integration.Tests
 		[Test]
 		public void can_cancel_and_retry_work_items_using_the_event_handler ()
 		{
-			_subject.AddConsumer(o => { throw new Exception("busted"); });
+			_subject.AddConsumer(o => throw new Exception("busted"));
 			_subject.AddWork(new object());
 			_subject.Start();
 			_subject.WaitForEmptyQueueAndStop();

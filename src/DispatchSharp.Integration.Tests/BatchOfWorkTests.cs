@@ -3,16 +3,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable AssignNullToNotNullAttribute
 
 namespace DispatchSharp.Integration.Tests
 {
 	[TestFixture]
 	public class BatchOfWorkTests
 	{
-		List<string> _work;
-		List<string> _output;
-		List<string> _expected;
-		List<string> _exceptions;
+		List<string>? _work;
+		List<string>? _output;
+		List<string>? _expected;
+		List<string>? _exceptions;
 
 		[SetUp]
 		public void setup()

@@ -3,15 +3,18 @@ using DispatchSharp.Internal;
 using DispatchSharp.QueueTypes;
 using NSubstitute;
 using NUnit.Framework;
+// ReSharper disable InconsistentNaming
+// ReSharper disable AssignNullToNotNullAttribute
+// ReSharper disable PossibleNullReferenceException
 
 namespace DispatchSharp.Unit.Tests
 {
     [TestFixture, Category(Categories.FastTests)]
     public class bounded_work_queue_item_tests
     {
-        private IWorkQueueItem<object> _subject;
-        private IWorkQueueItem<object> _item;
-        private IWaitHandle _waitHandle;
+        private IWorkQueueItem<object>? _subject;
+        private IWorkQueueItem<object>? _item;
+        private IWaitHandle? _waitHandle;
 
         [SetUp]
         public void setup()

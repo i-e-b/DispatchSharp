@@ -3,6 +3,9 @@ using System.Threading;
 using DispatchSharp.WorkerPools;
 using NSubstitute;
 using NUnit.Framework;
+// ReSharper disable AssignNullToNotNullAttribute
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable InconsistentNaming
 
 namespace DispatchSharp.Unit.Tests
 {

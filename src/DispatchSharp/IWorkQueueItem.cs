@@ -4,7 +4,7 @@ namespace DispatchSharp
 	/// Contract for a work queue item that has been dequeued
 	/// </summary>
 	/// <typeparam name="T">Type of contained item</typeparam>
-	public interface IWorkQueueItem<T>
+	public interface IWorkQueueItem<out T>
 	{
 		/// <summary>
 		/// Has an item been dequeued?

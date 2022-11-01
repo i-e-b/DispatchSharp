@@ -4,14 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using NUnit.Framework;
+// ReSharper disable PossibleNullReferenceException
+// ReSharper disable InconsistentNaming
 
 namespace DispatchSharp.Integration.Tests
 {
 	[TestFixture]
 	public abstract class behaviours
 	{
-		public IDispatch<string> _subject;
-		public List<string> _output;
+		protected IDispatch<string>? _subject;
+		protected List<string>? _output;
 		readonly Random _random = new Random();
 
 		[SetUp]
@@ -64,7 +66,7 @@ namespace DispatchSharp.Integration.Tests
 				{
 					if (once) {
 						once = false;
-						throw new Exception("Woggle");
+						throw new Exception(@"Woggle");
 					}
 					return;
 				}
@@ -80,7 +82,7 @@ namespace DispatchSharp.Integration.Tests
 			_subject.AddWork("World");
 			Thread.Sleep(1000);
 			_subject.Stop();
-			Assert.That(_output, Is.EquivalentTo(new[] { "Hello", "WiggleWoggle", "World" }));
+			Assert.That(_output, Is.EquivalentTo(new[] { "Hello", @"WiggleWoggle", "World" }));
 		}
 
 

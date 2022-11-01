@@ -1,22 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
-using DispatchSharp.QueueTypes;
 using NUnit.Framework;
+// ReSharper disable AssignNullToNotNullAttribute
 
 namespace DispatchSharp.Integration.Tests
 {
 	[TestFixture]
 	public class PollingWorkExample
 	{
-		readonly TimeSpan _defaultTimeout = TimeSpan.FromSeconds(10);
-
 		[Test]
 		public void using_a_polling_source_to_do_long_term_work()
 		{
 			var result = new List<string>();
 			
-			var source = new sampleSource(10);
+			var source = new SampleSource(10);
 			var dispatcher = Dispatch<string>.PollAndProcess("test", source, threadCount: 1);
 
 			dispatcher.AddConsumer(result.Add);
@@ -30,11 +27,11 @@ namespace DispatchSharp.Integration.Tests
 				));
 		}
 
-		public class sampleSource:IPollSource<string>
+		public class SampleSource:IPollSource<string>
 		{
 			readonly Queue<string> _items;
 
-			public sampleSource(int i)
+			public SampleSource(int i)
 			{
 				_items = new Queue<string>(i);
 				for (int j = 0; j < i; j++)
