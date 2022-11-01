@@ -4,15 +4,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{D3FC124A-CF92-4632-968F-E6B7A14DFD0A}</ProjectGuid>
+    <ProjectGuid>{2CEB6361-6E20-4F3B-BDA3-49D6B4B90A37}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DispatchSharp.Unit.Tests</RootNamespace>
-    <AssemblyName>DispatchSharp.Unit.Tests</AssemblyName>
+    <RootNamespace>DispatchSharp</RootNamespace>
+    <AssemblyName>DispatchSharp</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ProductVersion>10.0.0</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -30,43 +28,35 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\DispatchSharp.XML</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="NSubstitute, Version=1.6.1.0, Culture=neutral, PublicKeyToken=92dd2e9066daa5ca, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\NSubstitute.1.6.1.0\lib\NET40\NSubstitute.dll</HintPath>
-    </Reference>
-    <Reference Include="nunit.framework, Version=2.6.3.13283, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="bounded_work_queue_item_tests.cs" />
-    <Compile Include="bounded_work_queue_tests.cs" />
-    <Compile Include="Categories.cs" />
-    <Compile Include="direct_worker_pool_tests.cs" />
-    <Compile Include="dispatch_tests.cs" />
-    <Compile Include="in_memory_work_queue_tests.cs" />
-    <Compile Include="polling_queue_tests.cs" />
+    <Compile Include="DispatchStatics.cs" />
+    <Compile Include="Internal\CrossThreadWait.cs" />
+    <Compile Include="Internal\Default.cs" />
+    <Compile Include="Internal\SemaphoreWait.cs" />
+    <Compile Include="IWorkQueueItem.cs" />
+    <Compile Include="IPollSource.cs" />
+    <Compile Include="QueueTypes\BoundedWorkQueue.cs" />
+    <Compile Include="QueueTypes\BoundedWorkQueueItem.cs" />
+    <Compile Include="QueueTypes\PollingWorkQueue.cs" />
+    <Compile Include="QueueTypes\WorkQueueItem.cs" />
+    <Compile Include="WorkerPools\DirectWorkerPool.cs" />
+    <Compile Include="Dispatch.cs" />
+    <Compile Include="IDispatch.cs" />
+    <Compile Include="Internal\IWaitHandle.cs" />
+    <Compile Include="IWorkerPool.cs" />
+    <Compile Include="IWorkQueue.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="threaded_worker_pool_action_tests.cs" />
-    <Compile Include="threaded_worker_pool_base.cs" />
-    <Compile Include="threaded_worker_pool_inflight_tests.cs" />
-    <Compile Include="threaded_worker_pool_tests.cs" />
-    <Compile Include="work_queue_item_tests.cs" />
+    <Compile Include="QueueTypes\InMemoryWorkQueue.cs" />
+    <Compile Include="WorkerPools\ThreadedWorkerPool.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\DispatchSharp\DispatchSharp.csproj">
-      <Project>{2CEB6361-6E20-4F3B-BDA3-49D6B4B90A37}</Project>
-      <Name>DispatchSharp</Name>
-    </ProjectReference>
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

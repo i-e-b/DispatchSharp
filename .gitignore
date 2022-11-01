@@ -2,6 +2,7 @@
 obj
 bin
 deploy
+.idea/
 *.csproj.user
 *.suo
 *.cache
