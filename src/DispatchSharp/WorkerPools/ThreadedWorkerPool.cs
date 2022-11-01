@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
+using DispatchSharp.Internal;
 
 // ignore ref/volatile conflict:
 #pragma warning disable 420
@@ -26,16 +27,18 @@ namespace DispatchSharp.WorkerPools
 		readonly List<Thread> _pool;
 		IDispatch<T> _dispatch;
 		IWorkQueue<T> _queue;
-		volatile object _started;
+		volatile object? _started;
 		volatile int _inflight;
 
 		/// <summary>
 		/// Create a worker with a self-balancing pool of threads.
 		/// </summary>
 		/// <param name="name">Name of this worker pool (useful during debugging)</param>
-		public ThreadedWorkerPool(string name) {
+		public ThreadedWorkerPool(string? name) {
 			_name = name ?? "UnnamedWorkerPool_" + typeof(T).Name;
 			_pool = new List<Thread>();
+			_dispatch= UninitialisedValues.InvalidDispatch<T>();
+			_queue = UninitialisedValues.InvalidQueue<T>();
 			_started = null;
 			_inflight = 0;
 		}
@@ -62,7 +65,7 @@ namespace DispatchSharp.WorkerPools
 		/// Stop processing incoming queue items.
 		/// Current work must be finished or cancelled before returning.
 		/// </summary>
-		public void Stop()
+		public void Stop(Action<Thread>? cantStopWarning = null)
 		{
 			_started = null;
 			while (_inflight > 0) Thread.Sleep(10);
@@ -81,26 +84,8 @@ namespace DispatchSharp.WorkerPools
 
 				foreach (var thread in toKill)
 				{
-					AbortIfRunning(thread);
+					cantStopWarning?.Invoke(thread);
 				}
-			}
-		}
-
-		/// <summary>
-		/// Quietly kill a thread if it's still running.
-		/// </summary>
-		void AbortIfRunning(Thread thread)
-		{
-			if (thread == null) return;
-			if (!thread.IsAlive) return;
-
-			try
-			{
-				thread.Abort();
-			}
-			catch
-			{
-				Thread.ResetAbort();
 			}
 		}
 
@@ -110,10 +95,10 @@ namespace DispatchSharp.WorkerPools
 		/// 
 		/// Waiting threads are marked by a non-normal thread priority
 		/// </summary>
-		static void TryJoinThread(Thread thread)
+		static void TryJoinThread(Thread? thread)
 		{
-			if (thread == null) return ;
-			if (!thread.IsAlive) return ;
+			if (thread == null) return;
+			if (!thread.IsAlive) return;
 			try
 			{
 				if (thread.Priority == ThreadPriority.Normal)
@@ -172,15 +157,16 @@ namespace DispatchSharp.WorkerPools
 		/// <summary>
 		/// This is the core loop that all worker threads run.
 		/// </summary>
-		void WorkLoop(int index, object reference)
+		void WorkLoop(int index, object? reference)
 		{
-			Func<bool> running = () => reference != null && _started == reference;
-			while (running())
+			bool Running() => reference != null && _started == reference;
+			
+			while (Running())
 			{
 				if (ThreadIsNoLongerNeeded(index)) return;
 				if (index == 0) MaintainThreadPool();
 				WaitForQueueIfStillActive();
-				if (!running()) return;
+				if (!Running()) return;
 
 				lock (_incrementLock)
 				{
@@ -189,7 +175,7 @@ namespace DispatchSharp.WorkerPools
 				}
 
 				IWorkQueueItem<T> work;
-				while (running() && (work = _queue.TryDequeue()).HasItem)
+				while (Running() && (work = _queue.TryDequeue()).HasItem)
 				{
 					foreach (var action in _dispatch.AllConsumers().ToArray())
 					{
@@ -229,7 +215,7 @@ namespace DispatchSharp.WorkerPools
 		/// Create a new worker thread and add it to the pool.
 		/// The thread is returned unstarted.
 		/// </summary>
-		Thread NewWorkerThread()
+		Thread? NewWorkerThread()
 		{
 			lock (_threadPoolLock)
 			{
@@ -238,9 +224,9 @@ namespace DispatchSharp.WorkerPools
 				var newThread = new Thread(() => WorkLoop(threadIndex, _started))
 				{
 					IsBackground = true,
-					Name = _name + "_Thread_" + threadIndex
+					Name = _name + "_Thread_" + threadIndex,
+					Priority = ThreadPriority.BelowNormal
 				};
-				newThread.Priority = ThreadPriority.BelowNormal;
 				_pool.Add(newThread);
 				return newThread;
 			}
@@ -249,7 +235,7 @@ namespace DispatchSharp.WorkerPools
 		void SetStartedFlag()
 		{
 			var closedObject = new object();
-			Interlocked.CompareExchange(ref _started, closedObject, null);
+			Interlocked.CompareExchange<object?>(ref _started, closedObject, null);
 		}
 
 		void MaintainThreadPool()

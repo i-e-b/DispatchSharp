@@ -1,3 +1,6 @@
+using System;
+using System.Threading;
+
 namespace DispatchSharp
 {
 	/// <summary>
@@ -21,7 +24,10 @@ namespace DispatchSharp
 		/// Stop processing incoming queue items.
 		/// Current work should be finished or cancelled before returning.
 		/// </summary>
-		void Stop();
+		/// <param name="cantStopWarning">If provided, this method will be called for any
+		/// thread that could not be stopped. Current versions of .Net do not give a
+		/// way to stop threads unconditionally.</param>
+		void Stop(Action<Thread>? cantStopWarning = null);
 
 		/// <summary>
 		/// Current number of workers running actions against queue items

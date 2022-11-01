@@ -27,7 +27,7 @@ namespace DispatchSharp.Integration.Tests
 		[Repeat(3)]
 		public void single_batch_of_work_completes_all_items()
 		{
-			var dispatcher = Dispatch<string>.CreateDefaultMultithreaded("MyTask");
+			var dispatcher = Dispatch<string>.CreateDefaultMultiThreaded("MyTask");
 
 			dispatcher.AddConsumer(Action);
 			dispatcher.Exceptions += (s,e) => _exceptions.Add(e.SourceException.Message);
@@ -42,7 +42,7 @@ namespace DispatchSharp.Integration.Tests
 		[Test]
 		public void wait_for_stop_respects_timeout ()
 		{
-			var dispatcher = Dispatch<string>.CreateDefaultMultithreaded("MyTask");
+			var dispatcher = Dispatch<string>.CreateDefaultMultiThreaded("MyTask");
 
 			dispatcher.SetMaximumInflight(1);
 			dispatcher.AddConsumer(SlowAction); // one second per job

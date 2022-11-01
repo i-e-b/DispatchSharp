@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using DispatchSharp.Internal;
 using DispatchSharp.QueueTypes;
 using DispatchSharp.WorkerPools;
 
 namespace DispatchSharp
 {
+	[SuppressMessage("ReSharper", "UnusedMember.Global")]
 	public partial class Dispatch<T>
 	{
 		/// <summary>
@@ -14,7 +16,7 @@ namespace DispatchSharp
 		/// </summary>
 		/// <param name="name">Name of the dispatcher (useful for debugging)</param>
 		/// <param name="threadCount">Number of thread to use. Default is number of cores in the host.</param>
-		public static IDispatch<T> CreateDefaultMultithreaded(string name, int threadCount = 0)
+		public static IDispatch<T> CreateDefaultMultiThreaded(string name, int threadCount = 0)
 		{
 			var threads = (threadCount > 0) ? threadCount : Default.ThreadCount;
 			return new Dispatch<T>(new InMemoryWorkQueue<T>(), new ThreadedWorkerPool<T>(name))
@@ -29,7 +31,7 @@ namespace DispatchSharp
 		/// <param name="name">Name of the dispatcher (useful for debugging)</param>
 		/// <param name="source">object to poll for data</param>
 		/// <param name="threadCount">Number of thread to use. Default is number of cores in the host.</param>
-		public static IDispatch<T> PollAndProces(string name, IPollSource<T> source, int threadCount = 0)
+		public static IDispatch<T> PollAndProcess(string name, IPollSource<T> source, int threadCount = 0)
 		{
 			var threads = (threadCount > 0) ? threadCount : Default.ThreadCount;
 			return new Dispatch<T>(new PollingWorkQueue<T>(source), new ThreadedWorkerPool<T>(name))
@@ -45,30 +47,10 @@ namespace DispatchSharp
 			IEnumerable<T> batch,
 			Action<T> task,
 			int threadCount = 0,
-			Action<Exception> exceptionHandler = null)
+			Action<Exception>? exceptionHandler = null)
 		{
-			var dispatcher = CreateDefaultMultithreaded(name, threadCount);
-			if (exceptionHandler != null) dispatcher.Exceptions += (s,e) => exceptionHandler(e.SourceException); 
-			dispatcher.AddConsumer(task);
-			dispatcher.Start();
-			dispatcher.AddWork(batch);
-			dispatcher.WaitForEmptyQueueAndStop();
-		}
-		
-
-		/// <summary>
-		/// Process a batch of work with all defaults and a given action.
-		/// Blocks until all work complete.
-		/// </summary>
-		public static void ProcessBatch(
-			string name,
-			IEnumerable<T> batch,
-			Action<T> task,
-			Action<ExceptionEventArgs<T>> exceptionHandler,
-			int threadCount)
-		{
-			var dispatcher = CreateDefaultMultithreaded(name, threadCount);
-			if (exceptionHandler != null) dispatcher.Exceptions += (s,e) => exceptionHandler(e); 
+			var dispatcher = CreateDefaultMultiThreaded(name, threadCount);
+			if (exceptionHandler != null) dispatcher.Exceptions += (_,e) => exceptionHandler(e.SourceException); 
 			dispatcher.AddConsumer(task);
 			dispatcher.AddWork(batch);
 			dispatcher.Start();

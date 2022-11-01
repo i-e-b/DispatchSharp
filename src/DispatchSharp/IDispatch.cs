@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using DispatchSharp.Internal;
 
 namespace DispatchSharp
 {
@@ -8,10 +9,11 @@ namespace DispatchSharp
 	/// </summary>
 	public class ExceptionEventArgs<T> : EventArgs
 	{
+
 		/// <summary>
 		/// Triggering exception
 		/// </summary>
-		public Exception SourceException { get; set; }
+		public Exception SourceException { get; set; } = UninitialisedValues.NoException;
 
 		/// <summary>
 		/// The work item that caused the exception.
@@ -19,7 +21,7 @@ namespace DispatchSharp
 		/// rescheduling.
 		/// If you don't call Cancel, the work item will be Finished by default.
 		/// </summary>
-		public IWorkQueueItem<T> WorkItem { get; set; }
+		public IWorkQueueItem<T> WorkItem { get; set; } = new InvalidQueueItem<T>();
 	}
 
 	/// <summary>

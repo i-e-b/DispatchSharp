@@ -13,7 +13,7 @@ namespace DispatchSharp.Integration.Tests
 		public void setup()
 		{
 			_calls = 0;
-			_subject = Dispatch<object>.CreateDefaultMultithreaded("test");
+			_subject = Dispatch<object>.CreateDefaultMultiThreaded("test");
 			_subject.Exceptions += (s,e) => {
 				if (_calls++ < 2)
 				{

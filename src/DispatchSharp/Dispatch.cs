@@ -29,6 +29,7 @@ namespace DispatchSharp
 		{
 			InflightLimit = Default.ThreadCount;
 
+			Exceptions = (_, _) => { };
 			_queue = workQueue;
 			_pool = workerPool;
 

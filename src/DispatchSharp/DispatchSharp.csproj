@@ -2,17 +2,19 @@
 
   <PropertyGroup>
     <RootNamespace>DispatchSharp</RootNamespace>
-    <LangVersion>9</LangVersion>
+    <LangVersion>10</LangVersion>
     <Nullable>enable</Nullable>
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DocumentationFile>C:\gits\DispatchSharp\src\DispatchSharp\DispatchSharp.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <DocumentationFile>C:\gits\DispatchSharp\src\DispatchSharp\DispatchSharp.xml</DocumentationFile>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
   <ItemGroup>

@@ -11,7 +11,7 @@ namespace DispatchSharp.QueueTypes
 	{
 		readonly Action<T> _finish;
 		readonly Action<T> _cancel;
-		object _completionActionToken;
+		object? _completionActionToken;
 
 		/// <summary>
 		/// Has an item been dequeued?
@@ -25,12 +25,16 @@ namespace DispatchSharp.QueueTypes
 		public T Item { get; set; }
 
 		/// <summary>
-		/// Create an empty item (represents an unsucessful dequeue)
+		/// Create an empty item (represents an unsuccessful dequeue)
 		/// </summary>
 		public WorkQueueItem()
 		{
+			Item = default!;
 			HasItem = false;
 			_completionActionToken = null;
+			
+			_finish = _ => { };
+			_cancel = _ => { };
 		}
 
 		/// <summary>
@@ -39,10 +43,10 @@ namespace DispatchSharp.QueueTypes
 		/// <param name="item">Item dequeued</param>
 		/// <param name="finish">Finish action (may be null)</param>
 		/// <param name="cancel">Cancel action (may be null)</param>
-		public WorkQueueItem(T item, Action<T> finish, Action<T> cancel)
+		public WorkQueueItem(T item, Action<T>? finish, Action<T>? cancel)
 		{
-			_finish = finish ?? (t => { });
-			_cancel = cancel ?? (t => { });
+			_finish = finish ?? (_ => { });
+			_cancel = cancel ?? (_ => { });
 			HasItem = true;
 			Item = item;
 			_completionActionToken = new object();
@@ -55,7 +59,7 @@ namespace DispatchSharp.QueueTypes
 		/// </summary>
 		public void Finish()
 		{
-			var token = Interlocked.Exchange(ref _completionActionToken, null);
+			var token = Interlocked.Exchange<object?>(ref _completionActionToken, null);
 			if (token == null) return;
 			_finish(Item);
 		}
@@ -66,7 +70,7 @@ namespace DispatchSharp.QueueTypes
 		/// </summary>
 		public void Cancel()
 		{
-			var token = Interlocked.Exchange(ref _completionActionToken, null);
+			var token = Interlocked.Exchange<object?>(ref _completionActionToken, null);
 			if (token == null) return;
 			_cancel(Item);
 		}

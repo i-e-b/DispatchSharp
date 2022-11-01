@@ -17,7 +17,7 @@ namespace DispatchSharp.Integration.Tests
 			var result = new List<string>();
 			
 			var source = new sampleSource(10);
-			var dispatcher = Dispatch<string>.PollAndProces("test", source, threadCount: 1);
+			var dispatcher = Dispatch<string>.PollAndProcess("test", source, threadCount: 1);
 
 			dispatcher.AddConsumer(result.Add);
 

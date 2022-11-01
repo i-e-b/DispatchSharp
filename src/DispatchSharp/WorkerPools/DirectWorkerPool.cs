@@ -13,7 +13,7 @@ namespace DispatchSharp.WorkerPools
 	{
 		IDispatch<T> _dispatch;
 		IWorkQueue<T> _queue;
-		Thread _worker;
+		Thread? _worker;
 		volatile bool _running = true;
 		readonly IWaitHandle _started;
 
@@ -22,6 +22,8 @@ namespace DispatchSharp.WorkerPools
 		/// </summary>
 		public DirectWorkerPool()
 		{
+			_dispatch = UninitialisedValues.InvalidDispatch<T>();
+			_queue = UninitialisedValues.InvalidQueue<T>();
 			_started = new CrossThreadWait(false);
 		}
 
@@ -53,7 +55,7 @@ namespace DispatchSharp.WorkerPools
 		/// Stop processing once work queue is exhausted.
 		/// WARNING: this pool with continue to work if the queue is kept populated
 		/// </summary>
-		public void Stop()
+		public void Stop(Action<Thread>? cantStopWarning = null)
 		{
 			_running = false;
 
@@ -68,10 +70,15 @@ namespace DispatchSharp.WorkerPools
 
 		void DoWork()
 		{
-			Func<bool> started = () => { _started.Set(); return false; };
+			bool Started()
+			{
+				_started.Set();
+				return false;
+			}
+
 			while (_running) {
 				IWorkQueueItem<T> work;
-				while ((work = _queue.TryDequeue()).HasItem || started())
+				while ((work = _queue.TryDequeue()).HasItem || Started())
 				{
 					foreach (var action in _dispatch.AllConsumers().ToArray())
 					{

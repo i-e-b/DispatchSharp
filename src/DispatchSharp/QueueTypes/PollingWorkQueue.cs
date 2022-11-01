@@ -40,25 +40,24 @@ namespace DispatchSharp.QueueTypes
 		/// <summary> Try and get an item from this queue. Success is encoded in the WQI result 'HasItem' </summary>
 		public IWorkQueueItem<T> TryDequeue()
 		{
-			T item;
 			lock(_lockObject)
 			{
 				if (_queue.Count > 0)
 				{
 					var data = _queue.Dequeue();
-					return new WorkQueueItem<T>(data, finish: m => { }, cancel: Enqueue);
+					return new WorkQueueItem<T>(data, finish: _ => { }, cancel: Enqueue);
 				}
 			}
 
 
-			if (!_pollingSource.TryGet(out item))
+			if (!_pollingSource.TryGet(out var item))
 			{
 				SleepMore();
 				return new WorkQueueItem<T>();
 			}
 
 			ResetSleep();
-			return new WorkQueueItem<T>(item, finish: m => { }, cancel: Enqueue);
+			return new WorkQueueItem<T>(item, finish: _ => { }, cancel: Enqueue);
 		}
 
 		void ResetSleep()
