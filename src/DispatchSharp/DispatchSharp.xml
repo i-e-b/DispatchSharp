@@ -31,6 +31,9 @@
         <member name="M:DispatchSharp.Dispatch`1.CurrentInflight">
             <summary> Snapshot of number of work items being processed </summary>
         </member>
+        <member name="M:DispatchSharp.Dispatch`1.CurrentQueued">
+            <summary> Snapshot of number of work items in the queue (both being processed and waiting) </summary>
+        </member>
         <member name="M:DispatchSharp.Dispatch`1.AddConsumer(System.Action{`0})">
             <summary> Add an action to take when work is processed </summary>
         </member>
@@ -126,6 +129,9 @@
         </member>
         <member name="M:DispatchSharp.IDispatch`1.CurrentInflight">
             <summary> Snapshot of number of work items being processed </summary>
+        </member>
+        <member name="M:DispatchSharp.IDispatch`1.CurrentQueued">
+            <summary> Snapshot of number of work items in the queue (both being processed and waiting) </summary>
         </member>
         <member name="M:DispatchSharp.IDispatch`1.AddConsumer(System.Action{`0})">
             <summary>

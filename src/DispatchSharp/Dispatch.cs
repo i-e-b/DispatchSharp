@@ -59,6 +59,12 @@ namespace DispatchSharp
 			return _pool.WorkersInflight();
 		}
 
+		/// <summary> Snapshot of number of work items in the queue (both being processed and waiting) </summary>
+		public int CurrentQueued()
+		{
+			return _queue.Length();
+		}
+
 		/// <summary> Add an action to take when work is processed </summary>
 		public void AddConsumer(Action<T> action)
 		{

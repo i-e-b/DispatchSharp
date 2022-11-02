@@ -41,6 +41,9 @@ namespace DispatchSharp
 
 		/// <summary> Snapshot of number of work items being processed </summary>
 		int CurrentInflight();
+		
+		/// <summary> Snapshot of number of work items in the queue (both being processed and waiting) </summary>
+		int CurrentQueued();
 
 		/// <summary>
 		/// Add an action to take when work is processed.

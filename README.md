@@ -12,7 +12,7 @@ Getting Started
 Doing a batch of work:
 ```csharp
 void DoBatch(IEnumerable<object> workToDo) {
-	var dispatcher = Dispatch<object>.CreateDefaultMultithreaded("MyTask");
+	var dispatcher = Dispatch<object>.CreateDefaultMultiThreaded("MyTask");
 
 	dispatcher.AddConsumer(MyWorkMethod);
 	dispatcher.Start();
@@ -36,7 +36,7 @@ Dispatch<int>.ProcessBatch("BatchRequests", Enumerable.Range(0, times).ToArray()
 
 Handling long running incoming jobs:
 ```csharp
-dispatcher = Dispatch<object>.CreateDefaultMultithreaded("MyService");
+dispatcher = Dispatch<object>.CreateDefaultMultiThreaded("MyService");
 dispatcher.AddConsumer(MyWorkMethod);
 dispatcher.Start();
 .

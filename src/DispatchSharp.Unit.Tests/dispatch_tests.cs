@@ -71,7 +71,7 @@ namespace DispatchSharp.Unit.Tests
 		}
 
 		[Test]
-		public void added_work_enumerables_are_all_added_to_queue ()
+		public void work_items_added_by_enumerable_are_all_added_to_queue ()
 		{
 			var thing = new []{new object(), new object(), new object()};
 			_subject.AddWork(thing);
@@ -128,6 +128,19 @@ namespace DispatchSharp.Unit.Tests
 			var actual = _subject.CurrentInflight();
 
 			_pool.Received().WorkersInflight();
+			Assert.That(actual, Is.EqualTo(expected));
+		}
+		
+		[Test]
+		public void queue_length_is_read_from_worker_queue ()
+		{
+			var expected = 42;
+			_queue.Length().Returns(expected);
+			_queue.DidNotReceive().Length();
+			
+			var actual = _subject.CurrentQueued();
+
+			_queue.Received().Length();
 			Assert.That(actual, Is.EqualTo(expected));
 		}
 	}
