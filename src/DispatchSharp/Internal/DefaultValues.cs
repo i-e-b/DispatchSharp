@@ -51,6 +51,7 @@ internal class InvalidDispatch<T>:IDispatch<T>
     public void Stop() => throw new Exception(InvalidDispatchMessage);
     public void WaitForEmptyQueueAndStop() => throw new Exception(InvalidDispatchMessage);
     public void WaitForEmptyQueueAndStop(TimeSpan maxWait) => throw new Exception(InvalidDispatchMessage);
+    public IEnumerable<string> ListNamedTasks() => throw new Exception(InvalidDispatchMessage);
 }
 
 /// <summary>

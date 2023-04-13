@@ -49,6 +49,7 @@
     <Compile Include="Direct_Bounded_tests.cs" />
     <Compile Include="Direct_InMemory_tests.cs" />
     <Compile Include="ExceptionTests.cs" />
+    <Compile Include="named_work_items_tests.cs" />
     <Compile Include="PollingWorkExample.cs" />
     <Compile Include="polling_queue_tests.cs" />
     <Compile Include="Threaded_Bounded_tests.cs" />

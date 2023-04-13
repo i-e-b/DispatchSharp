@@ -189,6 +189,13 @@
             </summary>
             <param name="maxWait">Maximum duration to wait. The dispatcher will be stopped if this duration is exceeded</param>
         </member>
+        <member name="M:DispatchSharp.IDispatch`1.ListNamedTasks">
+            <summary>
+            List the names of work items that are currently queued.
+            Items that have been completed will not be listed.
+            Items with no name provided will not be listed.
+            </summary>
+        </member>
         <member name="T:DispatchSharp.IDispatchInternal`1">
             <summary>
             Interfaces for dispatcher internal methods.

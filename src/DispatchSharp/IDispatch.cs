@@ -87,6 +87,13 @@ namespace DispatchSharp
 		/// </summary>
 		/// <param name="maxWait">Maximum duration to wait. The dispatcher will be stopped if this duration is exceeded</param>
 		void WaitForEmptyQueueAndStop(TimeSpan maxWait);
+		
+		/// <summary>
+		/// List the names of work items that are currently queued.
+		/// Items that have been completed will not be listed.
+		/// Items with no name provided will not be listed.
+		/// </summary>
+		public IEnumerable<string> ListNamedTasks();
 	}
 
 	/// <summary>
