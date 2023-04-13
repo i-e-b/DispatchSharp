@@ -13,13 +13,13 @@ namespace DispatchSharp.Unit.Tests
     public class bounded_work_queue_item_tests
     {
         private IWorkQueueItem<object>? _subject;
-        private IWorkQueueItem<object>? _item;
+        private IWorkQueueItem<Named<object>>? _item;
         private IWaitHandle? _waitHandle;
 
         [SetUp]
         public void setup()
         {
-            _item = Substitute.For<IWorkQueueItem<object>>();
+            _item = Substitute.For<IWorkQueueItem<Named<object>>>();
             _waitHandle = Substitute.For<IWaitHandle>();
             _subject = new BoundedWorkQueueItem<object>(_item, _waitHandle);
         }
@@ -37,7 +37,8 @@ namespace DispatchSharp.Unit.Tests
         public void calls_to_item_are_delegated()
         {
             var expected = new object();
-            _item.Item.Returns(expected);
+            var wrapped = new Named<object>{Value=expected};
+            _item.Item.Returns(wrapped);
 
             var actual = _subject.Item;
             Assert.That(actual, Is.EqualTo(expected));

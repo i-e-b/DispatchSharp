@@ -77,15 +77,30 @@ namespace DispatchSharp
 		/// <summary> Add a work item to process </summary>
 		public void AddWork(T work)
 		{
-			_queue.Enqueue(work);
+			_queue.Enqueue(work, null);
 		}
 
+		/// <summary> Add a named work item to process </summary>
+		public void AddWork(T work, string? name)
+		{
+			_queue.Enqueue(work, name);
+		}
+		
 		/// <summary> Add multiple work items to process </summary>
 		public void AddWork(IEnumerable<T> workList)
 		{
 			foreach (var item in workList)
 			{
-				_queue.Enqueue(item);
+				_queue.Enqueue(item, null);
+			}
+		}
+
+		/// <summary> Add multiple work items to process, each with the same name </summary>
+		public void AddWork(IEnumerable<T> workList, string? name)
+		{
+			foreach (var item in workList)
+			{
+				_queue.Enqueue(item, name);
 			}
 		}
 
@@ -154,6 +169,17 @@ namespace DispatchSharp
 			sw.Stop();
 
 			Stop();
+		}
+
+		/// <summary>
+		/// List the names of work items that are currently queued.
+		/// Items that have been completed will not be listed.
+		/// Items with no name provided will not be listed.
+		/// </summary>
+		public IEnumerable<string> ListNamedTasks()
+		{
+			return _queue.AllItemNames();
+			// return _pool.WorkersInflight();
 		}
 	}
 }

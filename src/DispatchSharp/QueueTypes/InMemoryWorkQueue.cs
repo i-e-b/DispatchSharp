@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using DispatchSharp.Internal;
 
 namespace DispatchSharp.QueueTypes
@@ -11,7 +12,7 @@ namespace DispatchSharp.QueueTypes
 	public class InMemoryWorkQueue<T> : IWorkQueue<T>
 	{
 		readonly object _lockObject;
-		readonly Queue<T> _queue;
+		readonly Queue<Named<T>> _queue;
 		readonly IWaitHandle _waitHandle;
 
 		/// <summary>
@@ -19,17 +20,17 @@ namespace DispatchSharp.QueueTypes
 		/// </summary>
 		public InMemoryWorkQueue()
 		{
-			_queue = new Queue<T>();
+			_queue = new Queue<Named<T>>();
 			_lockObject = new object();
 			_waitHandle = new CrossThreadWait(false);
 		}
 
 		/// <summary> Add an item to the queue </summary>
-		public void Enqueue(T work)
+		public void Enqueue(T work, string? name = null)
 		{
 			lock (_lockObject)
 			{
-				_queue.Enqueue(work);
+				_queue.Enqueue(new Named<T> { Value = work, Name = name });
 				_waitHandle.Set();
 			}
 		}
@@ -43,7 +44,7 @@ namespace DispatchSharp.QueueTypes
 				var data = _queue.Dequeue();
 				
 				if (_queue.Count < 1) _waitHandle.Reset();
-				return new WorkQueueItem<T>(data, null, Enqueue);
+				return new WorkQueueItem<T>(data.Value, null, item => Enqueue(item, data.Name), data.Name);
 			}
 		}
 
@@ -67,6 +68,15 @@ namespace DispatchSharp.QueueTypes
 		/// </summary>
 		public bool BlockUntilReady() {
 			return _waitHandle.WaitOne(TimeSpan.FromMilliseconds(100));
+		}
+
+		/// <inheritdoc />
+		public IEnumerable<string> AllItemNames()
+		{
+			lock (_lockObject)
+			{
+				return _queue.Where(item => item.Name is not null).Select(item => item.Name ?? "");
+			}
 		}
 	}
 }

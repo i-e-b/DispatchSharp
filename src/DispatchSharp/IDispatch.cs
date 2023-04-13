@@ -59,6 +59,12 @@ namespace DispatchSharp
 		/// <summary> Add multiple work items to process </summary>
 		void AddWork(IEnumerable<T> workList);
 
+		/// <summary> Add a named work item to process </summary>
+		void AddWork(T work, string? name);
+
+		/// <summary> Add multiple work items to process, each with the same name </summary>
+		void AddWork(IEnumerable<T> workList, string? name);
+
 		/// <summary> All consumers added to this dispatcher </summary>
 		IEnumerable<Action<T>> AllConsumers();
 

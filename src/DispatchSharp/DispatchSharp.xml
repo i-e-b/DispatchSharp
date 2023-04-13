@@ -40,8 +40,14 @@
         <member name="M:DispatchSharp.Dispatch`1.AddWork(`0)">
             <summary> Add a work item to process </summary>
         </member>
+        <member name="M:DispatchSharp.Dispatch`1.AddWork(`0,System.String)">
+            <summary> Add a named work item to process </summary>
+        </member>
         <member name="M:DispatchSharp.Dispatch`1.AddWork(System.Collections.Generic.IEnumerable{`0})">
             <summary> Add multiple work items to process </summary>
+        </member>
+        <member name="M:DispatchSharp.Dispatch`1.AddWork(System.Collections.Generic.IEnumerable{`0},System.String)">
+            <summary> Add multiple work items to process, each with the same name </summary>
         </member>
         <member name="M:DispatchSharp.Dispatch`1.AllConsumers">
             <summary> All consumers added to this dispatcher </summary>
@@ -69,6 +75,13 @@
             Continue consuming work and return when the queue reports 0 items waiting. 
             </summary>
             <param name="maxWait">Maximum duration to wait. The dispatcher will be stopped if this duration is exceeded</param>
+        </member>
+        <member name="M:DispatchSharp.Dispatch`1.ListNamedTasks">
+            <summary>
+            List the names of work items that are currently queued.
+            Items that have been completed will not be listed.
+            Items with no name provided will not be listed.
+            </summary>
         </member>
         <member name="M:DispatchSharp.Dispatch`1.CreateDefaultMultiThreaded(System.String,System.Int32)">
             <summary>
@@ -146,6 +159,12 @@
         </member>
         <member name="M:DispatchSharp.IDispatch`1.AddWork(System.Collections.Generic.IEnumerable{`0})">
             <summary> Add multiple work items to process </summary>
+        </member>
+        <member name="M:DispatchSharp.IDispatch`1.AddWork(`0,System.String)">
+            <summary> Add a named work item to process </summary>
+        </member>
+        <member name="M:DispatchSharp.IDispatch`1.AddWork(System.Collections.Generic.IEnumerable{`0},System.String)">
+            <summary> Add multiple work items to process, each with the same name </summary>
         </member>
         <member name="M:DispatchSharp.IDispatch`1.AllConsumers">
             <summary> All consumers added to this dispatcher </summary>
@@ -297,8 +316,10 @@
             </summary>
             <typeparam name="T">Type of item to be stored</typeparam>
         </member>
-        <member name="M:DispatchSharp.IWorkQueue`1.Enqueue(`0)">
+        <member name="M:DispatchSharp.IWorkQueue`1.Enqueue(`0,System.String)">
             <summary> Add an item to the queue </summary>
+            <param name="work">The item to be processed</param>
+            <param name="name">OPTIONAL: name of the work item.</param>
         </member>
         <member name="M:DispatchSharp.IWorkQueue`1.TryDequeue">
             <summary> Try and get an item from this queue. Success is encoded in the WQI result 'HasItem' </summary>
@@ -314,6 +335,14 @@
             Implementations are free to return immediately.
             Implementations are free to return true even if no items are available.
             </summary>
+        </member>
+        <member name="M:DispatchSharp.IWorkQueue`1.AllItemNames">
+            <summary>
+            Snapshot of named items waiting in the queue.
+            This can affect performance, so should be used for either
+            very short queues, or for failure diagnostics.
+            </summary>
+            <returns>List of named items. May be empty. May contain duplicates.</returns>
         </member>
         <member name="T:DispatchSharp.IWorkQueueItem`1">
             <summary>
@@ -332,6 +361,11 @@
             Queue item if one was available
             </summary>
         </member>
+        <member name="P:DispatchSharp.IWorkQueueItem`1.Name">
+            <summary>
+            Given name of item if item was available and a name was supplied
+            </summary>
+        </member>
         <member name="M:DispatchSharp.IWorkQueueItem`1.Finish">
             <summary>
             Call this to permanently remove an item from the queue
@@ -348,7 +382,7 @@
             A queue that implements waiting
             </summary>
         </member>
-        <member name="M:DispatchSharp.QueueTypes.BoundedWorkQueue`1.#ctor(DispatchSharp.IWorkQueue{`0},System.Int32)">
+        <member name="M:DispatchSharp.QueueTypes.BoundedWorkQueue`1.#ctor(DispatchSharp.IWorkQueue{DispatchSharp.QueueTypes.Named{`0}},System.Int32)">
             <summary>
             Wrap an existing queue
             </summary>
@@ -358,7 +392,7 @@
             Start a new queue
             </summary>
         </member>
-        <member name="M:DispatchSharp.QueueTypes.BoundedWorkQueue`1.Enqueue(`0)">
+        <member name="M:DispatchSharp.QueueTypes.BoundedWorkQueue`1.Enqueue(`0,System.String)">
             <inheritdoc />
         </member>
         <member name="M:DispatchSharp.QueueTypes.BoundedWorkQueue`1.TryDequeue">
@@ -370,12 +404,15 @@
         <member name="M:DispatchSharp.QueueTypes.BoundedWorkQueue`1.BlockUntilReady">
             <inheritdoc />
         </member>
+        <member name="M:DispatchSharp.QueueTypes.BoundedWorkQueue`1.AllItemNames">
+            <inheritdoc />
+        </member>
         <member name="T:DispatchSharp.QueueTypes.BoundedWorkQueueItem`1">
             <summary>
             A queue item that can be cancelled
             </summary>
         </member>
-        <member name="M:DispatchSharp.QueueTypes.BoundedWorkQueueItem`1.#ctor(DispatchSharp.IWorkQueueItem{`0},DispatchSharp.Internal.IWaitHandle)">
+        <member name="M:DispatchSharp.QueueTypes.BoundedWorkQueueItem`1.#ctor(DispatchSharp.IWorkQueueItem{DispatchSharp.QueueTypes.Named{`0}},DispatchSharp.Internal.IWaitHandle)">
             <summary>
             Wrap a work item
             </summary>
@@ -384,6 +421,9 @@
             <inheritdoc />
         </member>
         <member name="P:DispatchSharp.QueueTypes.BoundedWorkQueueItem`1.Item">
+            <inheritdoc />
+        </member>
+        <member name="P:DispatchSharp.QueueTypes.BoundedWorkQueueItem`1.Name">
             <inheritdoc />
         </member>
         <member name="M:DispatchSharp.QueueTypes.BoundedWorkQueueItem`1.Finish">
@@ -403,7 +443,7 @@
             Create a new empty worker queue
             </summary>
         </member>
-        <member name="M:DispatchSharp.QueueTypes.InMemoryWorkQueue`1.Enqueue(`0)">
+        <member name="M:DispatchSharp.QueueTypes.InMemoryWorkQueue`1.Enqueue(`0,System.String)">
             <summary> Add an item to the queue </summary>
         </member>
         <member name="M:DispatchSharp.QueueTypes.InMemoryWorkQueue`1.TryDequeue">
@@ -418,6 +458,25 @@
             Will block for up to 100ms. Does not guarantee an item will be dequeued successfully.
             </summary>
         </member>
+        <member name="M:DispatchSharp.QueueTypes.InMemoryWorkQueue`1.AllItemNames">
+            <inheritdoc />
+        </member>
+        <member name="T:DispatchSharp.QueueTypes.Named`1">
+            <summary>
+            A value with an optional name string
+            </summary>
+            <typeparam name="T">Contained value</typeparam>
+        </member>
+        <member name="F:DispatchSharp.QueueTypes.Named`1.Name">
+            <summary>
+            Optional: Name of this item
+            </summary>
+        </member>
+        <member name="F:DispatchSharp.QueueTypes.Named`1.Value">
+            <summary>
+            Value of the item
+            </summary>
+        </member>
         <member name="T:DispatchSharp.QueueTypes.PollingWorkQueue`1">
             <summary>
             A wrapper around a polling method to produce a work queue.
@@ -429,7 +488,7 @@
             Create a new polling work queue with a given item source
             </summary>
         </member>
-        <member name="M:DispatchSharp.QueueTypes.PollingWorkQueue`1.Enqueue(`0)">
+        <member name="M:DispatchSharp.QueueTypes.PollingWorkQueue`1.Enqueue(`0,System.String)">
             <summary>
             Enqueue extra work to the queue.
             local work will be used before the polling queue is used.
@@ -445,6 +504,9 @@
         </member>
         <member name="M:DispatchSharp.QueueTypes.PollingWorkQueue`1.Length">
             <summary> Returns length of extra queue items </summary>
+        </member>
+        <member name="M:DispatchSharp.QueueTypes.PollingWorkQueue`1.AllItemNames">
+            <inheritdoc />
         </member>
         <member name="M:DispatchSharp.QueueTypes.PollingWorkQueue`1.BlockUntilReady">
             <summary>
@@ -478,18 +540,24 @@
             Queue item if one was available
             </summary>
         </member>
+        <member name="P:DispatchSharp.QueueTypes.WorkQueueItem`1.Name">
+            <summary>
+            Given name of item if item was available and a name was supplied
+            </summary>
+        </member>
         <member name="M:DispatchSharp.QueueTypes.WorkQueueItem`1.#ctor">
             <summary>
             Create an empty item (represents an unsuccessful dequeue)
             </summary>
         </member>
-        <member name="M:DispatchSharp.QueueTypes.WorkQueueItem`1.#ctor(`0,System.Action{`0},System.Action{`0})">
+        <member name="M:DispatchSharp.QueueTypes.WorkQueueItem`1.#ctor(`0,System.Action{`0},System.Action{`0},System.String)">
             <summary>
             Create a populated item with optional finish and cancel items
             </summary>
             <param name="item">Item dequeued</param>
             <param name="finish">Finish action (may be null)</param>
             <param name="cancel">Cancel action (may be null)</param>
+            <param name="name">Optional: name of queue item</param>
         </member>
         <member name="M:DispatchSharp.QueueTypes.WorkQueueItem`1.Finish">
             <summary>
@@ -573,7 +641,7 @@
             Current work must be finished or cancelled before returning.
             </summary>
         </member>
-        <member name="M:DispatchSharp.WorkerPools.ThreadedWorkerPool`1.TryJoinThread(System.Threading.Thread)">
+        <member name="M:DispatchSharp.WorkerPools.ThreadedWorkerPool`1.TryJoinThread(System.Threading.Thread,System.Action{System.Threading.Thread})">
             <summary>
             Wait for working threads to finish (up to 1 minute)
             Kill waiting threads immediately.

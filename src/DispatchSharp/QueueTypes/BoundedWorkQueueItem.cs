@@ -8,14 +8,14 @@ namespace DispatchSharp.QueueTypes
     /// </summary>
     public class BoundedWorkQueueItem<T> : IWorkQueueItem<T>
     {
-        private readonly IWorkQueueItem<T> _workQueueItem;
+        private readonly IWorkQueueItem<Named<T>> _workQueueItem;
         private readonly IWaitHandle _waitHandle;
         private object? _completionToken;
 
         /// <summary>
         /// Wrap a work item
         /// </summary>
-        public BoundedWorkQueueItem(IWorkQueueItem<T> workQueueItem, IWaitHandle waitHandle)
+        public BoundedWorkQueueItem(IWorkQueueItem<Named<T>> workQueueItem, IWaitHandle waitHandle)
         {
             _workQueueItem = workQueueItem;
             _waitHandle = waitHandle;
@@ -26,7 +26,10 @@ namespace DispatchSharp.QueueTypes
         public bool HasItem => _workQueueItem.HasItem;
 
         /// <inheritdoc />
-        public T Item => _workQueueItem.Item;
+        public T Item => _workQueueItem.Item.Value;
+        
+        /// <inheritdoc />
+        public string? Name => _workQueueItem.Item.Name;
 
         /// <inheritdoc />
         public void Finish()

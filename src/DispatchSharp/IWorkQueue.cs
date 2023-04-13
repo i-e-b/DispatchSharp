@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace DispatchSharp
 {
 	/// <summary>
@@ -8,7 +10,9 @@ namespace DispatchSharp
 	public interface IWorkQueue<T>
 	{
 		/// <summary> Add an item to the queue </summary>
-		void Enqueue(T work);
+		/// <param name="work">The item to be processed</param>
+		/// <param name="name">OPTIONAL: name of the work item.</param>
+		void Enqueue(T work, string? name = null);
 
 		/// <summary> Try and get an item from this queue. Success is encoded in the WQI result 'HasItem' </summary>
 		IWorkQueueItem<T> TryDequeue();
@@ -24,5 +28,13 @@ namespace DispatchSharp
 		/// Implementations are free to return true even if no items are available.
 		/// </summary>
 		bool BlockUntilReady();
+
+		/// <summary>
+		/// Snapshot of named items waiting in the queue.
+		/// This can affect performance, so should be used for either
+		/// very short queues, or for failure diagnostics.
+		/// </summary>
+		/// <returns>List of named items. May be empty. May contain duplicates.</returns>
+		IEnumerable<string> AllItemNames();
 	}
 }

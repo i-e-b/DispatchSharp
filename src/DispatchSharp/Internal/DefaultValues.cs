@@ -19,10 +19,11 @@ internal static class UninitialisedValues
 internal class InvalidQueue<T>:IWorkQueue<T>
 {
     private const string InvalidQueueMessage = "Work queue has not been configured.";
-    public void Enqueue(T work) => throw new Exception(InvalidQueueMessage);
+    public void Enqueue(T work, string? name = null) => throw new Exception(InvalidQueueMessage);
     public IWorkQueueItem<T> TryDequeue() => throw new Exception(InvalidQueueMessage);
     public int Length() => throw new Exception(InvalidQueueMessage);
     public bool BlockUntilReady() => throw new Exception(InvalidQueueMessage);
+    public IEnumerable<string> AllItemNames() => throw new Exception(InvalidQueueMessage);
 }
 
 /// <summary>
@@ -43,6 +44,8 @@ internal class InvalidDispatch<T>:IDispatch<T>
     public void AddConsumer(Action<T> action) => throw new Exception(InvalidDispatchMessage);
     public void AddWork(T work) => throw new Exception(InvalidDispatchMessage);
     public void AddWork(IEnumerable<T> workList) => throw new Exception(InvalidDispatchMessage);
+    public void AddWork(T work, string? name) => throw new Exception(InvalidDispatchMessage);
+    public void AddWork(IEnumerable<T> workList, string? name) => throw new Exception(InvalidDispatchMessage);
     public IEnumerable<Action<T>> AllConsumers() => throw new Exception(InvalidDispatchMessage);
     public void Start() => throw new Exception(InvalidDispatchMessage);
     public void Stop() => throw new Exception(InvalidDispatchMessage);
@@ -57,6 +60,7 @@ internal class InvalidQueueItem<T>:IWorkQueueItem<T>
 {
     public bool HasItem => false;
     public T Item => throw new Exception("Tried to read from an invalid queue item. This is likely an error in the DispatchSharp library");
+    public string Name => throw new Exception("Tried to read from an invalid queue item. This is likely an error in the DispatchSharp library");
     public void Finish() { }
     public void Cancel() { }
 }

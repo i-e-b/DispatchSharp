@@ -106,7 +106,7 @@ namespace DispatchSharp.Unit.Tests
 			var triggered = false;
 			_subject.Exceptions += (a,b)=> { triggered = true; };
 
-			((IDispatchInternal<object>)_subject).OnExceptions(new Exception(), new WorkQueueItem<object>(null, o => { }, o => { }));
+			((IDispatchInternal<object>)_subject).OnExceptions(new Exception(), new WorkQueueItem<object>(null, o => { }, o => { }, null));
 
 			Assert.That(triggered);
 		}

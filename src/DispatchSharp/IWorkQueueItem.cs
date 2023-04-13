@@ -18,6 +18,11 @@ namespace DispatchSharp
 		T Item { get; }
 
 		/// <summary>
+		/// Given name of item if item was available and a name was supplied
+		/// </summary>
+		string? Name { get; }
+
+		/// <summary>
 		/// Call this to permanently remove an item from the queue
 		/// </summary>
 		void Finish();

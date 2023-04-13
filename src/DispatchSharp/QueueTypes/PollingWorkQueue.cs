@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 
 namespace DispatchSharp.QueueTypes
@@ -11,7 +12,7 @@ namespace DispatchSharp.QueueTypes
 	{
 		readonly IPollSource<T> _pollingSource;
 		readonly object _lockObject;
-		readonly Queue<T> _queue;
+		readonly Queue<Named<T>> _queue;
 		int _sleep;
 
 		/// <summary>
@@ -21,7 +22,7 @@ namespace DispatchSharp.QueueTypes
 		{
 			_pollingSource = pollingSource;
 			_lockObject = new object();
-			_queue = new Queue<T>();
+			_queue = new Queue<Named<T>>();
 			_sleep = 0;
 		}
 
@@ -29,11 +30,11 @@ namespace DispatchSharp.QueueTypes
 		/// Enqueue extra work to the queue.
 		/// local work will be used before the polling queue is used.
 		/// </summary>
-		public void Enqueue(T work)
+		public void Enqueue(T work, string? name = null)
 		{
 			lock(_lockObject)
 			{
-				_queue.Enqueue(work);
+				_queue.Enqueue(new Named<T> { Value = work, Name = name });
 			}
 		}
 
@@ -45,7 +46,7 @@ namespace DispatchSharp.QueueTypes
 				if (_queue.Count > 0)
 				{
 					var data = _queue.Dequeue();
-					return new WorkQueueItem<T>(data, finish: _ => { }, cancel: Enqueue);
+					return new WorkQueueItem<T>(data.Value, finish: _ => { }, cancel: i=>Enqueue(i, data.Name), data.Name);
 				}
 			}
 
@@ -57,7 +58,7 @@ namespace DispatchSharp.QueueTypes
 			}
 
 			ResetSleep();
-			return new WorkQueueItem<T>(item, finish: _ => { }, cancel: Enqueue);
+			return new WorkQueueItem<T>(item, finish: _ => { }, cancel: i => Enqueue(i), null);
 		}
 
 		void ResetSleep()
@@ -85,6 +86,15 @@ namespace DispatchSharp.QueueTypes
 			lock(_lockObject)
 			{
 				return _queue.Count;
+			}
+		}
+		
+		/// <inheritdoc />
+		public IEnumerable<string> AllItemNames()
+		{
+			lock (_lockObject)
+			{
+				return _queue.Where(item => item.Name is not null).Select(item => item.Name ?? "");
 			}
 		}
 

@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using DispatchSharp.Internal;
 
 namespace DispatchSharp.QueueTypes
@@ -7,14 +9,15 @@ namespace DispatchSharp.QueueTypes
     /// </summary>
     public class BoundedWorkQueue<T> : IWorkQueue<T>
     {
-        private readonly IWorkQueue<T> _queue;
+        private readonly IWorkQueue<Named<T>> _queue;
         private readonly IWaitHandle _waitHandle;
 
         /// <summary>
         /// Wrap an existing queue
         /// </summary>
-        public BoundedWorkQueue(IWorkQueue<T> queue, int bound)
+        public BoundedWorkQueue(IWorkQueue<Named<T>> queue, int bound)
         {
+            if (queue is BoundedWorkQueue<T>) throw new Exception("Bounded work queue can not wrap itself");
             _queue = queue;
             _waitHandle = new SemaphoreWait(bound, bound);
         }
@@ -22,17 +25,17 @@ namespace DispatchSharp.QueueTypes
         /// <summary>
         /// Start a new queue
         /// </summary>
-        public BoundedWorkQueue(int bound): this(new InMemoryWorkQueue<T>(), bound)
+        public BoundedWorkQueue(int bound): this(new InMemoryWorkQueue<Named<T>>(), bound)
         {
         }
 
         /// <inheritdoc />
-        public void Enqueue(T work)
+        public void Enqueue(T work, string? name)
         {
             _waitHandle.WaitOne();
             try
             {
-                _queue.Enqueue(work);
+                _queue.Enqueue(new Named<T> { Value = work, Name = name });
             }
             catch
             {
@@ -52,7 +55,6 @@ namespace DispatchSharp.QueueTypes
             return new BoundedWorkQueueItem<T>(workQueueItem, _waitHandle);
         }
 
-
         /// <inheritdoc />
         public int Length()
         {
@@ -64,5 +66,8 @@ namespace DispatchSharp.QueueTypes
         {
             return _queue.BlockUntilReady();
         }
+
+        /// <inheritdoc />
+        public IEnumerable<string> AllItemNames() => _queue.AllItemNames();
     }
 }

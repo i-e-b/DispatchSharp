@@ -14,13 +14,13 @@ namespace DispatchSharp.Unit.Tests
     public class bounded_work_queue_tests
     {
         private IWorkQueue<object>? _subject;
-        private IWorkQueue<object>? _mockQueue;
+        private IWorkQueue<Named<object>>? _mockQueue;
         private const int Bound = 8;
 
         [SetUp]
         public void setup()
         {
-            _mockQueue = Substitute.For<IWorkQueue<object>>();
+            _mockQueue = Substitute.For<IWorkQueue<Named<object>>>();
             _subject = new BoundedWorkQueue<object>(_mockQueue, Bound);
         }
 
@@ -29,7 +29,7 @@ namespace DispatchSharp.Unit.Tests
         {
             var item = new object();
             _subject.Enqueue(item);
-            _mockQueue.Received().Enqueue(item);
+            _mockQueue.Received().Enqueue(new Named<object>{Value=item});
         }
 
         [Test]
@@ -64,7 +64,7 @@ namespace DispatchSharp.Unit.Tests
         [Test]
         public void waits_until_successful_dequeue_to_continue()
         {
-            var qwi = Substitute.For<IWorkQueueItem<object>>();
+            var qwi = Substitute.For<IWorkQueueItem<Named<object>>>();
             qwi.HasItem.Returns(true);
             _mockQueue.TryDequeue().Returns(qwi);
 
@@ -86,9 +86,9 @@ namespace DispatchSharp.Unit.Tests
         public void dequeued_items_that_have_been_cancelled_can_be_dequeued_again()
         {
             var source = "Hello, please mind the gap";
-            var item = Substitute.For<IWorkQueueItem<object>>();
+            var item = Substitute.For<IWorkQueueItem<Named<object>>>();
             item.HasItem.Returns(true);
-            item.Item.Returns(source);
+            item.Item.Returns(new Named<object>{Value=source});
 
             _mockQueue.TryDequeue().Returns(item);
 
@@ -107,7 +107,7 @@ namespace DispatchSharp.Unit.Tests
             _subject = new BoundedWorkQueue<object>(_mockQueue, 1);
 
             var objectToThrowAt = new object();
-            _mockQueue.When(queue => queue.Enqueue(objectToThrowAt))
+            _mockQueue.When(queue => queue.Enqueue(new Named<object>{Value=objectToThrowAt}))
                       .Do(_ => throw new DummyException());
 
             try

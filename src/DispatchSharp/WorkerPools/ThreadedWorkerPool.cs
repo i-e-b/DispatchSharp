@@ -79,7 +79,7 @@ namespace DispatchSharp.WorkerPools
 				sw.Start();
 				foreach (var thread in toKill)
 				{
-					TryJoinThread(thread);
+					TryJoinThread(thread, cantStopWarning);
 				}
 
 				foreach (var thread in toKill)
@@ -95,7 +95,7 @@ namespace DispatchSharp.WorkerPools
 		/// 
 		/// Waiting threads are marked by a non-normal thread priority
 		/// </summary>
-		static void TryJoinThread(Thread? thread)
+		static void TryJoinThread(Thread? thread, Action<Thread>? cantStopWarning)
 		{
 			if (thread == null) return;
 			if (!thread.IsAlive) return;
@@ -107,12 +107,25 @@ namespace DispatchSharp.WorkerPools
 				}
 				else
 				{
-					thread.Abort();
+					//thread.Abort(); // No longer possible
+					cantStopWarning?.Invoke(thread);
 				}
 			}
 			catch
 			{
-				Thread.ResetAbort();
+				TryThreadResetAbort();
+			}
+		}
+
+		private static void TryThreadResetAbort()
+		{
+			try
+			{
+				Thread.ResetAbort(); // for .Net Framework only
+			}
+			catch (Exception)
+			{
+				// ignore
 			}
 		}
 
@@ -149,7 +162,7 @@ namespace DispatchSharp.WorkerPools
 			}
 			catch (ThreadAbortException)
 			{
-				Thread.ResetAbort();
+				TryThreadResetAbort();
 			}
 		}
 

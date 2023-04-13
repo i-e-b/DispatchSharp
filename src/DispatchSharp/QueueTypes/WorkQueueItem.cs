@@ -25,6 +25,11 @@ namespace DispatchSharp.QueueTypes
 		public T Item { get; set; }
 
 		/// <summary>
+		/// Given name of item if item was available and a name was supplied
+		/// </summary>
+		public string? Name { get; set; }
+
+		/// <summary>
 		/// Create an empty item (represents an unsuccessful dequeue)
 		/// </summary>
 		public WorkQueueItem()
@@ -43,12 +48,14 @@ namespace DispatchSharp.QueueTypes
 		/// <param name="item">Item dequeued</param>
 		/// <param name="finish">Finish action (may be null)</param>
 		/// <param name="cancel">Cancel action (may be null)</param>
-		public WorkQueueItem(T item, Action<T>? finish, Action<T>? cancel)
+		/// <param name="name">Optional: name of queue item</param>
+		public WorkQueueItem(T item, Action<T>? finish, Action<T>? cancel, string? name)
 		{
 			_finish = finish ?? (_ => { });
 			_cancel = cancel ?? (_ => { });
 			HasItem = true;
 			Item = item;
+			Name = name;
 			_completionActionToken = new object();
 		}
 

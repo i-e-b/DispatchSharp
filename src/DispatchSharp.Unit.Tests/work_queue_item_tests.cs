@@ -17,7 +17,7 @@ namespace DispatchSharp.Unit.Tests
 		{
 			_finished = new List<string>();
 			_cancelled = new List<string>();
-			_subject = new WorkQueueItem<string>("data", s => _finished.Add(s), s => _cancelled.Add(s));
+			_subject = new WorkQueueItem<string>("data", s => _finished.Add(s), s => _cancelled.Add(s), null);
 		}
 
 		[Test]
