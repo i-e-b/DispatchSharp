@@ -93,7 +93,13 @@ namespace DispatchSharp
 		/// Items that have been completed will not be listed.
 		/// Items with no name provided will not be listed.
 		/// </summary>
-		public IEnumerable<string> ListNamedTasks();
+		IEnumerable<string> ListNamedTasks();
+		
+		/// <summary>
+		/// Set a custom sleeper for any waits that happen on this dispatch.
+		/// There is a default sleeper that provides a limited linear back-off.
+		/// </summary>
+		void SetSleeper(IBackOffWaiter sleeper);
 	}
 
 	/// <summary>

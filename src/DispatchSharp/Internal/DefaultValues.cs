@@ -24,6 +24,7 @@ internal class InvalidQueue<T>:IWorkQueue<T>
     public int Length() => throw new Exception(InvalidQueueMessage);
     public bool BlockUntilReady() => throw new Exception(InvalidQueueMessage);
     public IEnumerable<string> AllItemNames() => throw new Exception(InvalidQueueMessage);
+    public void SetSleeper(IBackOffWaiter sleeper) => throw new Exception(InvalidQueueMessage);
 }
 
 /// <summary>
@@ -52,6 +53,7 @@ internal class InvalidDispatch<T>:IDispatch<T>
     public void WaitForEmptyQueueAndStop() => throw new Exception(InvalidDispatchMessage);
     public void WaitForEmptyQueueAndStop(TimeSpan maxWait) => throw new Exception(InvalidDispatchMessage);
     public IEnumerable<string> ListNamedTasks() => throw new Exception(InvalidDispatchMessage);
+    public void SetSleeper(IBackOffWaiter sleeper) => throw new Exception(InvalidDispatchMessage);
 }
 
 /// <summary>

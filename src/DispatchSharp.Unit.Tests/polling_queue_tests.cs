@@ -63,14 +63,43 @@ namespace DispatchSharp.Unit.Tests
 		{
 			var sw = new Stopwatch();
 			sw.Start();
-			for (int i = 0; i < 10; i++)
+			for (int i = 0; i < 25; i++)
 			{
 				_subject.TryDequeue();
 			}
 			sw.Stop();
 
 			Assert.That(sw.ElapsedMilliseconds, Is.GreaterThan(800));
-			Assert.That(((ISleeper)_subject).BurstSleep(), Is.GreaterThanOrEqualTo(255));
+			Assert.That(((ISleeper)_subject).BurstSleep(), Is.GreaterThanOrEqualTo(25));
+		}
+
+		[Test]
+		public void sleeper_can_be_replaced()
+		{
+			var sleeper = new TestSleeper();
+			_subject.SetSleeper(sleeper);
+			
+			var sw = new Stopwatch();
+			sw.Start();
+			for (int i = 0; i < 10; i++)
+			{
+				_subject.TryDequeue();
+			}
+			sw.Stop();
+
+			Assert.That(sw.ElapsedMilliseconds, Is.LessThan(50));
+			Assert.That(((ISleeper)_subject).BurstSleep(), Is.GreaterThanOrEqualTo(10));
+			Assert.That(sleeper.Count, Is.GreaterThanOrEqualTo(50));
+		}
+	}
+
+	public class TestSleeper : IBackOffWaiter
+	{
+		public int Count { get; set; }
+		public void Wait(int count)
+		{
+			Count += count;
+			// no wait
 		}
 	}
 }

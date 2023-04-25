@@ -65,14 +65,14 @@ namespace DispatchSharp.Integration.Tests
 		{
 			var sw = new Stopwatch();
 			sw.Start();
-			for (int i = 0; i < 10; i++)
+			for (int i = 0; i < 25; i++)
 			{
 				_subject.TryDequeue();
 			}
 			sw.Stop();
 
 			Assert.That(sw.ElapsedMilliseconds, Is.GreaterThan(800));
-			Assert.That(((ISleeper)_subject).BurstSleep(), Is.GreaterThanOrEqualTo(255));
+			Assert.That(((ISleeper)_subject).BurstSleep(), Is.GreaterThanOrEqualTo(25));
 		}
 	}
 }

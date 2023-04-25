@@ -83,6 +83,12 @@
             Items with no name provided will not be listed.
             </summary>
         </member>
+        <member name="M:DispatchSharp.Dispatch`1.SetSleeper(DispatchSharp.IBackOffWaiter)">
+            <summary>
+            Set a custom sleeper for any waits that happen on this dispatch.
+            There is a default sleeper that provides a limited linear back-off.
+            </summary>
+        </member>
         <member name="M:DispatchSharp.Dispatch`1.CreateDefaultMultiThreaded(System.String,System.Int32)">
             <summary>
             Create a dispatcher with defaults for processing non-persistent items
@@ -105,6 +111,17 @@
             <summary>
             Process a batch of work with all defaults and a given action.
             Blocks until all work complete.
+            </summary>
+        </member>
+        <member name="T:DispatchSharp.IBackOffWaiter">
+            <summary>
+            Interface for backoff/wait delays
+            </summary>
+        </member>
+        <member name="M:DispatchSharp.IBackOffWaiter.Wait(System.Int32)">
+            <summary>
+            Wait before returning.
+            Gives the count of consecutive waits in the process so far.
             </summary>
         </member>
         <member name="T:DispatchSharp.ExceptionEventArgs`1">
@@ -194,6 +211,12 @@
             List the names of work items that are currently queued.
             Items that have been completed will not be listed.
             Items with no name provided will not be listed.
+            </summary>
+        </member>
+        <member name="M:DispatchSharp.IDispatch`1.SetSleeper(DispatchSharp.IBackOffWaiter)">
+            <summary>
+            Set a custom sleeper for any waits that happen on this dispatch.
+            There is a default sleeper that provides a limited linear back-off.
             </summary>
         </member>
         <member name="T:DispatchSharp.IDispatchInternal`1">
@@ -351,6 +374,12 @@
             </summary>
             <returns>List of named items. May be empty. May contain duplicates.</returns>
         </member>
+        <member name="M:DispatchSharp.IWorkQueue`1.SetSleeper(DispatchSharp.IBackOffWaiter)">
+            <summary>
+            Set a custom sleeper for any waits that happen on this dispatch.
+            There is a default sleeper that provides a limited linear back-off.
+            </summary>
+        </member>
         <member name="T:DispatchSharp.IWorkQueueItem`1">
             <summary>
             Contract for a work queue item that has been dequeued
@@ -414,6 +443,11 @@
         <member name="M:DispatchSharp.QueueTypes.BoundedWorkQueue`1.AllItemNames">
             <inheritdoc />
         </member>
+        <member name="M:DispatchSharp.QueueTypes.BoundedWorkQueue`1.SetSleeper(DispatchSharp.IBackOffWaiter)">
+            <summary>
+            Ignored
+            </summary>
+        </member>
         <member name="T:DispatchSharp.QueueTypes.BoundedWorkQueueItem`1">
             <summary>
             A queue item that can be cancelled
@@ -437,6 +471,15 @@
             <inheritdoc />
         </member>
         <member name="M:DispatchSharp.QueueTypes.BoundedWorkQueueItem`1.Cancel">
+            <inheritdoc />
+        </member>
+        <member name="T:DispatchSharp.QueueTypes.DefaultSleeper">
+            <summary>
+            Linear progressive waiter. Limited to 1000ms pauses.
+            Does NOT guarantee accurate timing.
+            </summary>
+        </member>
+        <member name="M:DispatchSharp.QueueTypes.DefaultSleeper.Wait(System.Int32)">
             <inheritdoc />
         </member>
         <member name="T:DispatchSharp.QueueTypes.InMemoryWorkQueue`1">
@@ -468,6 +511,11 @@
         <member name="M:DispatchSharp.QueueTypes.InMemoryWorkQueue`1.AllItemNames">
             <inheritdoc />
         </member>
+        <member name="M:DispatchSharp.QueueTypes.InMemoryWorkQueue`1.SetSleeper(DispatchSharp.IBackOffWaiter)">
+            <summary>
+            Ignored
+            </summary>
+        </member>
         <member name="T:DispatchSharp.QueueTypes.Named`1">
             <summary>
             A value with an optional name string
@@ -488,6 +536,12 @@
             <summary>
             A wrapper around a polling method to produce a work queue.
             This auto-rate limits the queue using thread sleeps.
+            <p></p>
+            This queue can be fed with extra data, which will be consumed before requesting
+            more from the polling source.
+            <p></p>
+            This queue will only sleep if the polling source is empty (returns no object).
+            Sleep duration is reset whenever an item is available.
             </summary>
         </member>
         <member name="M:DispatchSharp.QueueTypes.PollingWorkQueue`1.#ctor(DispatchSharp.IPollSource{`0})">
@@ -513,6 +567,9 @@
             <summary> Returns length of extra queue items </summary>
         </member>
         <member name="M:DispatchSharp.QueueTypes.PollingWorkQueue`1.AllItemNames">
+            <inheritdoc />
+        </member>
+        <member name="M:DispatchSharp.QueueTypes.PollingWorkQueue`1.SetSleeper(DispatchSharp.IBackOffWaiter)">
             <inheritdoc />
         </member>
         <member name="M:DispatchSharp.QueueTypes.PollingWorkQueue`1.BlockUntilReady">

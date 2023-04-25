@@ -7,9 +7,16 @@ namespace DispatchSharp.QueueTypes
 	/// <summary>
 	/// A wrapper around a polling method to produce a work queue.
 	/// This auto-rate limits the queue using thread sleeps.
+	/// <p></p>
+	/// This queue can be fed with extra data, which will be consumed before requesting
+	/// more from the polling source.
+	/// <p></p>
+	/// This queue will only sleep if the polling source is empty (returns no object).
+	/// Sleep duration is reset whenever an item is available.
 	/// </summary>
 	public class PollingWorkQueue<T>: ISleeper, IWorkQueue<T>
 	{
+		private IBackOffWaiter _sleeper;
 		readonly IPollSource<T> _pollingSource;
 		readonly object _lockObject;
 		readonly Queue<Named<T>> _queue;
@@ -24,6 +31,7 @@ namespace DispatchSharp.QueueTypes
 			_lockObject = new object();
 			_queue = new Queue<Named<T>>();
 			_sleep = 0;
+			_sleeper = new DefaultSleeper();
 		}
 
 		/// <summary>
@@ -58,7 +66,7 @@ namespace DispatchSharp.QueueTypes
 			}
 
 			ResetSleep();
-			return new WorkQueueItem<T>(item, finish: _ => { }, cancel: i => Enqueue(i), null);
+			return new WorkQueueItem<T>(item!, finish: _ => { }, cancel: i => Enqueue(i), null);
 		}
 
 		void ResetSleep()
@@ -68,7 +76,8 @@ namespace DispatchSharp.QueueTypes
 
 		void SleepMore()
 		{
-			Thread.Sleep(BurstSleep());
+			Interlocked.Increment(ref _sleep);
+			_sleeper.Wait(_sleep);
 		}
 
 		/// <summary>
@@ -76,7 +85,6 @@ namespace DispatchSharp.QueueTypes
 		/// </summary>
 		public int BurstSleep()
 		{
-			_sleep = (_sleep < 255) ? (_sleep * 2) + 1 : 255;
 			return _sleep;
 		}
 
@@ -96,6 +104,12 @@ namespace DispatchSharp.QueueTypes
 			{
 				return _queue.Where(item => item.Name is not null).Select(item => item.Name ?? "");
 			}
+		}
+
+		/// <inheritdoc />
+		public void SetSleeper(IBackOffWaiter sleeper)
+		{
+			_sleeper = sleeper;
 		}
 
 		/// <summary>

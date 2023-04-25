@@ -78,5 +78,10 @@ namespace DispatchSharp.QueueTypes
 				return _queue.Where(item => item.Name is not null).Select(item => item.Name ?? "");
 			}
 		}
+
+		/// <summary>
+		/// Ignored
+		/// </summary>
+		public void SetSleeper(IBackOffWaiter sleeper) { }
 	}
 }

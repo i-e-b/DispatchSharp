@@ -36,5 +36,11 @@ namespace DispatchSharp
 		/// </summary>
 		/// <returns>List of named items. May be empty. May contain duplicates.</returns>
 		IEnumerable<string> AllItemNames();
+		
+		/// <summary>
+		/// Set a custom sleeper for any waits that happen on this dispatch.
+		/// There is a default sleeper that provides a limited linear back-off.
+		/// </summary>
+		void SetSleeper(IBackOffWaiter sleeper);
 	}
 }

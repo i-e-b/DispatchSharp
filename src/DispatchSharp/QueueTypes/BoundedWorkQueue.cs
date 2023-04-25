@@ -69,5 +69,10 @@ namespace DispatchSharp.QueueTypes
 
         /// <inheritdoc />
         public IEnumerable<string> AllItemNames() => _queue.AllItemNames();
+
+        /// <summary>
+        /// Ignored
+        /// </summary>
+        public void SetSleeper(IBackOffWaiter sleeper) { }
     }
 }

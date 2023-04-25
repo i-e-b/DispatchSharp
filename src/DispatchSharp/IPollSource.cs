@@ -11,6 +11,6 @@ namespace DispatchSharp
 		/// </summary>
 		/// <param name="item">item produced, or default</param>
 		/// <returns>true if item produced, false if no item</returns>
-		bool TryGet(out T item);
+		bool TryGet(out T? item);
 	}
 }

@@ -179,7 +179,15 @@ namespace DispatchSharp
 		public IEnumerable<string> ListNamedTasks()
 		{
 			return _queue.AllItemNames();
-			// return _pool.WorkersInflight();
+		}
+
+		/// <summary>
+		/// Set a custom sleeper for any waits that happen on this dispatch.
+		/// There is a default sleeper that provides a limited linear back-off.
+		/// </summary>
+		public void SetSleeper(IBackOffWaiter sleeper)
+		{
+			_queue.SetSleeper(sleeper);
 		}
 	}
 }

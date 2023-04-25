@@ -47,7 +47,7 @@ dispatcher.AddWork(...);
 
 Using a polling method to handle incoming jobs in a long-running process:
 ```csharp
-var dispatcher = Dispatch<object>.PollAndProces("MyService", myPollingSource);
+var dispatcher = Dispatch<object>.PollAndProcess("MyService", myPollingSource);
 dispatcher.AddConsumer(MyWorkMethod);
 dispatcher.Start();
 ```
