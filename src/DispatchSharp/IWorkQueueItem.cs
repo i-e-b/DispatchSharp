@@ -1,36 +1,35 @@
-namespace DispatchSharp
+namespace DispatchSharp;
+
+/// <summary>
+/// Contract for a work queue item that has been dequeued
+/// </summary>
+/// <typeparam name="T">Type of contained item</typeparam>
+public interface IWorkQueueItem<out T>
 {
 	/// <summary>
-	/// Contract for a work queue item that has been dequeued
+	/// Has an item been dequeued?
+	/// If false, Item will be default value (i.e. null)
 	/// </summary>
-	/// <typeparam name="T">Type of contained item</typeparam>
-	public interface IWorkQueueItem<out T>
-	{
-		/// <summary>
-		/// Has an item been dequeued?
-		/// If false, Item will be default value (i.e. null)
-		/// </summary>
-		bool HasItem { get; }
+	bool HasItem { get; }
 
-		/// <summary>
-		/// Queue item if one was available
-		/// </summary>
-		T Item { get; }
+	/// <summary>
+	/// Queue item if one was available
+	/// </summary>
+	T Item { get; }
 
-		/// <summary>
-		/// Given name of item if item was available and a name was supplied
-		/// </summary>
-		string? Name { get; }
+	/// <summary>
+	/// Given name of item if item was available and a name was supplied
+	/// </summary>
+	string? Name { get; }
 
-		/// <summary>
-		/// Call this to permanently remove an item from the queue
-		/// </summary>
-		void Finish();
+	/// <summary>
+	/// Call this to permanently remove an item from the queue
+	/// </summary>
+	void Finish();
 
-		/// <summary>
-		/// Call this to cancel the dequeue and return item to work queue.
-		/// There is no guarantee where the item will be returned (head, end or somewhere in the middle)
-		/// </summary>
-		void Cancel();
-	}
+	/// <summary>
+	/// Call this to cancel the dequeue and return item to work queue.
+	/// There is no guarantee where the item will be returned (head, end or somewhere in the middle)
+	/// </summary>
+	void Cancel();
 }

@@ -1,54 +1,53 @@
 using System.Threading;
 using DispatchSharp.Internal;
 
-namespace DispatchSharp.QueueTypes
+namespace DispatchSharp.QueueTypes;
+
+/// <summary>
+/// A queue item that can be cancelled
+/// </summary>
+public class BoundedWorkQueueItem<T> : IWorkQueueItem<T>
 {
+    private readonly IWorkQueueItem<Named<T>> _workQueueItem;
+    private readonly IWaitHandle _waitHandle;
+    private object? _completionToken;
+
     /// <summary>
-    /// A queue item that can be cancelled
+    /// Wrap a work item
     /// </summary>
-    public class BoundedWorkQueueItem<T> : IWorkQueueItem<T>
+    public BoundedWorkQueueItem(IWorkQueueItem<Named<T>> workQueueItem, IWaitHandle waitHandle)
     {
-        private readonly IWorkQueueItem<Named<T>> _workQueueItem;
-        private readonly IWaitHandle _waitHandle;
-        private object? _completionToken;
+        _workQueueItem = workQueueItem;
+        _waitHandle = waitHandle;
+        _completionToken = new object();
+    }
 
-        /// <summary>
-        /// Wrap a work item
-        /// </summary>
-        public BoundedWorkQueueItem(IWorkQueueItem<Named<T>> workQueueItem, IWaitHandle waitHandle)
-        {
-            _workQueueItem = workQueueItem;
-            _waitHandle = waitHandle;
-            _completionToken = new object();
-        }
+    /// <inheritdoc />
+    public bool HasItem => _workQueueItem.HasItem;
 
-        /// <inheritdoc />
-        public bool HasItem => _workQueueItem.HasItem;
-
-        /// <inheritdoc />
-        public T Item => _workQueueItem.Item.Value;
+    /// <inheritdoc />
+    public T Item => _workQueueItem.Item.Value;
         
-        /// <inheritdoc />
-        public string? Name => _workQueueItem.Item.Name;
+    /// <inheritdoc />
+    public string? Name => _workQueueItem.Item.Name;
 
-        /// <inheritdoc />
-        public void Finish()
+    /// <inheritdoc />
+    public void Finish()
+    {
+        Interlocked.Exchange<object?>(ref _completionToken, null);
+        _workQueueItem.Finish();
+    }
+
+    /// <inheritdoc />
+    public void Cancel()
+    {
+        var token = Interlocked.Exchange<object?>(ref _completionToken, null);
+
+        if (token != null)
         {
-            Interlocked.Exchange<object?>(ref _completionToken, null);
-            _workQueueItem.Finish();
+            _waitHandle.WaitOne();
         }
 
-        /// <inheritdoc />
-        public void Cancel()
-        {
-            var token = Interlocked.Exchange<object?>(ref _completionToken, null);
-
-            if (token != null)
-            {
-                _waitHandle.WaitOne();
-            }
-
-            _workQueueItem.Cancel();
-        }
+        _workQueueItem.Cancel();
     }
 }

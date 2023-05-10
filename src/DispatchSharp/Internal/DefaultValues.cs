@@ -22,7 +22,7 @@ internal class InvalidQueue<T>:IWorkQueue<T>
     public void Enqueue(T work, string? name = null) => throw new Exception(InvalidQueueMessage);
     public IWorkQueueItem<T> TryDequeue() => throw new Exception(InvalidQueueMessage);
     public int Length() => throw new Exception(InvalidQueueMessage);
-    public bool BlockUntilReady() => throw new Exception(InvalidQueueMessage);
+    public QueueState BlockUntilReady() => throw new Exception(InvalidQueueMessage);
     public IEnumerable<string> AllItemNames() => throw new Exception(InvalidQueueMessage);
     public void SetSleeper(IBackOffWaiter sleeper) => throw new Exception(InvalidQueueMessage);
 }

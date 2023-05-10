@@ -380,6 +380,27 @@
             There is a default sleeper that provides a limited linear back-off.
             </summary>
         </member>
+        <member name="T:DispatchSharp.QueueState">
+            <summary>
+            Tri-state for queue. Used for waiting and shutdown state
+            </summary>
+        </member>
+        <member name="F:DispatchSharp.QueueState.Unknown">
+            <summary>
+            Queue population is not known.
+            This is the normal state for polling jobs
+            </summary>
+        </member>
+        <member name="F:DispatchSharp.QueueState.HasItems">
+            <summary>
+            Queue has at least one item waiting to be processed
+            </summary>
+        </member>
+        <member name="F:DispatchSharp.QueueState.Empty">
+            <summary>
+            Queue has no items waiting to be processed
+            </summary>
+        </member>
         <member name="T:DispatchSharp.IWorkQueueItem`1">
             <summary>
             Contract for a work queue item that has been dequeued

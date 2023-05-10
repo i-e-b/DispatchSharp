@@ -53,7 +53,7 @@ namespace DispatchSharp.Unit.Tests
         [Test]
         public void delegates_block_until_ready()
         {
-            const bool expectedItem = default(bool);
+            const QueueState expectedItem = QueueState.Empty;
             _mockQueue.BlockUntilReady().Returns(expectedItem);
 
             var actualItem = _subject.BlockUntilReady();

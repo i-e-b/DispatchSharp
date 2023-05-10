@@ -1,15 +1,14 @@
 ﻿using System;
 
-namespace DispatchSharp.Internal
+namespace DispatchSharp.Internal;
+
+/// <summary>
+/// Defaults used internally
+/// </summary>
+public class Default
 {
 	/// <summary>
-	/// Defaults used internally
+	/// Default number of threads to pool on this machine.
 	/// </summary>
-	public class Default
-	{
-		/// <summary>
-		/// Default number of threads to pool on this machine.
-		/// </summary>
-		public static int ThreadCount => Environment.ProcessorCount;
-	}
+	public static int ThreadCount => Environment.ProcessorCount;
 }

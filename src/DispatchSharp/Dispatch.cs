@@ -5,189 +5,188 @@ using System.Linq;
 using System.Threading;
 using DispatchSharp.Internal;
 
-namespace DispatchSharp
+namespace DispatchSharp;
+
+/// <summary>
+/// Default dispatcher
+/// </summary>
+/// <typeparam name="T">Type of work item to be processed</typeparam>
+public partial class Dispatch<T> : IDispatch<T>, IDispatchInternal<T>
 {
+	readonly IWorkQueue<T> _queue;
+	readonly IWorkerPool<T> _pool;
+	readonly IList<Action<T>> _workActions;
+	readonly object _lockObject;
+		
 	/// <summary>
-	/// Default dispatcher
+	/// Internal inflight limit.
 	/// </summary>
-	/// <typeparam name="T">Type of work item to be processed</typeparam>
-	public partial class Dispatch<T> : IDispatch<T>, IDispatchInternal<T>
+	protected int _inflightLimit;
+
+	/// <summary>
+	/// Create a dispatcher with a specific queue and worker pool
+	/// </summary>
+	public Dispatch(IWorkQueue<T> workQueue, IWorkerPool<T> workerPool)
 	{
-		readonly IWorkQueue<T> _queue;
-		readonly IWorkerPool<T> _pool;
-		readonly IList<Action<T>> _workActions;
-		readonly object _lockObject;
+		_inflightLimit = Default.ThreadCount;
+
+		Exceptions = (_, _) => { };
+		_queue = workQueue;
+		_pool = workerPool;
+
+		_lockObject = new object();
+		_workActions = new List<Action<T>>();
+
+		_pool.SetSource(this, _queue);
+	}
+
+	/// <summary> Maximum number of work items being processed at any one time </summary>
+	public int MaximumInflight()
+	{
+		return _inflightLimit;
+	}
+
+	/// <summary>
+	/// Maximum number of work items being processed at any one time
+	/// </summary>
+	public void SetMaximumInflight(int max) {
+		_inflightLimit = max;
+	}
+
+	/// <summary> Snapshot of number of work items being processed </summary>
+	public int CurrentInflight()
+	{
+		return _pool.WorkersInflight();
+	}
+
+	/// <summary> Snapshot of number of work items in the queue (both being processed and waiting) </summary>
+	public int CurrentQueued()
+	{
+		return _queue.Length();
+	}
+
+	/// <summary> Add an action to take when work is processed </summary>
+	public void AddConsumer(Action<T> action)
+	{
+		lock (_lockObject)
+		{
+			_workActions.Add(action);
+		}
+	}
+
+	/// <summary> Add a work item to process </summary>
+	public void AddWork(T work)
+	{
+		_queue.Enqueue(work);
+	}
+
+	/// <summary> Add a named work item to process </summary>
+	public void AddWork(T work, string? name)
+	{
+		_queue.Enqueue(work, name);
+	}
 		
-		/// <summary>
-		/// Internal inflight limit.
-		/// </summary>
-		protected int _inflightLimit;
-
-		/// <summary>
-		/// Create a dispatcher with a specific queue and worker pool
-		/// </summary>
-		public Dispatch(IWorkQueue<T> workQueue, IWorkerPool<T> workerPool)
+	/// <summary> Add multiple work items to process </summary>
+	public void AddWork(IEnumerable<T> workList)
+	{
+		foreach (var item in workList)
 		{
-			_inflightLimit = Default.ThreadCount;
-
-			Exceptions = (_, _) => { };
-			_queue = workQueue;
-			_pool = workerPool;
-
-			_lockObject = new object();
-			_workActions = new List<Action<T>>();
-
-			_pool.SetSource(this, _queue);
+			_queue.Enqueue(item);
 		}
+	}
 
-		/// <summary> Maximum number of work items being processed at any one time </summary>
-		public int MaximumInflight()
+	/// <summary> Add multiple work items to process, each with the same name </summary>
+	public void AddWork(IEnumerable<T> workList, string? name)
+	{
+		foreach (var item in workList)
 		{
-			return _inflightLimit;
+			_queue.Enqueue(item, name);
 		}
+	}
 
-		/// <summary>
-		/// Maximum number of work items being processed at any one time
-		/// </summary>
-		public void SetMaximumInflight(int max) {
-			 _inflightLimit = max;
-		}
-
-		/// <summary> Snapshot of number of work items being processed </summary>
-		public int CurrentInflight()
+	/// <summary> All consumers added to this dispatcher </summary>
+	public IEnumerable<Action<T>> AllConsumers()
+	{
+		foreach (var workAction in _workActions)
 		{
-			return _pool.WorkersInflight();
+			yield return workAction;
 		}
+	}
 
-		/// <summary> Snapshot of number of work items in the queue (both being processed and waiting) </summary>
-		public int CurrentQueued()
-		{
-			return _queue.Length();
-		}
+	/// <summary> Event triggered when a consumer throws an exception </summary>
+	public event EventHandler<ExceptionEventArgs<T>> Exceptions;
 
-		/// <summary> Add an action to take when work is processed </summary>
-		public void AddConsumer(Action<T> action)
-		{
-			lock (_lockObject)
-			{
-				_workActions.Add(action);
-			}
-		}
+	/// <summary> Trigger to call when a consumer throws an exception </summary>
+	public void OnExceptions(Exception e, IWorkQueueItem<T> work)
+	{
+		var handler = Exceptions;
+		handler(this, new ExceptionEventArgs<T> { SourceException = e, WorkItem = work });
+	}
 
-		/// <summary> Add a work item to process </summary>
-		public void AddWork(T work)
+	/// <summary> Start consuming work and continue until stopped </summary>
+	public void Start()
+	{
+		lock (_lockObject)
 		{
-			_queue.Enqueue(work, null);
+			if (!_workActions.Any())
+				throw new InvalidOperationException("A dispatcher can't be started until it has at least one consumer");
+			_pool.Start();
+			Thread.Sleep(1);
 		}
+	}
 
-		/// <summary> Add a named work item to process </summary>
-		public void AddWork(T work, string? name)
+	/// <summary> Stop consuming work and return when all in-progress work is complete </summary>
+	public void Stop()
+	{
+		lock (_lockObject)
 		{
-			_queue.Enqueue(work, name);
+			_pool.Stop();
 		}
+	}
 		
-		/// <summary> Add multiple work items to process </summary>
-		public void AddWork(IEnumerable<T> workList)
-		{
-			foreach (var item in workList)
-			{
-				_queue.Enqueue(item, null);
-			}
-		}
+	/// <summary>
+	/// Continue consuming work and return when the queue reports 0 items waiting.
+	/// If you continue to add work, this method will continue to block.
+	/// </summary>
+	public void WaitForEmptyQueueAndStop()
+	{
+		WaitForEmptyQueueAndStop(TimeSpan.MaxValue);
+	}
 
-		/// <summary> Add multiple work items to process, each with the same name </summary>
-		public void AddWork(IEnumerable<T> workList, string? name)
-		{
-			foreach (var item in workList)
-			{
-				_queue.Enqueue(item, name);
-			}
-		}
+	/// <summary>
+	/// Continue consuming work and return when the queue reports 0 items waiting. 
+	/// </summary>
+	/// <param name="maxWait">Maximum duration to wait. The dispatcher will be stopped if this duration is exceeded</param>
+	public void WaitForEmptyQueueAndStop(TimeSpan maxWait)
+	{
+		var sw = new Stopwatch();
 
-		/// <summary> All consumers added to this dispatcher </summary>
-		public IEnumerable<Action<T>> AllConsumers()
-		{
-			foreach (var workAction in _workActions)
-			{
-				yield return workAction;
-			}
-		}
+		sw.Start();
+		while(
+			(_queue.BlockUntilReady() == QueueState.HasItems || _queue.Length() > 0)
+			&& sw.Elapsed <= maxWait
+		) { Thread.Sleep(100); }
+		sw.Stop();
 
-		/// <summary> Event triggered when a consumer throws an exception </summary>
-		public event EventHandler<ExceptionEventArgs<T>> Exceptions;
+		Stop();
+	}
 
-		/// <summary> Trigger to call when a consumer throws an exception </summary>
-		public void OnExceptions(Exception e, IWorkQueueItem<T> work)
-		{
-			var handler = Exceptions;
-			handler(this, new ExceptionEventArgs<T> { SourceException = e, WorkItem = work });
-		}
+	/// <summary>
+	/// List the names of work items that are currently queued.
+	/// Items that have been completed will not be listed.
+	/// Items with no name provided will not be listed.
+	/// </summary>
+	public IEnumerable<string> ListNamedTasks()
+	{
+		return _queue.AllItemNames();
+	}
 
-		/// <summary> Start consuming work and continue until stopped </summary>
-		public void Start()
-		{
-			lock (_lockObject)
-			{
-				if (!_workActions.Any())
-					throw new InvalidOperationException("A dispatcher can't be started until it has at least one consumer");
-				_pool.Start();
-				Thread.Sleep(1);
-			}
-		}
-
-		/// <summary> Stop consuming work and return when all in-progress work is complete </summary>
-		public void Stop()
-		{
-			lock (_lockObject)
-			{
-				_pool.Stop();
-			}
-		}
-		
-		/// <summary>
-		/// Continue consuming work and return when the queue reports 0 items waiting.
-		/// If you continue to add work, this method will continue to block.
-		/// </summary>
-		public void WaitForEmptyQueueAndStop()
-		{
-			WaitForEmptyQueueAndStop(TimeSpan.MaxValue);
-		}
-
-		/// <summary>
-		/// Continue consuming work and return when the queue reports 0 items waiting. 
-		/// </summary>
-		/// <param name="maxWait">Maximum duration to wait. The dispatcher will be stopped if this duration is exceeded</param>
-		public void WaitForEmptyQueueAndStop(TimeSpan maxWait)
-		{
-			var sw = new Stopwatch();
-
-			sw.Start();
-			while(
-				(_queue.BlockUntilReady() || _queue.Length() > 0)
-				&& sw.Elapsed <= maxWait
-				) { Thread.Sleep(100); }
-			sw.Stop();
-
-			Stop();
-		}
-
-		/// <summary>
-		/// List the names of work items that are currently queued.
-		/// Items that have been completed will not be listed.
-		/// Items with no name provided will not be listed.
-		/// </summary>
-		public IEnumerable<string> ListNamedTasks()
-		{
-			return _queue.AllItemNames();
-		}
-
-		/// <summary>
-		/// Set a custom sleeper for any waits that happen on this dispatch.
-		/// There is a default sleeper that provides a limited linear back-off.
-		/// </summary>
-		public void SetSleeper(IBackOffWaiter sleeper)
-		{
-			_queue.SetSleeper(sleeper);
-		}
+	/// <summary>
+	/// Set a custom sleeper for any waits that happen on this dispatch.
+	/// There is a default sleeper that provides a limited linear back-off.
+	/// </summary>
+	public void SetSleeper(IBackOffWaiter sleeper)
+	{
+		_queue.SetSleeper(sleeper);
 	}
 }

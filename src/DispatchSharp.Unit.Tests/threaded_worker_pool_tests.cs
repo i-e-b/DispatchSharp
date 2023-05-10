@@ -55,7 +55,7 @@ namespace DispatchSharp.Unit.Tests
 			var sw = new Stopwatch();
 			sw.Start();
 
-			_queue.BlockUntilReady().ReturnsForAnyArgs(i => { Thread.Sleep(1000000); return false; });
+			_queue.BlockUntilReady().ReturnsForAnyArgs(i => { Thread.Sleep(1000000); return QueueState.HasItems; });
 			Go();
 			_queue.DidNotReceive().TryDequeue();
 
@@ -66,7 +66,7 @@ namespace DispatchSharp.Unit.Tests
 		[Test]
 		public void if_available_flag_is_set_worker_polls_for_work_item()
 		{
-			_queue.BlockUntilReady().ReturnsForAnyArgs(true);
+			_queue.BlockUntilReady().ReturnsForAnyArgs(QueueState.Unknown);
 			Go();
 			_queue.Received().TryDequeue();
 		}
