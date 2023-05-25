@@ -64,7 +64,22 @@ namespace DispatchSharp.Integration.Tests
 			Assert.That(sw.Elapsed, Is.LessThanOrEqualTo(TimeSpan.FromSeconds(3.1)));
 		}
 
+		[Test]
+		public void each_consumer_gets_a_copy_of_every_work_item()
+		{
+			
+			var dispatcher = Dispatch<string>.CreateDefaultMultiThreaded("MyTask");
 
+			dispatcher.AddConsumer(Action);
+			dispatcher.AddConsumer(OtherAction);
+			dispatcher.Exceptions += (s,e) => _exceptions.Add(e.SourceException.Message);
+			dispatcher.AddWork(_work);
+			dispatcher.Start();
+			dispatcher.WaitForEmptyQueueAndStop();
+
+			Assert.That(_output, Is.EquivalentTo(new List<string> { "Hello, A", "Buenos dias, A", "Hello, B", "Buenos dias, B", "Hello, C", "Buenos dias, C", "Buenos dias, THROW" }));
+			Assert.That(_exceptions, Is.EquivalentTo(new [] {"Yo!"}));
+		}
 
 		[Test]
 		public void batch_helper_completes_work_and_calls_back_to_exception_handler ()
@@ -86,6 +101,11 @@ namespace DispatchSharp.Integration.Tests
 			if (str == "THROW")
 				throw new Exception("Yo!");
 			_output.Add("Hello, " + str);
+		}
+		
+		void OtherAction(string str)
+		{
+			_output.Add("Buenos dias, " + str);
 		}
 	}
 }
