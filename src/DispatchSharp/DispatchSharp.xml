@@ -37,6 +37,9 @@
         <member name="M:DispatchSharp.Dispatch`1.AddConsumer(System.Action{`0})">
             <summary> Add an action to take when work is processed </summary>
         </member>
+        <member name="M:DispatchSharp.Dispatch`1.RemoveConsumer(System.Guid)">
+            <summary> Remove a previously added consumer </summary>
+        </member>
         <member name="M:DispatchSharp.Dispatch`1.AddWork(`0)">
             <summary> Add a work item to process </summary>
         </member>
@@ -50,7 +53,7 @@
             <summary> Add multiple work items to process, each with the same name </summary>
         </member>
         <member name="M:DispatchSharp.Dispatch`1.AllConsumers">
-            <summary> All consumers added to this dispatcher </summary>
+            <summary> A snapshot of all consumers bound to this dispatcher at time of calling </summary>
         </member>
         <member name="E:DispatchSharp.Dispatch`1.Exceptions">
             <summary> Event triggered when a consumer throws an exception </summary>
@@ -92,20 +95,82 @@
         <member name="M:DispatchSharp.Dispatch`1.CreateDefaultMultiThreaded(System.String,System.Int32)">
             <summary>
             Create a dispatcher with defaults for processing non-persistent items
-            using all the CPU cores on the local machine
+            using all the CPU cores on the local machine.
+            <p/>
+            This will use 'work parallel' mode, where consumers are run in sequence
+            and work items are handled in parallel
             </summary>
             <param name="name">Name of the dispatcher (useful for debugging)</param>
             <param name="threadCount">Number of thread to use. Default is number of cores in the host.</param>
+            <seealso cref="M:DispatchSharp.Dispatch`1.CreateTaskParallelMultiThreaded(System.String,System.Int32)"/>
+            <seealso cref="M:DispatchSharp.Dispatch`1.CreateWorkParallelMultiThreaded(System.String,System.Int32)"/>
+        </member>
+        <member name="M:DispatchSharp.Dispatch`1.CreateTaskParallelMultiThreaded(System.String,System.Int32)">
+            <summary>
+            Create a dispatcher with defaults for processing non-persistent items
+            using all the CPU cores on the local machine.
+            <p/>
+            This will use 'task parallel' mode, where consumers are run in parallel
+            and work items are handled in sequence
+            </summary>
+            <param name="name">Name of the dispatcher (useful for debugging)</param>
+            <param name="threadCount">Number of thread to use. Default is number of cores in the host.</param>
+            <seealso cref="M:DispatchSharp.Dispatch`1.CreateWorkParallelMultiThreaded(System.String,System.Int32)"/>
+        </member>
+        <member name="M:DispatchSharp.Dispatch`1.CreateWorkParallelMultiThreaded(System.String,System.Int32)">
+            <summary>
+            Create a dispatcher with defaults for processing non-persistent items
+            using all the CPU cores on the local machine.
+            <p/>
+            This will use 'work parallel' mode, where consumers are run in sequence
+            and work items are handled in parallel
+            </summary>
+            <param name="name">Name of the dispatcher (useful for debugging)</param>
+            <param name="threadCount">Number of thread to use. Default is number of cores in the host.</param>
+            <seealso cref="M:DispatchSharp.Dispatch`1.CreateTaskParallelMultiThreaded(System.String,System.Int32)"/>
         </member>
         <member name="M:DispatchSharp.Dispatch`1.PollAndProcess(System.String,DispatchSharp.IPollSource{`0},System.Int32)">
             <summary>
             Poll a source object for data and act on it.
             You must add a consumer to the returned dispatcher, then start
             the dispatcher.
+            <p/>
+            This will use 'work parallel' mode, where consumers are run in sequence
+            and work items are handled in parallel
             </summary>
             <param name="name">Name of the dispatcher (useful for debugging)</param>
             <param name="source">object to poll for data</param>
             <param name="threadCount">Number of thread to use. Default is number of cores in the host.</param>
+            <seealso cref="M:DispatchSharp.Dispatch`1.PollAndProcessTaskParallel(System.String,DispatchSharp.IPollSource{`0},System.Int32)"/>
+            <seealso cref="M:DispatchSharp.Dispatch`1.PollAndProcessWorkParallel(System.String,DispatchSharp.IPollSource{`0},System.Int32)"/>
+        </member>
+        <member name="M:DispatchSharp.Dispatch`1.PollAndProcessTaskParallel(System.String,DispatchSharp.IPollSource{`0},System.Int32)">
+            <summary>
+            Poll a source object for data and act on it.
+            You must add a consumer to the returned dispatcher, then start
+            the dispatcher.
+            <p/>
+            This will use 'task parallel' mode, where consumers are run in parallel
+            and work items are handled in sequence
+            </summary>
+            <param name="name">Name of the dispatcher (useful for debugging)</param>
+            <param name="source">object to poll for data</param>
+            <param name="threadCount">Number of thread to use. Default is number of cores in the host.</param>
+            <seealso cref="M:DispatchSharp.Dispatch`1.PollAndProcessWorkParallel(System.String,DispatchSharp.IPollSource{`0},System.Int32)"/>
+        </member>
+        <member name="M:DispatchSharp.Dispatch`1.PollAndProcessWorkParallel(System.String,DispatchSharp.IPollSource{`0},System.Int32)">
+            <summary>
+            Poll a source object for data and act on it.
+            You must add a consumer to the returned dispatcher, then start
+            the dispatcher.
+            <p/>
+            This will use 'work parallel' mode, where consumers are run in sequence
+            and work items are handled in parallel
+            </summary>
+            <param name="name">Name of the dispatcher (useful for debugging)</param>
+            <param name="source">object to poll for data</param>
+            <param name="threadCount">Number of thread to use. Default is number of cores in the host.</param>
+            <seealso cref="M:DispatchSharp.Dispatch`1.PollAndProcessTaskParallel(System.String,DispatchSharp.IPollSource{`0},System.Int32)"/>
         </member>
         <member name="M:DispatchSharp.Dispatch`1.ProcessBatch(System.String,System.Collections.Generic.IEnumerable{`0},System.Action{`0},System.Int32,System.Action{System.Exception})">
             <summary>
@@ -170,6 +235,15 @@
             after completion or failure. If you wish to cancel a failed work item,
             use the Exceptions event
             </summary>
+            <returns>A consumer Id that can be used with <see cref="M:DispatchSharp.IDispatch`1.RemoveConsumer(System.Guid)"/></returns>
+        </member>
+        <member name="M:DispatchSharp.IDispatch`1.RemoveConsumer(System.Guid)">
+            <summary>
+            Remove a previously added consumer.
+            If work is ongoing, it will be finished.
+            If a message loop has been started, the consumer may get another message
+            </summary>
+            <param name="consumerId">A consumer Id returned by <see cref="M:DispatchSharp.IDispatch`1.AddConsumer(System.Action{`0})"/></param>
         </member>
         <member name="M:DispatchSharp.IDispatch`1.AddWork(`0)">
             <summary> Add a work item to process </summary>
@@ -694,13 +768,99 @@
             Returns number of worker threads in use
             </summary>
         </member>
+        <member name="T:DispatchSharp.WorkerPools.TaskParallelThreadedWorkerPool`1">
+            <summary>
+            Worker pool that delegates work to happen on a set number of worker threads.
+            <p>This will use 'task parallel' mode, where consumers are run in parallel
+            and work items are handled in sequence</p>
+            <ul>
+            <li>Does not consume any more items than there are free workers.</li>
+            <li>Strictly obeys inflight limit from dispatcher.</li>
+            <li>Once a worker starts an item it will try to finish it even if the dispatcher is
+            shut down. Threads will be left to die after one minute.</li>
+            </ul>
+            </summary>
+            <typeparam name="T">Type of item on the work queue</typeparam>
+        </member>
+        <member name="F:DispatchSharp.WorkerPools.TaskParallelThreadedWorkerPool`1._work">
+            <summary> The current work item, or <c>null</c> if we need to pull more </summary>
+        </member>
+        <member name="F:DispatchSharp.WorkerPools.TaskParallelThreadedWorkerPool`1._waitingConsumers">
+            <summary> Consumers that are waiting to consume the current work item </summary>
+        </member>
+        <member name="M:DispatchSharp.WorkerPools.TaskParallelThreadedWorkerPool`1.#ctor(System.String)">
+            <summary>
+            Create a worker with a self-balancing pool of threads.
+            </summary>
+            <param name="name">Name of this worker pool (useful during debugging)</param>
+        </member>
+        <member name="M:DispatchSharp.WorkerPools.TaskParallelThreadedWorkerPool`1.SetSource(DispatchSharp.IDispatch{`0},DispatchSharp.IWorkQueue{`0})">
+            <summary>
+            Set source queue and managing dispatcher
+            </summary>
+        </member>
+        <member name="M:DispatchSharp.WorkerPools.TaskParallelThreadedWorkerPool`1.Start">
+            <summary>
+            Start processing queue items as they become available
+            </summary>
+        </member>
+        <member name="M:DispatchSharp.WorkerPools.TaskParallelThreadedWorkerPool`1.Stop(System.Action{System.Threading.Thread})">
+            <summary>
+            Stop processing incoming queue items.
+            Current work must be finished or cancelled before returning.
+            </summary>
+        </member>
+        <member name="M:DispatchSharp.WorkerPools.TaskParallelThreadedWorkerPool`1.TryJoinThread(System.Threading.Thread,System.Action{System.Threading.Thread})">
+            <summary>
+            Wait for working threads to finish (up to 1 minute)
+            Kill waiting threads immediately.
+            
+            Waiting threads are marked by a non-normal thread priority
+            </summary>
+        </member>
+        <member name="M:DispatchSharp.WorkerPools.TaskParallelThreadedWorkerPool`1.WorkersInflight">
+            <summary>
+            Current number of workers running actions against queue items
+            </summary>
+        </member>
+        <member name="M:DispatchSharp.WorkerPools.TaskParallelThreadedWorkerPool`1.PoolSize">
+            <summary>
+            Returns number of worker threads in use
+            </summary>
+        </member>
+        <member name="M:DispatchSharp.WorkerPools.TaskParallelThreadedWorkerPool`1.WaitForQueueIfStillActive">
+            <summary>
+            Mark the thread as low priority while it is waiting for queue work.
+            </summary>
+        </member>
+        <member name="M:DispatchSharp.WorkerPools.TaskParallelThreadedWorkerPool`1.WorkLoop(System.Int32,System.Object)">
+            <summary>
+            This is the core loop that all worker threads run.
+            </summary>
+        </member>
+        <member name="M:DispatchSharp.WorkerPools.TaskParallelThreadedWorkerPool`1.ThreadIsNoLongerNeeded(System.Int32)">
+            <summary> True if the inflight limit is reduced by the user </summary>
+        </member>
+        <member name="M:DispatchSharp.WorkerPools.TaskParallelThreadedWorkerPool`1.TryFireExceptions(System.Exception,DispatchSharp.IWorkQueueItem{`0})">
+            <summary> Send exception message callbacks if registered </summary>
+        </member>
+        <member name="M:DispatchSharp.WorkerPools.TaskParallelThreadedWorkerPool`1.NewWorkerThread">
+            <summary>
+            Create a new worker thread and add it to the pool.
+            The thread is returned not started -- you must call `Start()` yourself.
+            </summary>
+        </member>
         <member name="T:DispatchSharp.WorkerPools.ThreadedWorkerPool`1">
             <summary>
             Worker pool that delegates work to happen on a set number of worker threads.
-            Does not consume any more items than there are free workers.
-            Strictly obeys inflight limit from dispatcher.
-            Once a worker starts an item it will try to finish it even if the dispatcher is
-            shut down. Threads will be left to die after one minute.
+            <p>This will use 'work parallel' mode, where consumers are run in sequence
+            and work items are handled in parallel</p>
+            <ul>
+            <li>Does not consume any more items than there are free workers.</li>
+            <li>Strictly obeys inflight limit from dispatcher.</li>
+            <li>Once a worker starts an item it will try to finish it even if the dispatcher is
+            shut down. Threads will be left to die after one minute.</li>
+            </ul>
             </summary>
             <typeparam name="T">Type of item on the work queue</typeparam>
         </member>

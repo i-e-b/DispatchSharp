@@ -12,23 +12,27 @@ namespace DispatchSharp.WorkerPools;
 
 /// <summary>
 /// Worker pool that delegates work to happen on a set number of worker threads.
-/// Does not consume any more items than there are free workers.
-/// Strictly obeys inflight limit from dispatcher.
-/// Once a worker starts an item it will try to finish it even if the dispatcher is
-/// shut down. Threads will be left to die after one minute.
+/// <p>This will use 'work parallel' mode, where consumers are run in sequence
+/// and work items are handled in parallel</p>
+/// <ul>
+/// <li>Does not consume any more items than there are free workers.</li>
+/// <li>Strictly obeys inflight limit from dispatcher.</li>
+/// <li>Once a worker starts an item it will try to finish it even if the dispatcher is
+/// shut down. Threads will be left to die after one minute.</li>
+/// </ul>
 /// </summary>
 /// <typeparam name="T">Type of item on the work queue</typeparam>
 public class ThreadedWorkerPool<T> : IWorkerPool<T>
 {
-	readonly object _incrementLock = new object();
-	readonly object _threadPoolLock = new object();
+	private readonly object _incrementLock = new();
+	private readonly object _threadPoolLock = new();
 
-	readonly string _name;
-	readonly List<Thread> _pool;
-	IDispatch<T> _dispatch;
-	IWorkQueue<T> _queue;
-	volatile object? _started;
-	volatile int _inflight;
+	private readonly string _name;
+	private readonly List<Thread> _pool;
+	private IDispatch<T> _dispatch;
+	private IWorkQueue<T> _queue;
+	private volatile object? _started;
+	private volatile int _inflight;
 
 	/// <summary>
 	/// Create a worker with a self-balancing pool of threads.
@@ -95,7 +99,7 @@ public class ThreadedWorkerPool<T> : IWorkerPool<T>
 	/// 
 	/// Waiting threads are marked by a non-normal thread priority
 	/// </summary>
-	static void TryJoinThread(Thread? thread, Action<Thread>? cantStopWarning)
+	private static void TryJoinThread(Thread? thread, Action<Thread>? cantStopWarning)
 	{
 		if (thread == null) return;
 		if (!thread.IsAlive) return;
@@ -152,7 +156,7 @@ public class ThreadedWorkerPool<T> : IWorkerPool<T>
 	/// <summary>
 	/// Mark the thread as low priority while it is waiting for queue work.
 	/// </summary>
-	void WaitForQueueIfStillActive()
+	private void WaitForQueueIfStillActive()
 	{
 		try
 		{
@@ -170,14 +174,14 @@ public class ThreadedWorkerPool<T> : IWorkerPool<T>
 	/// <summary>
 	/// This is the core loop that all worker threads run.
 	/// </summary>
-	void WorkLoop(int index, object? reference)
+	private void WorkLoop(int index, object? reference)
 	{
 		bool Running() => reference != null && _started == reference;
 			
 		while (Running())
 		{
 			if (ThreadIsNoLongerNeeded(index)) return;
-			if (index == 0) MaintainThreadPool();
+			if (ThisIsControllerThread()) MaintainThreadPool();
 			WaitForQueueIfStillActive();
 			if (!Running()) return;
 
@@ -210,13 +214,22 @@ public class ThreadedWorkerPool<T> : IWorkerPool<T>
 		}
 	}
 
-	bool ThreadIsNoLongerNeeded(int index)
+	private bool ThisIsControllerThread()
+	{
+		lock (_threadPoolLock)
+		{
+			if (_pool.Count < 1) return true;
+			return Thread.CurrentThread.ManagedThreadId == _pool[0]?.ManagedThreadId;
+		}
+	}
+
+	private bool ThreadIsNoLongerNeeded(int index)
 	{
 		if (index < 1) return false; // always keep one thread open
 		return index > _dispatch.MaximumInflight();
 	}
 
-	void TryFireExceptions(Exception exception, IWorkQueueItem<T> work)
+	private void TryFireExceptions(Exception exception, IWorkQueueItem<T> work)
 	{
 		var dint = _dispatch as IDispatchInternal<T>;
 		if (dint == null) return;
@@ -228,7 +241,7 @@ public class ThreadedWorkerPool<T> : IWorkerPool<T>
 	/// Create a new worker thread and add it to the pool.
 	/// The thread is returned not started -- you must call `Start()` yourself.
 	/// </summary>
-	Thread? NewWorkerThread()
+	private Thread? NewWorkerThread()
 	{
 		lock (_threadPoolLock)
 		{
@@ -245,20 +258,20 @@ public class ThreadedWorkerPool<T> : IWorkerPool<T>
 		}
 	}
 
-	void SetStartedFlag()
+	private void SetStartedFlag()
 	{
 		var closedObject = new object();
 		Interlocked.CompareExchange<object?>(ref _started, closedObject, null);
 	}
 
-	void MaintainThreadPool()
+	private void MaintainThreadPool()
 	{
 		if (_started == null) return;
 		RemoveStoppedThreads();
 		AddNewThreadsUntilConcurrencyLimit();
 	}
 
-	void AddNewThreadsUntilConcurrencyLimit()
+	private void AddNewThreadsUntilConcurrencyLimit()
 	{
 		lock (_threadPoolLock)
 		{
@@ -274,7 +287,7 @@ public class ThreadedWorkerPool<T> : IWorkerPool<T>
 		}
 	}
 
-	void RemoveStoppedThreads()
+	private void RemoveStoppedThreads()
 	{
 		lock (_threadPoolLock)
 		{

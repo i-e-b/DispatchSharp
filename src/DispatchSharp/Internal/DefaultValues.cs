@@ -42,7 +42,8 @@ internal class InvalidDispatch<T>:IDispatch<T>
     public void SetMaximumInflight(int max) => throw new Exception(InvalidDispatchMessage);
     public int CurrentInflight() => throw new Exception(InvalidDispatchMessage);
     public int CurrentQueued() => throw new Exception(InvalidDispatchMessage);
-    public void AddConsumer(Action<T> action) => throw new Exception(InvalidDispatchMessage);
+    public Guid AddConsumer(Action<T> action) => throw new Exception(InvalidDispatchMessage);
+    public void RemoveConsumer(Guid consumerId) => throw new Exception(InvalidDispatchMessage);
     public void AddWork(T work) => throw new Exception(InvalidDispatchMessage);
     public void AddWork(IEnumerable<T> workList) => throw new Exception(InvalidDispatchMessage);
     public void AddWork(T work, string? name) => throw new Exception(InvalidDispatchMessage);

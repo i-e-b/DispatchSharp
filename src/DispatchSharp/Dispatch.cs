@@ -15,7 +15,7 @@ public partial class Dispatch<T> : IDispatch<T>, IDispatchInternal<T>
 {
 	readonly IWorkQueue<T> _queue;
 	readonly IWorkerPool<T> _pool;
-	readonly IList<Action<T>> _workActions;
+	readonly Dictionary<Guid, Action<T>> _workActions;
 	readonly object _lockObject;
 		
 	/// <summary>
@@ -35,7 +35,7 @@ public partial class Dispatch<T> : IDispatch<T>, IDispatchInternal<T>
 		_pool = workerPool;
 
 		_lockObject = new object();
-		_workActions = new List<Action<T>>();
+		_workActions = new Dictionary<Guid, Action<T>>();
 
 		_pool.SetSource(this, _queue);
 	}
@@ -66,11 +66,22 @@ public partial class Dispatch<T> : IDispatch<T>, IDispatchInternal<T>
 	}
 
 	/// <summary> Add an action to take when work is processed </summary>
-	public void AddConsumer(Action<T> action)
+	public Guid AddConsumer(Action<T> action)
 	{
 		lock (_lockObject)
 		{
-			_workActions.Add(action);
+			var id = Guid.NewGuid();
+			_workActions.Add(id, action);
+			return id;
+		}
+	}
+
+	/// <summary> Remove a previously added consumer </summary>
+	public void RemoveConsumer(Guid consumerId)
+	{
+		lock (_lockObject)
+		{
+			_workActions.Remove(consumerId);
 		}
 	}
 
@@ -104,13 +115,11 @@ public partial class Dispatch<T> : IDispatch<T>, IDispatchInternal<T>
 		}
 	}
 
-	/// <summary> All consumers added to this dispatcher </summary>
+	/// <summary> A snapshot of all consumers bound to this dispatcher at time of calling </summary>
 	public IEnumerable<Action<T>> AllConsumers()
 	{
-		foreach (var workAction in _workActions)
-		{
-			yield return workAction;
-		}
+		var snapshot = _workActions.Values.ToArray();
+		return snapshot;
 	}
 
 	/// <summary> Event triggered when a consumer throws an exception </summary>
@@ -162,8 +171,11 @@ public partial class Dispatch<T> : IDispatch<T>, IDispatchInternal<T>
 		var sw = new Stopwatch();
 
 		sw.Start();
-		while(
-			(_queue.BlockUntilReady() == QueueState.HasItems || _queue.Length() > 0)
+		while( (
+			       _queue.BlockUntilReady() == QueueState.HasItems ||  // queue can read more items (including polling)
+			       _queue.Length() > 0 ||                              // queue has items waiting locally
+			       _pool.WorkersInflight() > 0                         // work is still on-going
+		       )
 			&& sw.Elapsed <= maxWait
 		) { Thread.Sleep(100); }
 		sw.Stop();

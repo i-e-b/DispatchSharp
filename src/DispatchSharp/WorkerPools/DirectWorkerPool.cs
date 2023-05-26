@@ -78,7 +78,7 @@ public class DirectWorkerPool<T> : IWorkerPool<T>
 
 		while (_running) {
 			IWorkQueueItem<T> work;
-			while ((work = _queue.TryDequeue()).HasItem || Started())
+			while ((work = _queue.TryDequeue()).HasItem || Started()) // synchronous batch work first, then background work
 			{
 				foreach (var action in _dispatch.AllConsumers().ToArray())
 				{

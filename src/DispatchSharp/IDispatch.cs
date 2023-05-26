@@ -51,7 +51,16 @@ public interface IDispatch<T>
 	/// after completion or failure. If you wish to cancel a failed work item,
 	/// use the Exceptions event
 	/// </summary>
-	void AddConsumer(Action<T> action);
+	/// <returns>A consumer Id that can be used with <see cref="RemoveConsumer"/></returns>
+	Guid AddConsumer(Action<T> action);
+	
+	/// <summary>
+	/// Remove a previously added consumer.
+	/// If work is ongoing, it will be finished.
+	/// If a message loop has been started, the consumer may get another message
+	/// </summary>
+	/// <param name="consumerId">A consumer Id returned by <see cref="AddConsumer"/></param>
+	void RemoveConsumer(Guid consumerId);
 
 	/// <summary> Add a work item to process </summary>
 	void AddWork(T work);
