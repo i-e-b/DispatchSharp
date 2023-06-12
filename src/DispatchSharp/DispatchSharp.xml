@@ -475,6 +475,16 @@
             Queue has no items waiting to be processed
             </summary>
         </member>
+        <member name="T:DispatchSharp.ICanStop">
+            <summary>
+            Optional function for work queues, allowing them to stop accepting new work
+            </summary>
+        </member>
+        <member name="M:DispatchSharp.ICanStop.StopAcceptingWork">
+            <summary>
+            The queue should stop accepting new work, including polling
+            </summary>
+        </member>
         <member name="T:DispatchSharp.IWorkQueueItem`1">
             <summary>
             Contract for a work queue item that has been dequeued
@@ -669,7 +679,12 @@
         </member>
         <member name="M:DispatchSharp.QueueTypes.PollingWorkQueue`1.BlockUntilReady">
             <summary>
-            Immediately returns true
+            Immediately returns Unknown
+            </summary>
+        </member>
+        <member name="M:DispatchSharp.QueueTypes.PollingWorkQueue`1.StopAcceptingWork">
+            <summary>
+            The queue should stop accepting new work, including polling
             </summary>
         </member>
         <member name="T:DispatchSharp.QueueTypes.ISleeper">

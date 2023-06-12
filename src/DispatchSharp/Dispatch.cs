@@ -171,6 +171,8 @@ public partial class Dispatch<T> : IDispatch<T>, IDispatchInternal<T>
 		var sw = new Stopwatch();
 
 		sw.Start();
+		if (_queue is ICanStop stopper) stopper.StopAcceptingWork();
+		
 		while( (
 			       _queue.BlockUntilReady() == QueueState.HasItems ||  // queue can read more items (including polling)
 			       _queue.Length() > 0 ||                              // queue has items waiting locally

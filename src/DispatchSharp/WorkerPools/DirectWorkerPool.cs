@@ -11,11 +11,11 @@ namespace DispatchSharp.WorkerPools;
 /// </summary>
 public class DirectWorkerPool<T> : IWorkerPool<T>
 {
-	IDispatch<T> _dispatch;
-	IWorkQueue<T> _queue;
-	Thread? _worker;
-	volatile bool _running = true;
-	readonly IWaitHandle _started;
+	private IDispatch<T> _dispatch;
+	private IWorkQueue<T> _queue;
+	private Thread? _worker;
+	private volatile bool _running = true;
+	private readonly IWaitHandle _started;
 
 	/// <summary>
 	/// Create a new direct worker pool
@@ -68,7 +68,7 @@ public class DirectWorkerPool<T> : IWorkerPool<T>
 		}
 	}
 
-	void DoWork()
+	private void DoWork()
 	{
 		bool Started()
 		{
@@ -99,7 +99,7 @@ public class DirectWorkerPool<T> : IWorkerPool<T>
 		}
 	}
 
-	void TryFireExceptions(Exception exception, IWorkQueueItem<T> work)
+	private void TryFireExceptions(Exception exception, IWorkQueueItem<T> work)
 	{
 		var dint = _dispatch as IDispatchInternal<T>;
 		if (dint == null) return;

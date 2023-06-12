@@ -65,3 +65,14 @@ public enum QueueState
 	/// </summary>
 	Empty = 2
 }
+
+/// <summary>
+/// Optional function for work queues, allowing them to stop accepting new work
+/// </summary>
+public interface ICanStop
+{
+	/// <summary>
+	/// The queue should stop accepting new work, including polling
+	/// </summary>
+	public void StopAcceptingWork();
+}

@@ -14,19 +14,21 @@ namespace DispatchSharp.QueueTypes;
 /// This queue will only sleep if the polling source is empty (returns no object).
 /// Sleep duration is reset whenever an item is available.
 /// </summary>
-public class PollingWorkQueue<T>: ISleeper, IWorkQueue<T>
+public class PollingWorkQueue<T>: ISleeper, ICanStop, IWorkQueue<T>
 {
 	private IBackOffWaiter _sleeper;
-	readonly IPollSource<T> _pollingSource;
-	readonly object _lockObject;
-	readonly Queue<Named<T>> _queue;
-	int _sleep;
+	private readonly IPollSource<T> _pollingSource;
+	private readonly object _lockObject;
+	private readonly Queue<Named<T>> _queue;
+	private int _sleep;
+	private volatile bool _shouldStop;
 
 	/// <summary>
 	/// Create a new polling work queue with a given item source
 	/// </summary>
 	public PollingWorkQueue(IPollSource<T> pollingSource)
 	{
+		_shouldStop = false;
 		_pollingSource = pollingSource;
 		_lockObject = new object();
 		_queue = new Queue<Named<T>>();
@@ -58,6 +60,7 @@ public class PollingWorkQueue<T>: ISleeper, IWorkQueue<T>
 			}
 		}
 
+		if (_shouldStop) return new WorkQueueItem<T>(); // don't poll if we're trying to shut-down
 
 		if (!_pollingSource.TryGet(out var item))
 		{
@@ -69,12 +72,12 @@ public class PollingWorkQueue<T>: ISleeper, IWorkQueue<T>
 		return new WorkQueueItem<T>(item!, finish: _ => { }, cancel: i => Enqueue(i), null);
 	}
 
-	void ResetSleep()
+	private void ResetSleep()
 	{
 		_sleep = 0;
 	}
 
-	void SleepMore()
+	private void SleepMore()
 	{
 		Interlocked.Increment(ref _sleep);
 		_sleeper.Wait(_sleep);
@@ -113,11 +116,19 @@ public class PollingWorkQueue<T>: ISleeper, IWorkQueue<T>
 	}
 
 	/// <summary>
-	/// Immediately returns true
+	/// Immediately returns Unknown
 	/// </summary>
 	public QueueState BlockUntilReady()
 	{
 		return QueueState.Unknown;
+	}
+
+	/// <summary>
+	/// The queue should stop accepting new work, including polling
+	/// </summary>
+	public void StopAcceptingWork()
+	{
+		_shouldStop = true;
 	}
 }
 
